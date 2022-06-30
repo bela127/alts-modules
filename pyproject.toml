@@ -10,10 +10,8 @@ packages = [
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.10"
-alts-core = { path = "/home/bela/Cloud/code/Git/alts-core", develop = true }
-#distribution-data-generation = {git = "https://github.com/bela127/distribution_data_generation.git"}
-#active-learning-ts = { path = "/home/bela/Cloud/code/Git/active_learning_ts", develop = true }
-#active-learning-ts = {git = "https://github.com/bela127/active_learning_ts.git"}
+#alts-core = { path = "/home/bela/Cloud/code/Git/alts-core", develop = true }
+alts-core = {git = "https://github.com/bela127/alts-core.git"}
 libclang = "<12.0"
 coloredlogs = "^15.0.1"
 ipython = "^8.0.1"
