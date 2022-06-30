@@ -1,25 +1,30 @@
 import numpy as np
 
-from ide.modules.queried_data_pool import FlatQueriedDataPool
-from ide.core.data_subscriber import DataSubscriber
+from alts.modules.queried_data_pool import FlatQueriedDataPool
+from alts.core.data_subscriber import DataSubscriber
 
+from alts.core.data.data_pool import DataPool
+from alts.core.query.query_pool import QueryPool
+
+qp = QueryPool(None, query_shape=(1,), query_ranges=np.asarray([[0,1]]))
+dp = DataPool(qp, result_shape=(2,))
 
 def test_data_pool_add():
-    dp = FlatQueriedDataPool((1,),(2,))
-    dp = dp()
-    assert dp.result_shape == (2,)
+    qdp = FlatQueriedDataPool()
+    qdp = qdp(qp, dp)
+    assert qdp.data_pool.result_shape == (2,)
 
-    query = np.asarray((1,))
-    result = np.asarray((2,2))
+    queries = np.asarray(((1,),))
+    results = np.asarray(((2,2),))
 
-    dp.add((query,result))
-    assert np.all(dp.queries[0] == query)
-    assert np.all(dp.results[0] == result)
+    qdp.add((queries, results))
+    assert np.all(qdp.queries[0] == queries[0])
+    assert np.all(qdp.results[0] == results[0])
 
 
 def test_data_pool_subscribe():
-    dp = FlatQueriedDataPool((1,),(2,))
-    dp = dp()
+    qdp = FlatQueriedDataPool()
+    qdp = qdp(qp, dp)
 
     queries = np.asarray(((1,),))
     results = np.asarray(((2,2),))
@@ -32,8 +37,8 @@ def test_data_pool_subscribe():
             
     sub = Test_Subscriber()
     sub = sub()
-    dp.subscrib(sub)
+    qdp.subscribe(sub)
 
-    assert dp._subscriber[0] == sub
+    assert qdp._subscriber[0] == sub
 
-    dp.add((queries,results))
+    qdp.add((queries,results))
