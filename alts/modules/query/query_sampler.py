@@ -11,7 +11,7 @@ from scipy.stats import qmc # type: ignore
 from alts.core.query.query_sampler import QuerySampler
 
 if TYPE_CHECKING:
-    from typing import Tuple, List, Union
+    from typing import Tuple, List, Union, Literal
     from nptyping import NDArray, Number, Shape
 
 @dataclass
@@ -21,14 +21,21 @@ class OptimalQuerySampler(QuerySampler):
     def sample(self, num_queries = None):
         if num_queries is None: num_queries = self.num_queries
         
-        if self.query_pool.query_ranges is None:
-            raise ValueError("Not for discrete Pools")
-        else:
-            query_nr = self.optimal_queries[0].shape[0]
-            k = ceil(num_queries / query_nr) 
-            queries = random.choices(self.optimal_queries, k=k)
-            queries = np.concatenate(queries)
-            return queries[:num_queries]
+        query_nr = self.optimal_queries[0].shape[0]
+        k = ceil(num_queries / query_nr) 
+        queries = random.choices(self.optimal_queries, k=k)
+        queries = np.concatenate(queries)
+        return queries[:num_queries]
+
+@dataclass
+class FixedQuerySampler(QuerySampler):
+    fixed_query: NDArray[Number, Shape["... query_dims"]] = None
+
+    def sample(self, num_queries = None):
+        if num_queries is None: num_queries = self.num_queries
+        
+        queries = np.repeat(self.fixed_query[None, ...], num_queries, axis=0)
+        return queries
 
 @dataclass
 class UniformQuerySampler(QuerySampler):
