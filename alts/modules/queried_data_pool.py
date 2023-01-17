@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from random import choice
 
 import numpy as np
-from alts.core.data.data_pool import DataPool
+from alts.core.data.constrains import QueryConstrain, ResultConstrain
 
 from alts.core.data.queried_data_pool import QueriedDataPool
 from alts.core.query.query_pool import QueryPool
@@ -46,12 +46,10 @@ class FlatQueriedDataPool(QueriedDataPool):
             self.query_index[tuple(query)] = results + [result]
 
     @property
-    def query_pool(self):
-        query_pool = QueryPool(query_count = self.queries.shape[0], query_shape = self._oracle_query_pool.query_shape, query_ranges= None)
-        query_pool._queries = self.queries
-        query_pool._last_queries = self.last_queries
-        return query_pool
+    def query_constrain(self) -> QueryConstrain:
+        return QueryConstrain(count = self.queries.shape[0], query_shape = self._query_constrain.shape, query_ranges = self.queries)
+
 
     @property
-    def data_pool(self):
-        return DataPool(self.query_pool, self._oracle_data_pool.result_shape)
+    def result_constrain(self) -> ResultConstrain:
+        return ResultConstrain(shape=self._result_constrain.shape)

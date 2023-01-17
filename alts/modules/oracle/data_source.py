@@ -1,18 +1,18 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, InitVar
 
 import numpy as np
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RationalQuadratic
+import GPy
 
-from alts.core.data.data_pool import DataPool
 from alts.core.oracle.data_source import DataSource
-from alts.core.query.query_pool import QueryPool
+from alts.core.data.constrains import QueryConstrain
 
 if TYPE_CHECKING:
-    from typing import Tuple, List, Any
+    from typing import Tuple, List, Any, Type
     from alts.core.oracle.interpolation_strategy import InterpolationStrategy
     from alts.core.data_sampler import DataSampler
 
@@ -21,6 +21,26 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
 
+
+@dataclass
+class RandomUniformDataSource(DataSource):
+
+    query_shape: Tuple[int,...] = (1,)
+    result_shape: Tuple[int,...] = (1,)
+    u: float = 1
+    l: float = 0
+
+
+    def query(self, queries):
+        results = np.random.uniform(low=self.l, high=self.u, size=(queries.shape[0], * self.result_shape))
+        return queries, results
+
+    @property
+    def query_constrain(self) -> QueryConstrain:
+        x_min = 0
+        x_max = 1
+        query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
 
 @dataclass
@@ -37,15 +57,12 @@ class LineDataSource(DataSource):
         return queries, results
 
     @property
-    def query_pool(self) -> QueryPool:
+    def query_constrain(self) -> QueryConstrain:
         x_min = 0
         x_max = 1
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
-        return QueryPool(query_count=None, query_shape=self.query_shape, query_ranges=query_ranges)
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
-    @property
-    def data_pool(self) -> DataPool:
-        return DataPool(self.query_pool, self.result_shape)
 
 
 @dataclass
@@ -62,15 +79,11 @@ class SquareDataSource(DataSource):
         return queries, results
 
     @property
-    def query_pool(self) -> QueryPool:
+    def query_constrain(self) -> QueryConstrain:
         x_min = 0
         x_max = 1
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
-        return QueryPool(query_count=None, query_shape=self.query_shape, query_ranges=query_ranges)
-    
-    @property
-    def data_pool(self) -> DataPool:
-        return DataPool(self.query_pool, self.result_shape)
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
     
 @dataclass
@@ -82,14 +95,11 @@ class InterpolatingDataSource(DataSource):
         data_points = self.data_sampler.sample(queries)
         data_points = self.interpolation_strategy.interpolate(data_points)
         return data_points
-
+    
     @property
-    def query_pool(self) -> QueryPool:
-        return self.interpolation_strategy.query_pool
+    def query_constrain(self) -> QueryConstrain:
+        return self.interpolation_strategy.query_constrain
 
-    @property
-    def data_pool(self) -> DataPool:
-        return DataPool(self.query_pool, self.result_shape)
 
 
 @dataclass
@@ -111,15 +121,11 @@ class CrossDataSource(DataSource):
         return queries, results
 
     @property
-    def query_pool(self) -> QueryPool:
+    def query_constrain(self) -> QueryConstrain:
         x_min = -0.5
         x_max = 0.5
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
-        return QueryPool(query_count=None, query_shape=self.query_shape, query_ranges=query_ranges)
-    
-    @property
-    def data_pool(self) -> DataPool:
-        return DataPool(self.query_pool, self.result_shape)
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
 @dataclass
 class DoubleLinearDataSource(DataSource):
@@ -141,15 +147,11 @@ class DoubleLinearDataSource(DataSource):
         return queries, results
 
     @property
-    def query_pool(self) -> QueryPool:
+    def query_constrain(self) -> QueryConstrain:
         x_min = -0.5
         x_max = 0.5
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
-        return QueryPool(query_count=None, query_shape=self.query_shape, query_ranges=query_ranges)
-    
-    @property
-    def data_pool(self) -> DataPool:
-        return DataPool(self.query_pool, self.result_shape)
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
         
 @dataclass
@@ -176,15 +178,11 @@ class HourglassDataSource(DataSource):
         return queries, results
 
     @property
-    def query_pool(self) -> QueryPool:
+    def query_constrain(self) -> QueryConstrain:
         x_min = -0.5
         x_max = 0.5
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
-        return QueryPool(query_count=None, query_shape=self.query_shape, query_ranges=query_ranges)
-    
-    @property
-    def data_pool(self) -> DataPool:
-        return DataPool(self.query_pool, self.result_shape)
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
 @dataclass
 class ZDataSource(DataSource):
@@ -208,15 +206,11 @@ class ZDataSource(DataSource):
         return queries, results
 
     @property
-    def query_pool(self) -> QueryPool:
+    def query_constrain(self) -> QueryConstrain:
         x_min = -0.5
         x_max = 0.5
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
-        return QueryPool(query_count=None, query_shape=self.query_shape, query_ranges=query_ranges)
-    
-    @property
-    def data_pool(self) -> DataPool:
-        return DataPool(self.query_pool, self.result_shape)
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
 @dataclass
 class ZInvDataSource(DataSource):
@@ -239,15 +233,11 @@ class ZInvDataSource(DataSource):
         return queries, results
 
     @property
-    def query_pool(self) -> QueryPool:
+    def query_constrain(self) -> QueryConstrain:
         x_min = -0.5
         x_max = 0.5
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
-        return QueryPool(query_count=None, query_shape=self.query_shape, query_ranges=query_ranges)
-    
-    @property
-    def data_pool(self) -> DataPool:
-        return DataPool(self.query_pool, self.result_shape)
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
 @dataclass
 class LinearPeriodicDataSource(DataSource):
@@ -263,15 +253,11 @@ class LinearPeriodicDataSource(DataSource):
         return queries, results
 
     @property
-    def query_pool(self) -> QueryPool:
+    def query_constrain(self) -> QueryConstrain:
         x_min = 0
         x_max = 1
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
-        return QueryPool(query_count=None, query_shape=self.query_shape, query_ranges=query_ranges)
-
-    @property
-    def data_pool(self) -> DataPool:
-        return DataPool(self.query_pool, self.result_shape)
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
 @dataclass
 class SineDataSource(DataSource):
@@ -289,15 +275,11 @@ class SineDataSource(DataSource):
         return queries, results
 
     @property
-    def query_pool(self) -> QueryPool:
+    def query_constrain(self) -> QueryConstrain:
         x_min = 0
         x_max = 1
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
-        return QueryPool(query_count=None, query_shape=self.query_shape, query_ranges=query_ranges)
-
-    @property
-    def data_pool(self) -> DataPool:
-        return DataPool(self.query_pool, self.result_shape)
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
 
 @dataclass
@@ -323,15 +305,11 @@ class HypercubeDataSource(DataSource):
 
 
     @property
-    def query_pool(self) -> QueryPool:
+    def query_constrain(self) -> QueryConstrain:
         x_min = -0.5
         x_max = 0.5
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
-        return QueryPool(query_count=None, query_shape=self.query_shape, query_ranges=query_ranges)
-    
-    @property
-    def data_pool(self) -> DataPool:
-        return DataPool(self.query_pool, self.result_shape)
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
 @dataclass
 class StarDataSource(DataSource):
@@ -362,20 +340,15 @@ class StarDataSource(DataSource):
         return queries, results
 
     @property
-    def query_pool(self) -> QueryPool:
+    def query_constrain(self) -> QueryConstrain:
         x_min = -0.5
         x_max = 0.5
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
-        return QueryPool(query_count=None, query_shape=self.query_shape, query_ranges=query_ranges)
-    
-    @property
-    def data_pool(self) -> DataPool:
-        return DataPool(self.query_pool, self.result_shape)
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
 
-from threading import Lock
 @dataclass
-class GausianProcessDataSource(DataSource):
+class OldGausianProcessDataSource(DataSource):
 
     query_shape: Tuple[int,...] = (1,)
     result_shape: Tuple[int,...] = (1,)
@@ -396,15 +369,12 @@ class GausianProcessDataSource(DataSource):
         return queries, results
 
     @property
-    def query_pool(self) -> QueryPool:
+    def query_constrain(self) -> QueryConstrain:
         x_min = 0
         x_max = 1
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
-        return QueryPool(query_count=None, query_shape=self.query_shape, query_ranges=query_ranges)
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
-    @property
-    def data_pool(self) -> DataPool:
-        return DataPool(self.query_pool, self.result_shape)
 
     def __call__(self, **kwargs) -> Self:
         obj = super().__call__( **kwargs)
@@ -415,4 +385,125 @@ class GausianProcessDataSource(DataSource):
             obj.singleton = obj
             self.singleton = obj
         return self.singleton
+
+@dataclass
+class GaussianProcessDataSource(DataSource):
+
+    reinit: bool = False
+    query_shape: Tuple[int,...] = (1,)
+    result_shape: Tuple[int,...] = (1,)
+    kern: GPy.kern.Kern = None
+    support_points : int= 1000
+    min_support = (-1,)
+    max_support = (1,)
     
+    singleton: GaussianProcessDataSource = field(default=None, init=False, repr=False)
+    regression: GPy.models.GPRegression = field(default=None, init=False, repr=False)
+
+    def __new__(cls: Type[Self], *args, **kwargs) -> Self:
+        obj: Self = super().__new__(cls, *args, **kwargs)
+        obj.kern = kwargs['kern']
+        return obj
+
+    def __getstate__(self):
+
+        # this method is called when you are
+        # going to pickle the class, to know what to pickle
+        dict = self.__dict__.copy()
+        # don't pickle the parameter fun. otherwise will raise 
+        # AttributeError: Can't pickle local object 'Process.__init__.<locals>.<lambda>'
+        del dict['singleton']
+        del dict['regression']
+
+        state = dict
+
+        return state
+    
+    # def __setstate__(self, state):
+    #     dict = state
+    #     self.__dict__.update(dict)
+
+
+    def __getnewargs_ex__(self):
+        return (self._Configurable__args, self._Configurable__kwargs)
+
+
+    # def __reduce__(self):
+    #     return ( self.__new__, self.__getnewargs_ex__(),self.__getstate__())
+
+
+    def __post_init__(self):
+        if self.kern is None:
+            self.kern = GPy.kern.RBF(input_dim=np.prod(self.query_shape), lengthscale=0.1)
+
+        if self.singleton is None or self.reinit == True:
+            self.init_singleton()
+        else:
+            self.regression = self.singleton.regression
+    
+    def init_singleton(self):
+
+        rng = np.random.RandomState(None)
+        support = rng.uniform(self.min_support, self.max_support, (self.support_points, *self.query_shape))
+
+        flat_support = support.reshape((support.shape[0], -1))
+
+        results = np.random.normal(0, 1, (1, *self.result_shape))
+
+        flat_results = results.reshape((1, -1))
+
+        m = GPy.models.GPRegression(flat_support[:1], flat_results, self.kern, noise_var=0.0)
+
+        flat_results = m.posterior_samples_f(flat_support,size=1)[:,:,0]
+
+        m = GPy.models.GPRegression(flat_support, flat_results, self.kern, noise_var=0.0)
+
+        self.regression = m
+        self.singleton = self
+
+    def query(self, queries):
+
+        flat_queries = queries.reshape((queries.shape[0], -1))
+        
+        flat_results, pred_cov = self.regression.predict_noiseless(flat_queries)
+        results = flat_results.reshape((queries.shape[0], *self.result_shape))
+
+        return queries, results
+
+    @property
+    def query_constrain(self) -> QueryConstrain:
+        x_min_max = zip(self.min_support, self.max_support)
+        query_ranges = np.asarray(tuple((x_min, x_max) for x_min, x_max in x_min_max))
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
+
+
+    def __call__(self, **kwargs) -> Self:
+        if self.singleton is None:
+            obj = super().__call__( **kwargs)
+            self.singleton = obj
+        return self.singleton
+    
+
+@dataclass
+class BrownianProcessDataSource(GaussianProcessDataSource):
+    query_shape: Tuple[int,...] = (1,)
+    result_shape: Tuple[int,...] = (1,)
+    min_support = (0,)
+    max_support = (100,)
+
+    def __post_init__(self):
+        self.kern = GPy.kern.Brownian()
+        super().__post_init__()
+    
+@dataclass
+class BrownianDriftDataSource(GaussianProcessDataSource):
+    query_shape: Tuple[int,...] = (2,)
+    result_shape: Tuple[int,...] = (1,)
+    brown_var: float = 0.005
+    rbf_var: float = 0.25
+    min_support = (0,-1)
+    max_support = (900,1)
+
+    def __post_init__(self):
+        self.kern = GPy.kern.Brownian(active_dims=[0],variance=self.brown_var)*GPy.kern.RBF(input_dim=1, lengthscale=0.1, variance=self.rbf_var, active_dims=[1])+GPy.kern.RBF(input_dim=1, lengthscale=0.1, variance=self.rbf_var, active_dims=[1])
+        super().__post_init__()

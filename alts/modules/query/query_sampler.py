@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 @dataclass
 class OptimalQuerySampler(QuerySampler):
-    optimal_queries: Tuple[NDArray[Number, Shape["query_nr, ... query_dims"]], ...] = None
+    optimal_queries: Tuple[NDArray[Shape["query_nr, ... query_dims"], Number], ...] = None
 
     def sample(self, num_queries = None):
         if num_queries is None: num_queries = self.num_queries
@@ -29,45 +29,48 @@ class OptimalQuerySampler(QuerySampler):
 
 @dataclass
 class FixedQuerySampler(QuerySampler):
-    fixed_query: NDArray[Number, Shape["... query_dims"]] = None
+    fixed_query: NDArray[Shape["... query_dims"], Number] = None
 
     def sample(self, num_queries = None):
         if num_queries is None: num_queries = self.num_queries
         
         queries = np.repeat(self.fixed_query[None, ...], num_queries, axis=0)
         return queries
-
 @dataclass
 class UniformQuerySampler(QuerySampler):
 
     def sample(self, num_queries = None):
         if num_queries is None: num_queries = self.num_queries
         
-        if self.query_pool.query_ranges is None:
+        if self.query_constrain.ranges is None:
             raise ValueError("Not for discrete Pools")
         else:
-            a = self.query_pool.queries_from_norm_pos(np.random.uniform(size=(num_queries, *self.query_pool.query_shape)))
+            a = self.query_constrain.queries_from_norm_pos(np.random.uniform(size=(num_queries, *self.query_constrain.shape)))
             return a
 
+@dataclass
 class LatinHypercubeQuerySampler(QuerySampler):
+
+    def __post_init__(self):
+        super().__post_init__()
+        dim = 1
+        for size in self.query_constrain.shape:
+            dim *= size
+
+        self.sampler = qmc.LatinHypercube(d=dim)
+
 
     def sample(self, num_queries = None):
         if num_queries is None: num_queries = self.num_queries
 
-        dim = 1
-        for size in self.query_pool.query_shape:
-            dim *= size
-
-        sampler = qmc.LatinHypercube(d=dim)
-        
-        if self.query_pool.query_ranges is None:
+        if self.query_constrain.ranges is None:
             raise ValueError("Not for discrete Pools")
         else:
-            sample = sampler.random(n=num_queries)
+            sample = self.sampler.random(n=num_queries)
             
-            sample = np.reshape(sample, (num_queries, *self.query_pool.query_shape))
+            sample = np.reshape(sample, (num_queries, *self.query_constrain.shape))
 
-            a = self.query_pool.queries_from_norm_pos(sample)
+            a = self.query_constrain.queries_from_norm_pos(sample)
             return a
 
 class RandomChoiceQuerySampler(QuerySampler):
@@ -75,13 +78,13 @@ class RandomChoiceQuerySampler(QuerySampler):
     def sample(self, num_queries = None):
         if num_queries is None: num_queries = self.num_queries
         
-        if self.query_pool.query_count is None:
+        if self.query_constrain.count is None:
             raise ValueError("Not for continues pools")
         else:
-            count = self.query_pool.query_count
+            count = self.query_constrain.count
             if count == 0:
                 return np.asarray([], dtype=np.int32)
-            return self.query_pool.queries_from_index(np.random.randint(low = 0, high = count, size=(num_queries,)))
+            return self.query_constrain.queries_from_index(np.random.randint(low = 0, high = count, size=(num_queries,)))
 @dataclass
 class LastQuerySampler(QuerySampler):
     num_queries: int = None
@@ -89,7 +92,19 @@ class LastQuerySampler(QuerySampler):
     def sample(self, num_queries = None):
         if num_queries is None: num_queries = self.num_queries
         
-        if self.query_pool.query_count is None:
+        if self.query_constrain.count is None:
             raise ValueError("Not for continues pools")
         else:
-            return self.query_pool.last_queries()
+            return self.query_constrain.last_queries()
+
+@dataclass
+class AllQuerySampler(QuerySampler):
+    num_queries: int = None
+
+    def sample(self, num_queries = None):
+        if num_queries is None: num_queries = self.num_queries
+        
+        if self.query_constrain.count is None:
+            raise ValueError("Not for continues pools")
+        else:
+            return self.query_constrain.all_queries()

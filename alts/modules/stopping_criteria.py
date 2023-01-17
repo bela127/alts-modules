@@ -4,13 +4,22 @@ from typing import TYPE_CHECKING
 from dataclasses import dataclass
 
 from alts.core.stopping_criteria import StoppingCriteria
+from alts.core.configuration import init
 
 if TYPE_CHECKING:
     from typing import Tuple, List
 
 @dataclass
-class LearningStepStoppingCriteria(StoppingCriteria):
-    learning_steps: int
+class TimeStoppingCriteria(StoppingCriteria):
+    stop_time: float = init()
 
-    def next(self, iteration):
-        return iteration <= self.learning_steps
+    @property
+    def next(self) -> bool:
+        return self.exp.time_source.time <= self.stop_time
+
+@dataclass
+class DataExhaustedStoppingCriteria(StoppingCriteria):
+
+    @property
+    def next(self) -> bool:
+        return False #TODO

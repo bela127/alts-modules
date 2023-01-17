@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "alts-modules"
-version = "0.5.0"
+version = "0.6.0"
 description = "Some common modules for the ALTS"
 authors = ["bela127 <bhb127@outlook.de>"]
 license = "MIT"
@@ -10,8 +10,8 @@ packages = [
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.10"
-#alts-core = { path = "/home/bela/Cloud/code/Git/alts-core", develop = true }
-alts-core = {git = "https://github.com/bela127/alts-core.git"}
+alts-core = { path = "/home/bela/Cloud/code/Git/alts-core", develop = true }
+#alts-core = {git = "https://github.com/bela127/alts-core.git", branch = "dev"}
 libclang = "<12.0"
 coloredlogs = "^15.0.1"
 ipython = "^8.0.1"
@@ -20,6 +20,7 @@ nptyping = ">=2.0.0a1"
 scikit-learn = "^1.0.2"
 numpy = "^1.22.3"
 scipy = "1.8"
+GPy = "^1.10.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
