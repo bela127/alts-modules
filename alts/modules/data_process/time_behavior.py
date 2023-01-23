@@ -42,4 +42,4 @@ class NoTimeBehavior(TimeBehavior):
 
     @property
     def query_constrain(self) -> QueryConstrain:
-        return QueryConstrain(count=None,shape=(1,),ranges=np.asarray([[0,np.inf]]))
+        return QueryConstrain(count=None,shape=(1,),ranges=np.asarray([[0., np.inf]]))

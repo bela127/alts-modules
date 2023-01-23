@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from dataclasses import dataclass, field, InitVar
 
@@ -10,6 +10,8 @@ import GPy
 
 from alts.core.oracle.data_source import DataSource
 from alts.core.data.constrains import QueryConstrain
+
+from alts.core.configuration import pre_init
 
 if TYPE_CHECKING:
     from typing import Tuple, List, Any, Type
@@ -92,7 +94,7 @@ class InterpolatingDataSource(DataSource):
     interpolation_strategy: InterpolationStrategy
 
     def query(self, queries):
-        data_points = self.data_sampler.sample(queries)
+        data_points = self.data_sampler.query(queries)
         data_points = self.interpolation_strategy.interpolate(data_points)
         return data_points
     
@@ -355,10 +357,10 @@ class OldGausianProcessDataSource(DataSource):
     s: float = 0.1
     r: int = np.random.randint(1, 10000000)
 
-    gpr: GaussianProcessRegressor = field(default=None,init=False)
-    queries: NDArray[Number, Shape["query_nr, ... query_dim"]] = field(default=None,init=False)
-    results: NDArray[Number, Shape["query_nr, ... result_dim"]] = field(default=None,init=False)
-    singleton: GaussianProcessRegressor = field(default=None,init=False)
+    gpr: GaussianProcessRegressor = pre_init(None)
+    queries: NDArray[Shape["query_nr, ... query_dim"], Number] = pre_init(None)
+    results: NDArray[Shape["query_nr, ... result_dim"], Number] = pre_init(None)
+    singleton: OldGausianProcessDataSource = pre_init(None)
 
     def query(self, queries):
         results = self.gpr.sample_y(queries)
@@ -392,74 +394,36 @@ class GaussianProcessDataSource(DataSource):
     reinit: bool = False
     query_shape: Tuple[int,...] = (1,)
     result_shape: Tuple[int,...] = (1,)
-    kern: GPy.kern.Kern = None
+    kern: Optional[GPy.kern.Kern] = None
     support_points : int= 1000
     min_support = (-1,)
     max_support = (1,)
     
-    singleton: GaussianProcessDataSource = field(default=None, init=False, repr=False)
     regression: GPy.models.GPRegression = field(default=None, init=False, repr=False)
-
-    def __new__(cls: Type[Self], *args, **kwargs) -> Self:
-        obj: Self = super().__new__(cls, *args, **kwargs)
-        obj.kern = kwargs['kern']
-        return obj
-
-    def __getstate__(self):
-
-        # this method is called when you are
-        # going to pickle the class, to know what to pickle
-        dict = self.__dict__.copy()
-        # don't pickle the parameter fun. otherwise will raise 
-        # AttributeError: Can't pickle local object 'Process.__init__.<locals>.<lambda>'
-        del dict['singleton']
-        del dict['regression']
-
-        state = dict
-
-        return state
-    
-    # def __setstate__(self, state):
-    #     dict = state
-    #     self.__dict__.update(dict)
-
-
-    def __getnewargs_ex__(self):
-        return (self._Configurable__args, self._Configurable__kwargs)
-
-
-    # def __reduce__(self):
-    #     return ( self.__new__, self.__getnewargs_ex__(),self.__getstate__())
-
 
     def __post_init__(self):
         if self.kern is None:
             self.kern = GPy.kern.RBF(input_dim=np.prod(self.query_shape), lengthscale=0.1)
-
-        if self.singleton is None or self.reinit == True:
-            self.init_singleton()
-        else:
-            self.regression = self.singleton.regression
+        
+        self.init_singleton()
     
     def init_singleton(self):
 
-        rng = np.random.RandomState(None)
-        support = rng.uniform(self.min_support, self.max_support, (self.support_points, *self.query_shape))
+        if self.regression is None or self.reinit == True:
+            rng = np.random.RandomState(None)
+            support = rng.uniform(self.min_support, self.max_support, (self.support_points, *self.query_shape))
 
-        flat_support = support.reshape((support.shape[0], -1))
+            flat_support = support.reshape((support.shape[0], -1))
 
-        results = np.random.normal(0, 1, (1, *self.result_shape))
+            results = np.random.normal(0, 1, (1, *self.result_shape))
 
-        flat_results = results.reshape((1, -1))
+            flat_results = results.reshape((1, -1))
 
-        m = GPy.models.GPRegression(flat_support[:1], flat_results, self.kern, noise_var=0.0)
+            m = GPy.models.GPRegression(flat_support[:1], flat_results, self.kern, noise_var=0.0)
 
-        flat_results = m.posterior_samples_f(flat_support,size=1)[:,:,0]
+            flat_result = m.posterior_samples_f(flat_support,size=1)[:,:,0]
 
-        m = GPy.models.GPRegression(flat_support, flat_results, self.kern, noise_var=0.0)
-
-        self.regression = m
-        self.singleton = self
+            self.regression = GPy.models.GPRegression(flat_support, flat_result, self.kern, noise_var=0.0)
 
     def query(self, queries):
 
@@ -478,10 +442,9 @@ class GaussianProcessDataSource(DataSource):
 
 
     def __call__(self, **kwargs) -> Self:
-        if self.singleton is None:
-            obj = super().__call__( **kwargs)
-            self.singleton = obj
-        return self.singleton
+        obj: GaussianProcessDataSource = super().__call__( **kwargs)
+        obj.regression = self.regression
+        return obj
     
 
 @dataclass

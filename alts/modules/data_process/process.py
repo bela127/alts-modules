@@ -78,7 +78,7 @@ class TimeVariantDSProcess(DataSourceProcess):
 @dataclass
 class IntegratingDSProcess(TimeVariantDSProcess):
 
-    integration_time: float = ConfAttr()
+    integration_time: float = init()
     integrated_result: Optional[NDArray[Shape["data_nr, ... output_shape"], Number]] = None
     start_time = 0
 

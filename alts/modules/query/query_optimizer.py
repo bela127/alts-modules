@@ -40,9 +40,9 @@ class MCQueryOptimizer(QueryOptimizer):
     query_sampler: QuerySampler  = init()
     num_tries: int = pre_init(default=100)
 
-    def __call__(self, exp_modules: ExperimentModules = None, **kwargs) -> Self:
+    def __call__(self, exp_modules: Required[ExperimentModules] = None, **kwargs) -> Self:
         obj = super().__call__(exp_modules, **kwargs)
-        obj.query_sampler = obj.query_sampler(obj.selection_criteria)
+        obj.query_sampler = obj.query_sampler(exp_modules)
         return obj
 
     

@@ -9,6 +9,8 @@ import time
 from alts.core.evaluator import Evaluator, Evaluate, LogingEvaluator
 from alts.modules.data_process.process import DataSourceProcess
 
+from alts.core.configuration import pre_init
+
 import numpy as np
 from matplotlib import pyplot as plot # type: ignore
 
@@ -24,8 +26,8 @@ class PrintNewDataPointsEvaluator(Evaluator):
     def register(self, experiment: Experiment):
         super().register(experiment)
 
-        self.experiment.observable_results.add = Evaluate(self.experiment.observable_results.add)
-        self.experiment.observable_results.add.pre(self.log_new_data_points)
+        self.experiment.result_data_pool.add = Evaluate(self.experiment.result_data_pool.add)
+        self.experiment.result_data_pool.add.pre(self.log_new_data_points)
 
     def log_new_data_points(self, data_points):
         print(data_points)
@@ -65,8 +67,8 @@ class LogNewDataPointsEvaluator(LogingEvaluator):
     def register(self, experiment: Experiment):
         super().register(experiment)
 
-        self.experiment.observable_results.add = Evaluate(self.experiment.observable_results.add)
-        self.experiment.observable_results.add.pre(self.log_new_data_points)
+        self.experiment.result_data_pool.add = Evaluate(self.experiment.result_data_pool.add)
+        self.experiment.result_data_pool.add.pre(self.log_new_data_points)
 
     def log_new_data_points(self, data_points):
         # self.logger(data_points)
@@ -78,8 +80,8 @@ class PlotNewDataPointsEvaluator(LogingEvaluator):
     folder: str = "fig"
     fig_name:str = "Data"
 
-    queries: NDArray[Number, Shape["query_nr, ... query_dim"]] = field(init = False, default = None)
-    results: NDArray[Number, Shape["query_nr, ... result_dim"]] = field(init = False, default = None)
+    queries: NDArray[Shape["query_nr, ... query_dim"], Number] = pre_init(None)
+    results: NDArray[Shape["query_nr, ... result_dim"], Number] = pre_init(None)
     iteration: int = field(init = False, default = 0)
 
     def register(self, experiment: Experiment):
@@ -90,8 +92,8 @@ class PlotNewDataPointsEvaluator(LogingEvaluator):
         self.experiment.result_data_pool.add = Evaluate(self.experiment.result_data_pool.add)
         self.experiment.result_data_pool.add.pre(self.plot_new_data_points)
 
-        self.queries: NDArray[Number, Shape["query_nr, ... query_dim"]] = None
-        self.results: NDArray[Number, Shape["query_nr, ... result_dim"]] = None
+        self.queries: NDArray[Shape["query_nr, ... query_dim"], Number] = None
+        self.results: NDArray[Shape["query_nr, ... result_dim"], Number] = None
         self.iteration = 0
 
     def plot_new_data_points(self, data_points):
@@ -121,7 +123,7 @@ class PlotQueryDistEvaluator(LogingEvaluator):
     folder: str = "fig"
     fig_name:str = "Query distribution"
 
-    queries: NDArray[Number, Shape["query_nr, ... query_dim"]] = field(init = False, default = None)
+    queries: NDArray[Shape["query_nr, ... query_dim"], Number] = field(init = False, default = None)
     iteration: int = field(init = False, default = 0)
 
     def register(self, experiment: Experiment):
@@ -130,7 +132,7 @@ class PlotQueryDistEvaluator(LogingEvaluator):
         self.experiment.oracle.request = Evaluate(self.experiment.oracle.request)
         self.experiment.oracle.request.pre(self.plot_query_dist)
 
-        self.queries: NDArray[Number, Shape["query_nr, ... query_dim"]] = None
+        self.queries: NDArray[Shape["query_nr, ... query_dim"], Number] = None
 
     def plot_query_dist(self, query_candidate):
 
