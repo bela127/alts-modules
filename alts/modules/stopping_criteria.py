@@ -15,7 +15,7 @@ class TimeStoppingCriteria(StoppingCriteria):
 
     @property
     def next(self) -> bool:
-        return self.exp.time_source.time <= self.stop_time
+        return  self.stop_time >= self.exp.time_source.time
 
 @dataclass
 class DataExhaustedStoppingCriteria(StoppingCriteria):

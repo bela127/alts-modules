@@ -29,6 +29,6 @@ class ThresholdQueryDecider(QueryDecider):
     threshold: float = 0.5
 
     def decide(self, query_candidates: NDArray[Shape["query_nr, ... query_dims"], Number], scores: NDArray[Shape["query_nr, [query_score]"], Number]) -> Tuple[bool, NDArray[Shape["query_nr, ... query_dims"], Number]]:
-        query = query_candidates[scores[:,0]>=self.threshold]
+        query = query_candidates[scores[:,0]>self.threshold]
         flag = query.shape[0] > 0
         return flag, query

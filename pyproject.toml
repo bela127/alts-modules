@@ -15,6 +15,7 @@ alts-core = { path = "/home/bela/Cloud/code/Git/alts-core", develop = true }
 nptyping = ">=2.0.0a1"
 matplotlib = "^3.6.3"
 scikit-learn = "^1.2.0"
+paramz = {git = "https://github.com/bela127/paramz.git"}
 GPy = {git = "https://github.com/bela127/GPy.git"}
 
 [tool.poetry.dev-dependencies]

@@ -7,6 +7,7 @@ import numpy as np
 from alts.core.data_process.time_behavior import TimeBehavior
 from alts.core.oracle.data_source import DataSource
 from alts.core.data.constrains import QueryConstrain, ResultConstrain
+from alts.core.configuration import init
 
 if TYPE_CHECKING:
     from nptyping import NDArray, Shape, Number
@@ -15,7 +16,7 @@ if TYPE_CHECKING:
 @dataclass
 class DataSourceTimeBehavior(TimeBehavior):
 
-    data_source: DataSource
+    data_source: DataSource = init()
 
     def __post_init__(self):
         self.data_source = self.data_source()

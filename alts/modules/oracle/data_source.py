@@ -464,9 +464,10 @@ class BrownianDriftDataSource(GaussianProcessDataSource):
     result_shape: Tuple[int,...] = (1,)
     brown_var: float = 0.005
     rbf_var: float = 0.25
+    rbf_leng: float = 0.5
     min_support = (0,-1)
-    max_support = (900,1)
+    max_support = (2000,1)
 
     def __post_init__(self):
-        self.kern = GPy.kern.Brownian(active_dims=[0],variance=self.brown_var)*GPy.kern.RBF(input_dim=1, lengthscale=0.1, variance=self.rbf_var, active_dims=[1])+GPy.kern.RBF(input_dim=1, lengthscale=0.1, variance=self.rbf_var, active_dims=[1])
+        self.kern = GPy.kern.Brownian(active_dims=[0],variance=self.brown_var)*GPy.kern.RBF(input_dim=1, lengthscale=self.rbf_leng, variance=self.rbf_var, active_dims=[1])+GPy.kern.RBF(input_dim=1, lengthscale=self.rbf_leng, variance=self.rbf_var, active_dims=[1])
         super().__post_init__()

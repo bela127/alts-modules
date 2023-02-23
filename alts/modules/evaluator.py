@@ -59,20 +59,6 @@ class PrintExpTimeEvaluator(Evaluator):
         end = time.time()
         print("Time: ",end - self.start)
 
-class LogNewDataPointsEvaluator(LogingEvaluator):
-    def __init__(self, logger) -> None:
-        super().__init__()
-        self.logger = logger
-
-    def register(self, experiment: Experiment):
-        super().register(experiment)
-
-        self.experiment.result_data_pool.add = Evaluate(self.experiment.result_data_pool.add)
-        self.experiment.result_data_pool.add.pre(self.log_new_data_points)
-
-    def log_new_data_points(self, data_points):
-        # self.logger(data_points)
-        ...
 
 @dataclass
 class PlotNewDataPointsEvaluator(LogingEvaluator):
@@ -262,12 +248,8 @@ class LogTVPGTEvaluator(LogingEvaluator):
     def register(self, experiment: Experiment):
         super().register(experiment)
 
-        if not isinstance(self.experiment.process, DataSourceProcess):
-            raise ValueError("for this evaluator the Process needs to be a DataSourceProcess")
-        self.ds = self.experiment.process.data_source
-
-        self.experiment.time_behavior.query = Evaluate(self.experiment.time_behavior.query)
-        self.experiment.time_behavior.query.post(self.save_gt)
+        self.experiment.process.update = Evaluate(self.experiment.process.update)
+        self.experiment.process.update.post(self.save_gt)
 
         self.experiment.run = Evaluate(self.experiment.run)
         self.experiment.run.post(self.log_data)
@@ -275,14 +257,9 @@ class LogTVPGTEvaluator(LogingEvaluator):
         self.gt = None
 
     def save_gt(self, data):
-        times, vars = data
+        gt_queries, gt_results = data
 
-        queries = self.experiment.oracle.query_queue.last
-
-        query = np.concatenate((times, queries, vars), axis=1)
-        data = self.ds.query(query)
-
-        combined_data = np.concatenate((data[0], data[1]), axis=1)
+        combined_data = np.concatenate((gt_queries, gt_results), axis=1)
 
         if self.gt is None:
             self.gt = combined_data

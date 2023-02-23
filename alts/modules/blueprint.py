@@ -32,6 +32,7 @@ if TYPE_CHECKING:
     from alts.core.query.query_sampler import QuerySampler
     from alts.core.experiment_modules import ExperimentModules
     from alts.core.evaluator import Evaluator
+    from alts.core.oracle.query_queue import QueryQueue
 
 @dataclass
 class BaselineBlueprint(Blueprint):
@@ -40,8 +41,9 @@ class BaselineBlueprint(Blueprint):
     time_source: TimeSource = IterationTimeSource()
     time_behavior: TimeBehavior = NoTimeBehavior()
 
+    query_queue: QueryQueue = FCFSQueryQueue()
+
     process: Process = DataSourceProcess(
-        query_queue=FCFSQueryQueue(),
         data_source=LineDataSource()
     )
 

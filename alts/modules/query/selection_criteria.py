@@ -7,6 +7,12 @@ class NoSelectionCriteria(SelectionCriteria):
         scores = np.zeros((queries.shape[0],1))
         return queries, scores
 
+class AllSelectionCriteria(SelectionCriteria):
+
+    def query(self, queries):
+        scores = np.ones((queries.shape[0],1))
+        return queries, scores
+
 class RandomSelectionCriteria(SelectionCriteria):
 
     def query(self, queries):

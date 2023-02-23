@@ -20,28 +20,33 @@ if TYPE_CHECKING:
 class DataSourceProcess(Process):
 
     data_source: DataSource = init()
-    _data_points: Tuple[NDArray[Shape["data_nr, ... query_shape"], Number], NDArray[Shape["data_nr, ... output_shape"], Number]] = post_init()
-    _new_data: bool = pre_init(default=False)
 
     def __post_init__(self):
         super().__post_init__()
         self.data_source = self.data_source()
 
-    def run(self, times, vars) -> Tuple[NDArray[Shape["data_nr, ... query_shape"], Number], NDArray[Shape["data_nr, ... output_shape"], Number]]:
-        queries = self.query_queue.pop()
-        self._data_points =  self.data_source.query(queries)
-        self._new_data = True
-        return self._data_points
+    def query(self, queries: NDArray[Shape["query_nr, ... query_shape"], Number]) -> Tuple[NDArray[Shape["query_nr, ... query_shape"], Number], NDArray[Shape["query_nr, ... result_shape"], Number]]:
+        times = self.stream_data_pool.last_queries
+        vars = self.stream_data_pool.last_results
+        actual_queries = np.concatenate((times, vars, queries[:,2:]), axis=1)
+        queries, results = self.data_source.query(actual_queries)
+        self.last_queries = queries
+        self.last_results = results
+        self.ready = False
+        return queries, results
 
-    @property
-    def finished(self) -> bool:
-        new_data = self._new_data
-        self._new_data = False
-        return new_data
+    def update(self):
+        queries = np.concatenate((self.stream_data_pool.last_queries, self.stream_data_pool.last_results, self.last_queries[:, 2:]), axis=1)
+        queries, results = self.data_source.query(queries)
+        if not self.ready:
+            self.has_new_data = True
+        return queries, results #return GT, as if queried
 
-    @property
-    def results(self) -> Tuple[NDArray[Shape["data_nr, ... query_shape"], Number], NDArray[Shape["data_nr, ... result_shape"], Number]]:
-        return self._data_points
+    def delayed_results(self) -> Tuple[NDArray[Shape["data_nr, ... query_shape"], Number], NDArray[Shape["data_nr, ... result_shape"], Number]]:
+        self.has_new_data = False
+        self.ready = True
+        queries = np.concatenate((self.last_queries[:,:1] + self.time_source.time_step ,self.last_queries[:,1:]), axis=1) 
+        return queries, self.last_results
 
     @property
     def query_constrain(self) -> QueryConstrain:
@@ -51,56 +56,79 @@ class DataSourceProcess(Process):
     def result_constrain(self) -> ResultConstrain:
         return self.data_source.result_constrain
 
-@dataclass
-class TimeVariantDSProcess(DataSourceProcess):
-
-    def run(self, times, vars) -> Tuple[NDArray[Shape["data_nr, ... query_shape"], Number], NDArray[Shape["data_nr, ... output_shape"], Number]]:
-        queries = self.query_queue.pop()
-        actual_queries = np.concatenate((times, queries, vars), axis=1)
-        data_points =  self.data_source.query(actual_queries)
-        extended_queries, results = data_points
-        queries = extended_queries[:, times.shape[1]:-vars.shape[1]]
-        self._data_points = (queries, results)
-        self._new_data = True
-        return self._data_points
-    
     @property
-    def query_constrain(self) -> QueryConstrain:
-
-        ds_qc: QueryConstrain = self.data_source.query_constrain
-        dim = ds_qc.shape[0] - self.var_constrain.shape[0] - self.time_source.result_constrain.shape[0]
-        ranges = ds_qc.ranges[self.time_source.result_constrain.shape[0]: self.var_constrain.shape[0]]
-        query_constrain = QueryConstrain(count=ds_qc.count, shape=(dim,),ranges=ranges)
-
-        return query_constrain
-
+    def delayed_constrain(self) -> ResultConstrain:
+        return self.data_source.result_constrain
 
 @dataclass
-class IntegratingDSProcess(TimeVariantDSProcess):
+class IntegratingDSProcess(DataSourceProcess):
 
-    integration_time: float = init()
-    integrated_result: Optional[NDArray[Shape["data_nr, ... output_shape"], Number]] = None
-    start_time = 0
+    integration_time: float = init(default=4)
+    integrated_result: Optional[NDArray[Shape["data_nr, ... output_shape"], Number]] = pre_init(None)
+    start_time: float = pre_init(0.0)
+    end_time: float = pre_init(0.0)
 
-    def run(self, times, vars) -> Tuple[NDArray[Shape["data_nr, ... query_shape"], Number], NDArray[Shape["data_nr, ... output_shape"], Number]]:
-        queries, results = super().run(times, vars)
-        self._new_data = False
-        if self.integrated_result is None:
-            self.start_time = times[0]
-            self.integrated_result = results
-        else:
+    sliding_window: Optional[NDArray[Shape["data_nr, ... output_shape"], Number]] = pre_init(None)
+
+    def query(self, queries: NDArray[Shape["query_nr, ... query_shape"], Number]) -> Tuple[NDArray[Shape["query_nr, ... query_shape"], Number], NDArray[Shape["query_nr, ... result_shape"], Number]]:
+        queries, results = super().query(queries)
+        self.start_time = queries[-1, 0]
+        self.integrated_result = np.zeros_like(results)
+        return queries, results
+
+    def update(self):
+        queries, results = super().update()
+        self.has_new_data = False
+
+        if self.integrated_result is not None:
             self.integrated_result = self.integrated_result + results
-        return self._data_points
 
-    @property
-    def finished(self) -> bool:
-        if self.start_time + self.integration_time >= self.time_source.time:
-            self._new_data = True
-        return super().finished
+            time = self.time_source.time
+            if self.start_time + self.integration_time <= time:
+                self.end_time = time
+                self.has_new_data = True
 
-    @property
-    def results(self) -> Tuple[NDArray[Shape["data_nr, ... query_shape"], Number], NDArray[Shape["data_nr, ... result_shape"], Number]]:
+        return queries, results
+
+    def delayed_results(self) -> Tuple[NDArray[Shape["data_nr, ... query_shape"], Number], NDArray[Shape["data_nr, ... result_shape"], Number]]:
+        last_queries, last_results = super().delayed_results()
         integrated_result = is_set(self.integrated_result)
         self.integrated_result = None
-        queries, results = self._data_points
+        queries = np.concatenate((last_queries[:,:1] + (self.end_time - self.start_time),last_queries[:,1:]), axis=1) 
         return queries, integrated_result
+
+
+@dataclass
+class WindowDSProcess(DataSourceProcess):
+
+    window_size: float = init(default=4)
+    
+    def __post_init__(self):
+        super().__post_init__()
+        self.sliding_query_window = np.empty((0, *self.data_source.query_constrain.shape))
+        self.sliding_result_window = np.empty((0, *self.data_source.result_constrain.shape))
+
+    def query(self, queries: NDArray[Shape["query_nr, ... query_shape"], Number]) -> Tuple[NDArray[Shape["query_nr, ... query_shape"], Number], NDArray[Shape["query_nr, ... result_shape"], Number]]:
+        queries, results = super().query(queries)
+        if not self.sliding_query_window.shape[0] == 0:
+            queries = self.sliding_query_window[:1]
+        return queries, results
+    
+    def update(self):
+        queries, results = super().update()
+
+        self.sliding_query_window = np.concatenate((self.sliding_query_window, queries))
+        self.sliding_query_window = self.sliding_query_window[-self.window_size:]
+
+        self.sliding_result_window = np.concatenate((self.sliding_result_window, results))
+        self.sliding_result_window = self.sliding_result_window[-self.window_size:]
+
+        queries = self.sliding_query_window[:1]
+        results = np.sum(self.sliding_result_window, axis=0)[None,...]
+
+        return queries, results
+
+    def delayed_results(self) -> Tuple[NDArray[Shape["data_nr, ... query_shape"], Number], NDArray[Shape["data_nr, ... result_shape"], Number]]:
+        last_queries, last_results = super().delayed_results()
+        results = np.sum(self.sliding_result_window, axis=0)[None,...]
+        return last_queries, results
