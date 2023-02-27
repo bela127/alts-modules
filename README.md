@@ -35,10 +35,22 @@ install poetry:
 curl -sSL https://install.python-poetry.org | python3 -
 ```
 
+add it to bash, by adding the following to the bottom of the file  `~/.bashrc`:
+
+```bash
+export PATH="/home/i40/boehnkeb/.local/bin:$PATH"
+```
+
 set poetry to use pyenv:
 
 ```bash
 poetry config virtualenvs.prefer-active-python true
+```
+
+And make sure venv are created inside a project:
+
+```bash
+poetry config virtualenvs.in-project true
 ```
 
 GPy still wants an old scipy version, that needs to be build from source:
