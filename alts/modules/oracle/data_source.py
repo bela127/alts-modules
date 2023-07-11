@@ -462,9 +462,9 @@ class BrownianProcessDataSource(GaussianProcessDataSource):
 class BrownianDriftDataSource(GaussianProcessDataSource):
     query_shape: Tuple[int,...] = (2,)
     result_shape: Tuple[int,...] = (1,)
-    brown_var: float = 0.005
+    brown_var: float = 0.01 #0.005
     rbf_var: float = 0.25
-    rbf_leng: float = 0.5
+    rbf_leng: float = 0.1 #0.4
     min_support = (0,-1)
     max_support = (2000,1)
 
