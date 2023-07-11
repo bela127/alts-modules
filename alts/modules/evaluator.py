@@ -9,7 +9,7 @@ import time
 from alts.core.evaluator import Evaluator, Evaluate, LogingEvaluator
 from alts.modules.data_process.process import DataSourceProcess
 
-from alts.core.configuration import pre_init
+from alts.core.configuration import pre_init, post_init
 
 import numpy as np
 from matplotlib import pyplot as plot # type: ignore
@@ -171,8 +171,8 @@ class LogOracleEvaluator(LogingEvaluator):
     def register(self, experiment: Experiment):
         super().register(experiment)
 
-        self.experiment.oracle.request = Evaluate(self.experiment.oracle.request)
-        self.experiment.oracle.request.pre(self.save_query)
+        self.experiment.oracles.process.add = Evaluate(self.experiment.oracles.process.add)
+        self.experiment.oracles.process.add.pre(self.save_query)
 
         self.experiment.run = Evaluate(self.experiment.run)
         self.experiment.run.post(self.log_data)
@@ -189,30 +189,21 @@ class LogOracleEvaluator(LogingEvaluator):
 
         np.save(f'{self.path}/{self.file_name}.npy', self.queries)
 
-
 @dataclass
-class LogAllEvaluator(LogingEvaluator):
+class LogStreamEvaluator(LogingEvaluator):
     folder: str = "log"
-    file_name:str = "all_data"
+    file_name:str = "stream"
 
     def register(self, experiment: Experiment):
         super().register(experiment)
 
-        self.experiment.stream_data_pool.add = Evaluate(self.experiment.stream_data_pool.add)
-        self.experiment.stream_data_pool.add.pre(self.save_stream)
-
-        self.experiment.process_data_pool.add = Evaluate(self.experiment.process_data_pool.add)
-        self.experiment.process_data_pool.add.pre(self.save_process)
-
-        self.experiment.result_data_pool.add = Evaluate(self.experiment.result_data_pool.add)
-        self.experiment.result_data_pool.add.pre(self.save_result)
+        self.experiment.data_pools.stream.add = Evaluate(self.experiment.data_pools.stream.add)
+        self.experiment.data_pools.stream.add.pre(self.save_stream)
 
         self.experiment.run = Evaluate(self.experiment.run)
         self.experiment.run.post(self.log_data)
 
         self.stream = None
-        self.process = None
-        self.results = None
 
     def save_stream(self, data):
         combined_data = np.concatenate((data[0], data[1]), axis=1)
@@ -221,12 +212,53 @@ class LogAllEvaluator(LogingEvaluator):
         else:
             self.stream = np.concatenate((self.stream, combined_data))
 
+    
+    def log_data(self, exp_nr):
+        np.save(f'{self.path}/{self.file_name}.npy', self.stream)
+
+
+@dataclass
+class LogProcessEvaluator(LogingEvaluator):
+    folder: str = "log"
+    file_name:str = "process"
+
+    def register(self, experiment: Experiment):
+        super().register(experiment)
+
+        self.experiment.data_pools.process.add = Evaluate(self.experiment.data_pools.process.add)
+        self.experiment.data_pools.process.add.pre(self.save_process)
+
+        self.experiment.run = Evaluate(self.experiment.run)
+        self.experiment.run.post(self.log_data)
+
+        self.process = None
+
     def save_process(self, data):
         combined_data = np.concatenate((data[0], data[1]), axis=1)
         if self.process is None:
             self.process = combined_data
         else:
             self.process = np.concatenate((self.process, combined_data))
+    
+    def log_data(self, exp_nr):
+        np.save(f'{self.path}/{self.file_name}.npy', self.process)
+
+@dataclass
+class LogResultEvaluator(LogingEvaluator):
+    folder: str = "log"
+    file_name:str = "result"
+
+    def register(self, experiment: Experiment):
+        super().register(experiment)
+
+        self.experiment.data_pools.result.add = Evaluate(self.experiment.data_pools.result.add)
+        self.experiment.data_pools.result.add.pre(self.save_result)
+
+        self.experiment.run = Evaluate(self.experiment.run)
+        self.experiment.run.post(self.log_data)
+
+        self.results = None
+
     
     def save_result(self, data):
         combined_data = np.concatenate((data[0], data[1]), axis=1)
@@ -236,9 +268,28 @@ class LogAllEvaluator(LogingEvaluator):
             self.results = np.concatenate((self.results, combined_data))
     
     def log_data(self, exp_nr):
-        np.save(f'{self.path}/{self.file_name}_stream.npy', self.stream)
-        np.save(f'{self.path}/{self.file_name}_process.npy', self.process)
-        np.save(f'{self.path}/{self.file_name}_result.npy', self.results)
+        np.save(f'{self.path}/{self.file_name}.npy', self.results)
+
+@dataclass
+class LogAllEvaluator(LogingEvaluator):
+    folder: str = "log"
+    file_name:str = "all_data"
+
+    lsev: LogStreamEvaluator = post_init()
+    lpev: LogProcessEvaluator = post_init()
+    lrev: LogResultEvaluator = post_init()
+
+    def __post_init__(self):
+        super().__post_init__()
+        self.lsev = LogStreamEvaluator(folder=self.folder, file_name=f"{self.file_name}_stream")()
+        self.lpev = LogProcessEvaluator(folder=self.folder, file_name=f"{self.file_name}_process")()
+        self.lrev = LogResultEvaluator(folder=self.folder, file_name=f"{self.file_name}_result")()
+
+    def register(self, experiment: Experiment):
+        super().register(experiment)
+        self.lsev.register(experiment = experiment)
+        self.lpev.register(experiment = experiment)
+        self.lrev.register(experiment = experiment)
 
 @dataclass
 class LogTVPGTEvaluator(LogingEvaluator):

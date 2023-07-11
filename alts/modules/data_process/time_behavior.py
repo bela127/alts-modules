@@ -19,6 +19,7 @@ class DataSourceTimeBehavior(TimeBehavior):
     data_source: DataSource = init()
 
     def __post_init__(self):
+        super().__post_init__()
         self.data_source = self.data_source()
 
     def query(self, times: NDArray[Shape["time_step_nr, [time]"], Number]) -> Tuple[NDArray[Shape["time_step_nr, [time]"], Number], NDArray[Shape["time_step_nr, ... var_shape"], Number]]:

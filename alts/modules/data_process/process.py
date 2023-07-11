@@ -26,8 +26,8 @@ class DataSourceProcess(Process):
         self.data_source = self.data_source()
 
     def query(self, queries: NDArray[Shape["query_nr, ... query_shape"], Number]) -> Tuple[NDArray[Shape["query_nr, ... query_shape"], Number], NDArray[Shape["query_nr, ... result_shape"], Number]]:
-        times = self.stream_data_pool.last_queries
-        vars = self.stream_data_pool.last_results
+        times = self.data_pools.stream.last_queries
+        vars = self.data_pools.stream.last_results
         actual_queries = np.concatenate((times, vars, queries[:,2:]), axis=1)
         queries, results = self.data_source.query(actual_queries)
         self.last_queries = queries
@@ -36,7 +36,7 @@ class DataSourceProcess(Process):
         return queries, results
 
     def update(self):
-        queries = np.concatenate((self.stream_data_pool.last_queries, self.stream_data_pool.last_results, self.last_queries[:, 2:]), axis=1)
+        queries = np.concatenate((self.data_pools.stream.last_queries, self.data_pools.stream.last_results, self.last_queries[:, 2:]), axis=1)
         queries, results = self.data_source.query(queries)
         if not self.ready:
             self.has_new_data = True
