@@ -30,5 +30,8 @@ class IterationTimeSource(TimeSource):
         return self._iter*self.time_step + self._time_offset
     
     @time.setter
-    def time(self, time):
-        self._time_offset = self.time - time
+    def time(self, delta_time):
+        if delta_time > 0:
+            self._time_offset += delta_time
+        else:
+            raise ValueError("Time can only be incremented, time travel into the past is not possible!")
