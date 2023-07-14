@@ -59,6 +59,17 @@ class PrintExpTimeEvaluator(Evaluator):
         end = time.time()
         print("Time: ",end - self.start)
 
+class PrintTimeSourceEvaluator(Evaluator):
+
+    def register(self, experiment: Experiment):
+        super().register(experiment)
+
+        self.experiment.time_source.step = Evaluate(self.experiment.time_source.step)
+        self.experiment.time_source.step.post(self.end_time)
+    
+    def end_time(self, time):
+        print("Sim Unit Time: ", time)
+
 
 @dataclass
 class PlotNewDataPointsEvaluator(LogingEvaluator):
