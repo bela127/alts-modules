@@ -37,7 +37,6 @@ class FlatQueriedDataPool(QueriedDataPool):
 
     def add(self, data_points):
         queries, results = data_points
-        print(data_points)
         for query, result in zip(queries, results):
 
             results = self.query_index.get(tuple(query), [])
