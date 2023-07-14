@@ -6,8 +6,11 @@ from dataclasses import dataclass, field
 from alts.core.oracle.data_source import DataSource
 from alts.core.data_process.process import Process
 import numpy as np
-from alts.core.configuration import is_set, ConfAttr, post_init, pre_init, init
+from alts.core.configuration import is_set, ConfAttr, post_init, pre_init, init, NOTSET
 from alts.core.data.constrains import QueryConstrain, ResultConstrain
+from alts.modules.data_process.time_behavior import DataSourceTimeBehavior
+from alts.modules.oracle.data_source import TimeBehaviorDataSource
+from alts.modules.behavior import RandomTimeUniformBehavior
 
 if TYPE_CHECKING:
     from typing_extensions import Self
@@ -20,8 +23,12 @@ if TYPE_CHECKING:
 class DataSourceProcess(Process):
 
     data_source: DataSource = init()
+    stop_time: float = init(default=1000)
+
 
     def __post_init__(self):
+        if self.time_behavior is NOTSET:
+            self.time_behavior = DataSourceTimeBehavior(data_source=TimeBehaviorDataSource(behavior=RandomTimeUniformBehavior(stop_time=self.stop_time)))
         super().__post_init__()
         self.data_source = self.data_source()
 

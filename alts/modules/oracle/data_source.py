@@ -11,7 +11,7 @@ import GPy
 from alts.core.oracle.data_source import DataSource
 from alts.core.data.constrains import QueryConstrain
 
-from alts.core.configuration import pre_init, is_set
+from alts.core.configuration import pre_init, is_set, init, post_init
 
 if TYPE_CHECKING:
     from alts.core.behavior import Behavior
@@ -480,7 +480,7 @@ class TimeBehaviorDataSource(DataSource):
 
     query_shape: Tuple[int,...] = (1,)
     result_shape: Tuple[int,...] = (1,)
-    behavior: Required[Behavior] = None
+    behavior: Behavior = init()
     change_times: NDArray[Shape["change_times"], Number] = field(init=False)
     change_values: NDArray[Shape["change_values"], Number] = field(init=False)
     current_time: float = field(init=False, default=0)
