@@ -18,10 +18,12 @@ class IterationTimeSource(TimeSource):
     time_step: float = 1
     
     def __post_init__(self):
+        super().__post_init__()
         self._time_offset: float = self.start_time
         self._iter = 0
 
     def step(self, iteration: int) -> NDArray[Shape["time_step_nr, [time]"], Number]:
+        super().step(iteration = iteration)
         self._iter = iteration
         return np.asarray([[self.time]])
     
