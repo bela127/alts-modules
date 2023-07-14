@@ -11,9 +11,12 @@ import GPy
 from alts.core.oracle.data_source import DataSource
 from alts.core.data.constrains import QueryConstrain
 
-from alts.core.configuration import pre_init
+from alts.core.configuration import pre_init, is_set
 
 if TYPE_CHECKING:
+    from alts.core.behavior import Behavior
+    from alts.core.configuration import Required
+
     from typing import Tuple, List, Any, Type
     from alts.core.oracle.interpolation_strategy import InterpolationStrategy
     from alts.core.data_sampler import DataSampler
@@ -471,3 +474,32 @@ class BrownianDriftDataSource(GaussianProcessDataSource):
     def __post_init__(self):
         self.kern = GPy.kern.Brownian(active_dims=[0],variance=self.brown_var)*GPy.kern.RBF(input_dim=1, lengthscale=self.rbf_leng, variance=self.rbf_var, active_dims=[1])+GPy.kern.RBF(input_dim=1, lengthscale=self.rbf_leng, variance=self.rbf_var, active_dims=[1])
         super().__post_init__()
+
+@dataclass
+class TimeBehaviorDataSource(DataSource):
+
+    query_shape: Tuple[int,...] = (1,)
+    result_shape: Tuple[int,...] = (1,)
+    behavior: Required[Behavior] = None
+    change_times: NDArray[Shape["change_times"], Number] = field(init=False)
+    change_values: NDArray[Shape["change_values"], Number] = field(init=False)
+    current_time: float = field(init=False, default=0)
+
+    def __post_init__(self):
+        self.behavior = is_set(self.behavior)()
+        self.change_times, self.change_values = self.behavior.behavior()
+
+
+    @property
+    def exhausted(self):
+        return self.current_time < self.behavior.stop_time
+
+    def query(self, queries: NDArray[ Shape["query_nr, ... query_dim"], Number]) -> Tuple[NDArray[Shape["query_nr, ... query_dim"], Number], NDArray[Shape["query_nr, ... result_dim"], Number]]:
+        times = queries
+        self.current_time = times[-1,0]
+
+        indices = np.searchsorted(self.change_times, times[...,0],side='right') -1
+
+        results = self.change_values[indices][:,None]
+
+        return queries, results
