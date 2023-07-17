@@ -8,7 +8,7 @@ from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RationalQuadratic
 import GPy
 
-from alts.core.oracle.data_source import DataSource
+from alts.core.oracle.data_source import DataSource, TimeDataSource
 from alts.core.data.constrains import QueryConstrain
 
 from alts.core.configuration import pre_init, is_set, init, post_init
@@ -93,8 +93,13 @@ class SquareDataSource(DataSource):
     
 @dataclass
 class InterpolatingDataSource(DataSource):
-    data_sampler: DataSampler
-    interpolation_strategy: InterpolationStrategy
+    data_sampler: DataSampler = init()
+    interpolation_strategy: InterpolationStrategy = init()
+
+    def __post_init__(self):
+        super().__post_init__()
+        self.data_sampler = self.data_sampler()
+        self.interpolation_strategy = self.interpolation_strategy(self.data_sampler)
 
     def query(self, queries):
         data_points = self.data_sampler.query(queries)
@@ -476,7 +481,7 @@ class BrownianDriftDataSource(GaussianProcessDataSource):
         super().__post_init__()
 
 @dataclass
-class TimeBehaviorDataSource(DataSource):
+class TimeBehaviorDataSource(TimeDataSource):
 
     query_shape: Tuple[int,...] = (1,)
     result_shape: Tuple[int,...] = (1,)
