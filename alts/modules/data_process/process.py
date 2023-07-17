@@ -33,7 +33,7 @@ class StreamProcess(Process, TimeSubscriber):
         
         self.time_behavior = self.time_behavior()
         self.data_pools.stream = self.data_pools.stream(query_constrain = self.time_behavior.query_constrain, result_constrain=self.time_behavior.result_constrain)
-
+    
     def time_update(self, subscription):
         times = np.asarray([[self.time_source.time]])
         times, vars = self.time_behavior.query(times)
@@ -49,9 +49,6 @@ class DataSourceProcess(Process, ProcessOracleSubscriber):
         super().__post_init__()
         self.data_source = self.data_source()
         self.data_pools.result = self.data_pools.result(query_constrain=self.query_constrain, result_constrain=self.delayed_constrain)
-        
-    def step(self):
-        return None, None, None, None
     
     def process_query(self, subscription):
         queries = self.oracles.process.pop()
@@ -87,7 +84,7 @@ class DelayedProcess(Process, DelayedConstrained):
         self.data_pools.result = self.data_pools.result(query_constrain=self.query_constrain, result_constrain=self.delayed_constrain)
         
     
-    def step(self):
+    def step(self, iteration):
         queries, results = self.add_intermediate_results()
 
         self.update()
