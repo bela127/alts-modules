@@ -7,9 +7,10 @@ import time
 
 
 from alts.core.evaluator import Evaluator, Evaluate, LogingEvaluator
-from alts.modules.data_process.process import DataSourceProcess
-
+from alts.core.data.data_pools import StreamDataPools, ProcessDataPools, ResultDataPools
+from alts.core.oracle.oracles import POracles
 from alts.core.configuration import pre_init, post_init
+from alts.modules.data_process.process import DelayedProcess
 
 import numpy as np
 from matplotlib import pyplot as plot # type: ignore
@@ -26,8 +27,11 @@ class PrintNewDataPointsEvaluator(Evaluator):
     def register(self, experiment: Experiment):
         super().register(experiment)
 
-        self.experiment.result_data_pool.add = Evaluate(self.experiment.result_data_pool.add)
-        self.experiment.result_data_pool.add.pre(self.log_new_data_points)
+        if isinstance(self.experiment.data_pools, ResultDataPools):
+            self.experiment.data_pools.result.add = Evaluate(self.experiment.data_pools.result.add)
+            self.experiment.data_pools.result.add.pre(self.save_result)
+        else:
+            raise TypeError(f"PrintNewDataPointsEvaluator requires ResultDataPools")
 
     def log_new_data_points(self, data_points):
         print(data_points)
@@ -37,8 +41,11 @@ class PrintQueryEvaluator(Evaluator):
     def register(self, experiment: Experiment):
         super().register(experiment)
 
-        self.experiment.oracle.request = Evaluate(self.experiment.oracle.request)
-        self.experiment.oracle.request.pre(self.print_query)
+        if isinstance(self.experiment.oracles, POracles):
+            self.experiment.oracles.process.add = Evaluate(self.experiment.oracles.process.add)
+            self.experiment.oracles.process.add.pre(self.save_query)
+        else:
+            raise TypeError(f"PrintQueryEvaluator requires POracles")
 
     def print_query(self, query):
         print("Queried: \n",query)
@@ -86,8 +93,11 @@ class PlotNewDataPointsEvaluator(LogingEvaluator):
 
         os.makedirs(self.path, exist_ok=True)
 
-        self.experiment.result_data_pool.add = Evaluate(self.experiment.result_data_pool.add)
-        self.experiment.result_data_pool.add.pre(self.plot_new_data_points)
+        if isinstance(self.experiment.data_pools, ResultDataPools):
+            self.experiment.data_pools.result.add = Evaluate(self.experiment.data_pools.result.add)
+            self.experiment.data_pools.result.add.pre(self.save_result)
+        else:
+            raise TypeError(f"PlotNewDataPointsEvaluator requires ResultDataPools")
 
         self.queries: NDArray[Shape["query_nr, ... query_dim"], Number] = None
         self.results: NDArray[Shape["query_nr, ... result_dim"], Number] = None
@@ -126,8 +136,11 @@ class PlotQueryDistEvaluator(LogingEvaluator):
     def register(self, experiment: Experiment):
         super().register(experiment)
 
-        self.experiment.oracle.request = Evaluate(self.experiment.oracle.request)
-        self.experiment.oracle.request.pre(self.plot_query_dist)
+        if isinstance(self.experiment.oracles, POracles):
+            self.experiment.oracles.process.add = Evaluate(self.experiment.oracles.process.add)
+            self.experiment.oracles.process.add.pre(self.save_query)
+        else:
+            raise TypeError(f"PlotQueryDistEvaluator requires POracles")
 
         self.queries: NDArray[Shape["query_nr, ... query_dim"], Number] = None
 
@@ -182,8 +195,11 @@ class LogOracleEvaluator(LogingEvaluator):
     def register(self, experiment: Experiment):
         super().register(experiment)
 
-        self.experiment.oracles.process.add = Evaluate(self.experiment.oracles.process.add)
-        self.experiment.oracles.process.add.pre(self.save_query)
+        if isinstance(self.experiment.oracles, POracles):
+            self.experiment.oracles.process.add = Evaluate(self.experiment.oracles.process.add)
+            self.experiment.oracles.process.add.pre(self.save_query)
+        else:
+            raise TypeError(f"LogOracleEvaluator requires POracles")
 
         self.experiment.run = Evaluate(self.experiment.run)
         self.experiment.run.post(self.log_data)
@@ -208,8 +224,11 @@ class LogStreamEvaluator(LogingEvaluator):
     def register(self, experiment: Experiment):
         super().register(experiment)
 
-        self.experiment.data_pools.stream.add = Evaluate(self.experiment.data_pools.stream.add)
-        self.experiment.data_pools.stream.add.pre(self.save_stream)
+        if isinstance(self.experiment.data_pools, StreamDataPools):
+            self.experiment.data_pools.stream.add = Evaluate(self.experiment.data_pools.stream.add)
+            self.experiment.data_pools.stream.add.pre(self.save_stream)
+        else:
+            raise TypeError(f"LogStreamEvaluator requires StreamDataPools")
 
         self.experiment.run = Evaluate(self.experiment.run)
         self.experiment.run.post(self.log_data)
@@ -236,8 +255,11 @@ class LogProcessEvaluator(LogingEvaluator):
     def register(self, experiment: Experiment):
         super().register(experiment)
 
-        self.experiment.data_pools.process.add = Evaluate(self.experiment.data_pools.process.add)
-        self.experiment.data_pools.process.add.pre(self.save_process)
+        if isinstance(self.experiment.data_pools, ProcessDataPools):
+            self.experiment.data_pools.process.add = Evaluate(self.experiment.data_pools.process.add)
+            self.experiment.data_pools.process.add.pre(self.save_process)
+        else:
+            raise TypeError(f"LogProcessEvaluator requires ProcessDataPools")
 
         self.experiment.run = Evaluate(self.experiment.run)
         self.experiment.run.post(self.log_data)
@@ -262,8 +284,11 @@ class LogResultEvaluator(LogingEvaluator):
     def register(self, experiment: Experiment):
         super().register(experiment)
 
-        self.experiment.data_pools.result.add = Evaluate(self.experiment.data_pools.result.add)
-        self.experiment.data_pools.result.add.pre(self.save_result)
+        if isinstance(self.experiment.data_pools, ResultDataPools):
+            self.experiment.data_pools.result.add = Evaluate(self.experiment.data_pools.result.add)
+            self.experiment.data_pools.result.add.pre(self.save_result)
+        else:
+            raise TypeError(f"LogResultEvaluator requires ResultDataPools")
 
         self.experiment.run = Evaluate(self.experiment.run)
         self.experiment.run.post(self.log_data)
@@ -310,8 +335,11 @@ class LogTVPGTEvaluator(LogingEvaluator):
     def register(self, experiment: Experiment):
         super().register(experiment)
 
-        self.experiment.process.update = Evaluate(self.experiment.process.update)
-        self.experiment.process.update.post(self.save_gt)
+        if isinstance(self.experiment.process, DelayedProcess):
+            self.experiment.process.update = Evaluate(self.experiment.process.update)
+            self.experiment.process.update.post(self.save_gt)
+        else:
+            raise TypeError(f"LogTVPGTEvaluator requires DelayedProcess")
 
         self.experiment.run = Evaluate(self.experiment.run)
         self.experiment.run.post(self.log_data)

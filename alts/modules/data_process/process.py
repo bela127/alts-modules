@@ -7,12 +7,14 @@ import numpy as np
 
 from alts.core.oracle.data_source import DataSource
 from alts.core.data_process.process import Process
-from alts.core.configuration import is_set, ConfAttr, post_init, pre_init, init, NOTSET
+from alts.core.configuration import is_set, post_init, pre_init, init, NOTSET
 from alts.core.data.constrains import QueryConstrain, ResultConstrain
 from alts.modules.oracle.data_source import TimeBehaviorDataSource
 from alts.modules.behavior import RandomTimeUniformBehavior
 from alts.core.subscriber import TimeSubscriber, ProcessOracleSubscriber
 from alts.core.data.constrains import DelayedConstrained
+from alts.core.data.data_pools import StreamDataPools, ResultDataPools, PRDataPools, SPRDataPools
+from alts.core.oracle.oracles import POracles
 
 if TYPE_CHECKING:
     from typing_extensions import Self
@@ -26,14 +28,19 @@ class StreamProcess(Process, TimeSubscriber):
     stop_time: float = init(default=1000)
     time_behavior: TimeDataSource = init()
 
+    data_pools: StreamDataPools = post_init()
+
     def __post_init__(self):
         if self.time_behavior is NOTSET:
             self.time_behavior = TimeBehaviorDataSource(behavior=RandomTimeUniformBehavior(stop_time=self.stop_time))
         super().__post_init__()
         
         self.time_behavior = self.time_behavior()
-        self.data_pools.stream = self.data_pools.stream(query_constrain = self.time_behavior.query_constrain, result_constrain=self.time_behavior.result_constrain)
-    
+        if isinstance(self.data_pools, StreamDataPools):
+            self.data_pools.stream = self.data_pools.stream(query_constrain = self.time_behavior.query_constrain, result_constrain=self.time_behavior.result_constrain)
+        else:
+            raise TypeError(f"StreamProcess requires StreamDataPools")
+
     def time_update(self, subscription):
         times = np.asarray([[self.time_source.time]])
         times, vars = self.time_behavior.query(times)
@@ -45,15 +52,26 @@ class DataSourceProcess(Process, ProcessOracleSubscriber):
 
     data_source: DataSource = init()
 
+    data_pools: ResultDataPools = post_init()
+    oracles: POracles = post_init()
+
     def __post_init__(self):
         super().__post_init__()
         self.data_source = self.data_source()
-        self.data_pools.result = self.data_pools.result(query_constrain=self.query_constrain, result_constrain=self.delayed_constrain)
+        if isinstance(self.data_pools, ResultDataPools):
+            self.data_pools.result = self.data_pools.result(query_constrain=self.query_constrain, result_constrain=self.delayed_constrain)
+        else:
+            raise TypeError(f"DataSourceProcess requires ResultDataPools")
+        
+        if isinstance(self.oracles, POracles):
+            self.oracles.process = self.oracles.process(query_constrain=self.query_constrain)
+        else:
+            raise TypeError(f"DataSourceProcess requires POracles")
     
     def process_query(self, subscription):
         queries = self.oracles.process.pop()
         queries, results = self.query(queries)
-        self.data_pools.process.add((queries, results))
+        self.data_pools.result.add((queries, results))
     
 
     def query(self, queries: NDArray[Shape["query_nr, ... query_shape"], Number]) -> Tuple[NDArray[Shape["query_nr, ... query_shape"], Number], NDArray[Shape["query_nr, ... result_shape"], Number]]:
@@ -77,12 +95,24 @@ class DelayedProcess(Process, DelayedConstrained):
     has_new_data: bool = pre_init(default=False)
     ready: bool = pre_init(default=True)
 
+    data_pools: PRDataPools = post_init()
+    oracles: POracles = post_init()
+
     def __post_init__(self):
         super().__post_init__()
         self.data_source = self.data_source()
-        self.data_pools.process = self.data_pools.process(query_constrain=self.query_constrain, result_constrain=self.result_constrain)
-        self.data_pools.result = self.data_pools.result(query_constrain=self.query_constrain, result_constrain=self.delayed_constrain)
-        
+
+        if isinstance(self.data_pools, ResultDataPools):
+            self.data_pools.process = self.data_pools.process(query_constrain=self.query_constrain, result_constrain=self.result_constrain)
+            self.data_pools.result = self.data_pools.result(query_constrain=self.query_constrain, result_constrain=self.delayed_constrain)
+        else:
+            raise TypeError(f"DelayedProcess requires PRDataPools")
+
+        if isinstance(self.oracles, POracles):
+            self.oracles.process = self.oracles.process(query_constrain=self.query_constrain)
+        else:
+            raise TypeError(f"DataSourceProcess requires POracles")
+
     
     def step(self, iteration):
         queries, results = self.add_intermediate_results()
