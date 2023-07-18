@@ -16,7 +16,7 @@ nptyping = ">=2.0.0a1"
 matplotlib = "^3.6.3"
 scikit-learn = "^1.2.0"
 paramz = {git = "https://github.com/bela127/paramz.git"}
-GPy = {git = "https://github.com/bela127/GPy.git"}
+GPy = {git = "https://github.com/SheffieldML/GPy"}
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
