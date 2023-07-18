@@ -9,10 +9,7 @@ class NoiseAugmentation(Augmentation):
 
     rng = np.random.default_rng()
 
-    def apply(self, data_points):
-
-        queries, results = data_points
-        
+    def query(self, queries: NDArray[ Shape["query_nr, ... query_dim"], Number]) -> Tuple[NDArray[Shape["query_nr, ... query_dim"], Number], NDArray[Shape["query_nr, ... result_dim"], Number]]:
+        queries, results = self.data_source.query(queries)
         augmented = self.rng.normal(results, self.noise_ratio)
-
         return queries, augmented
