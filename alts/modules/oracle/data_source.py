@@ -51,10 +51,10 @@ class RandomUniformDataSource(DataSource):
 @dataclass
 class LineDataSource(DataSource):
 
-    query_shape: Tuple[int,...] = (1,)
-    result_shape: Tuple[int,...] = (1,)
-    a: float = 1
-    b: float = 0
+    query_shape: Tuple[int,...] = init(default=(1,))
+    result_shape: Tuple[int,...] = init(default=(1,))
+    a: float = init(default=1)
+    b: float = init(default=0)
 
 
     def query(self, queries):

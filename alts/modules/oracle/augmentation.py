@@ -1,11 +1,21 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
 from dataclasses import dataclass
 from alts.core.oracle.augmentation import Augmentation
+from alts.core.configuration import init
+
 
 import numpy as np
 
+if TYPE_CHECKING:
+    from typing_extensions import Self
+    from typing import Tuple
+    from nptyping import NDArray, Number, Shape
+
 @dataclass
 class NoiseAugmentation(Augmentation):
-    noise_ratio: float = 0.01
+    noise_ratio: float = init(default=0.01) 
 
     rng = np.random.default_rng()
 
