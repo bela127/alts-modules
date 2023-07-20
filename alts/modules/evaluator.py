@@ -29,11 +29,11 @@ class PrintNewDataPointsEvaluator(Evaluator):
 
         if isinstance(self.experiment.data_pools, ResultDataPools):
             self.experiment.data_pools.result.add = Evaluate(self.experiment.data_pools.result.add)
-            self.experiment.data_pools.result.add.pre(self.save_result)
+            self.experiment.data_pools.result.add.pre(self.print_new_data_points)
         else:
             raise TypeError(f"PrintNewDataPointsEvaluator requires ResultDataPools")
 
-    def log_new_data_points(self, data_points):
+    def print_new_data_points(self, data_points):
         print(data_points)
 
 class PrintQueryEvaluator(Evaluator):
@@ -43,7 +43,7 @@ class PrintQueryEvaluator(Evaluator):
 
         if isinstance(self.experiment.oracles, POracles):
             self.experiment.oracles.process.add = Evaluate(self.experiment.oracles.process.add)
-            self.experiment.oracles.process.add.pre(self.save_query)
+            self.experiment.oracles.process.add.pre(self.print_query)
         else:
             raise TypeError(f"PrintQueryEvaluator requires POracles")
 
@@ -95,7 +95,7 @@ class PlotNewDataPointsEvaluator(LogingEvaluator):
 
         if isinstance(self.experiment.data_pools, ResultDataPools):
             self.experiment.data_pools.result.add = Evaluate(self.experiment.data_pools.result.add)
-            self.experiment.data_pools.result.add.pre(self.save_result)
+            self.experiment.data_pools.result.add.pre(self.plot_new_data_points)
         else:
             raise TypeError(f"PlotNewDataPointsEvaluator requires ResultDataPools")
 
@@ -138,7 +138,7 @@ class PlotQueryDistEvaluator(LogingEvaluator):
 
         if isinstance(self.experiment.oracles, POracles):
             self.experiment.oracles.process.add = Evaluate(self.experiment.oracles.process.add)
-            self.experiment.oracles.process.add.pre(self.save_query)
+            self.experiment.oracles.process.add.pre(self.plot_query_dist)
         else:
             raise TypeError(f"PlotQueryDistEvaluator requires POracles")
 
