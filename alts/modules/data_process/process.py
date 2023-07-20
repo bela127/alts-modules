@@ -56,17 +56,18 @@ class DataSourceProcess(Process, ProcessOracleSubscriber):
     oracles: POracles = post_init()
 
     def __post_init__(self):
-        super().__post_init__()
-        self.data_source = self.data_source()
-        if isinstance(self.data_pools, ResultDataPools):
-            self.data_pools.result = self.data_pools.result(query_constrain=self.query_constrain, result_constrain=self.delayed_constrain)
-        else:
-            raise TypeError(f"DataSourceProcess requires ResultDataPools")
         
+        self.data_source = self.data_source()
         if isinstance(self.oracles, POracles):
             self.oracles.process = self.oracles.process(query_constrain=self.query_constrain)
         else:
             raise TypeError(f"DataSourceProcess requires POracles")
+        super().__post_init__()
+        if isinstance(self.data_pools, ResultDataPools):
+            self.data_pools.result = self.data_pools.result(query_constrain=self.query_constrain, result_constrain=self.result_constrain)
+        else:
+            raise TypeError(f"DataSourceProcess requires ResultDataPools")
+
     
     def process_query(self, subscription):
         queries = self.oracles.process.pop()
