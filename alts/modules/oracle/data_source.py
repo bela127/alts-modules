@@ -40,7 +40,6 @@ class RandomUniformDataSource(DataSource):
         results = np.random.uniform(low=self.l, high=self.u, size=(queries.shape[0], * self.result_shape))
         return queries, results
 
-    @property
     def query_constrain(self) -> QueryConstrain:
         x_min = 0
         x_max = 1
@@ -61,7 +60,6 @@ class LineDataSource(DataSource):
         results = np.dot(queries, np.ones((*self.query_shape,*self.result_shape))*self.a) + np.ones(self.result_shape)*self.b
         return queries, results
 
-    @property
     def query_constrain(self) -> QueryConstrain:
         x_min = 0
         x_max = 1
@@ -83,7 +81,6 @@ class SquareDataSource(DataSource):
         results = np.dot((queries - self.x0)**2, np.ones((*self.query_shape,*self.result_shape))*self.s) + np.ones(self.result_shape)*self.y0
         return queries, results
 
-    @property
     def query_constrain(self) -> QueryConstrain:
         x_min = 0
         x_max = 1
@@ -106,9 +103,8 @@ class InterpolatingDataSource(DataSource):
         data_points = self.interpolation_strategy.interpolate(data_points)
         return data_points
     
-    @property
     def query_constrain(self) -> QueryConstrain:
-        return self.interpolation_strategy.query_constrain
+        return self.interpolation_strategy.query_constrain()
 
 
 
@@ -130,7 +126,6 @@ class CrossDataSource(DataSource):
 
         return queries, results
 
-    @property
     def query_constrain(self) -> QueryConstrain:
         x_min = -0.5
         x_max = 0.5
@@ -156,7 +151,6 @@ class DoubleLinearDataSource(DataSource):
 
         return queries, results
 
-    @property
     def query_constrain(self) -> QueryConstrain:
         x_min = -0.5
         x_max = 0.5
@@ -187,7 +181,6 @@ class HourglassDataSource(DataSource):
 
         return queries, results
 
-    @property
     def query_constrain(self) -> QueryConstrain:
         x_min = -0.5
         x_max = 0.5
@@ -215,7 +208,6 @@ class ZDataSource(DataSource):
 
         return queries, results
 
-    @property
     def query_constrain(self) -> QueryConstrain:
         x_min = -0.5
         x_max = 0.5
@@ -242,7 +234,6 @@ class ZInvDataSource(DataSource):
 
         return queries, results
 
-    @property
     def query_constrain(self) -> QueryConstrain:
         x_min = -0.5
         x_max = 0.5
@@ -262,7 +253,6 @@ class LinearPeriodicDataSource(DataSource):
         results = np.dot(queries % self.p, np.ones((*self.query_shape, *self.result_shape))*self.a)
         return queries, results
 
-    @property
     def query_constrain(self) -> QueryConstrain:
         x_min = 0
         x_max = 1
@@ -284,7 +274,6 @@ class SineDataSource(DataSource):
         results = np.dot(np.sin((queries-self.x0) * 2 * np.pi * self.p), np.ones((*self.query_shape,*self.result_shape))*self.a) + np.ones(self.result_shape)*self.y0
         return queries, results
 
-    @property
     def query_constrain(self) -> QueryConstrain:
         x_min = 0
         x_max = 1
@@ -314,7 +303,6 @@ class HypercubeDataSource(DataSource):
         return queries, results
 
 
-    @property
     def query_constrain(self) -> QueryConstrain:
         x_min = -0.5
         x_max = 0.5
@@ -349,7 +337,6 @@ class StarDataSource(DataSource):
 
         return queries, results
 
-    @property
     def query_constrain(self) -> QueryConstrain:
         x_min = -0.5
         x_max = 0.5
@@ -378,7 +365,6 @@ class OldGausianProcessDataSource(DataSource):
 
         return queries, results
 
-    @property
     def query_constrain(self) -> QueryConstrain:
         x_min = 0
         x_max = 1
@@ -442,7 +428,6 @@ class GaussianProcessDataSource(DataSource):
 
         return queries, results
 
-    @property
     def query_constrain(self) -> QueryConstrain:
         x_min_max = zip(self.min_support, self.max_support)
         query_ranges = np.asarray(tuple((x_min, x_max) for x_min, x_max in x_min_max))

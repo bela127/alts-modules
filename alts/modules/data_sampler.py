@@ -5,15 +5,15 @@ from dataclasses import dataclass, field
 
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
-from alts.core.data.data_pool import DataPool
 
-from alts.core.data_sampler import DataSampler
-from alts.core.query.query_pool import QueryPool
+from alts.core.data_sampler import ResultDataSampler
+from alts.core.data.constrains import QueryConstrain, ResultConstrain
 
 if TYPE_CHECKING:
     from typing import Tuple
+    from alts.core.subscribable import Subscribable
 
-class KDTreeKNNDataSampler(DataSampler):
+class KDTreeKNNDataSampler(ResultDataSampler):
     sample_size: int = 50
     sample_size_data_fraction: int = 6
 
@@ -25,40 +25,39 @@ class KDTreeKNNDataSampler(DataSampler):
         self._knn = NearestNeighbors(n_neighbors=self.sample_size)
         
 
-    def update(self):
-        self._knn.fit(self.exp_modules.queried_data_pool.queries, self.exp_modules.queried_data_pool.results)
+    def result_update(self, subscription: Subscribable):
+        super().result_update(subscription)
+        self._knn.fit(self.data_pools.result.queries, self.data_pools.result.results)
 
     def query(self, queries, size = None):
         if size is None: size = self.sample_size
-        if self.exp_modules.queried_data_pool.query_pool.query_count // self.sample_size_data_fraction < size: size = np.ceil(self.exp_modules.queried_data_pool.query_pool.query_count / self.sample_size_data_fraction)
+        if self.data_pools.result.query_constrain().query_count // self.sample_size_data_fraction < size: size = np.ceil(self.data_pools.result.query_constrain().query_count / self.sample_size_data_fraction)
 
         kneighbor_indexes = self._knn.kneighbors(queries, n_neighbors=int(size), return_distance=False)
 
-        neighbor_queries = self.exp_modules.queried_data_pool.queries[kneighbor_indexes]
-        kneighbors = self.exp_modules.queried_data_pool.results[kneighbor_indexes]
+        neighbor_queries = self.data_pools.result.queries[kneighbor_indexes]
+        kneighbors = self.data_pools.result.results[kneighbor_indexes]
         
         return (neighbor_queries, kneighbors)
     
-    @property
-    def query_pool(self):
-        query_shape = self.exp_modules.oracle_data_pool.query_shape
-        query_ranges = self.exp_modules.oracle_data_pool.query_ranges
-        query_count = self.exp_modules.queried_data_pool.query_pool.query_count
-        query_pool = QueryPool(query_count=query_count,query_shape=query_shape,query_ranges=query_ranges)
+    def query_constrain(self):
+        query_shape = self.data_pools.result.query_constrain().shape
+        query_ranges = self.data_pools.result.query_constrain().ranges
+        query_count = self.data_pools.result.query_constrain().count
+        query_constrain = QueryConstrain(count=query_count,shape=query_shape,ranges=query_ranges)
         
-        queries = self.exp_modules.queried_data_pool.query_pool.all_queries()
-        query_pool._queries = queries
-        query_pool._last_queries = self.exp_modules.queried_data_pool.query_pool.last_queries()
+        queries = self.data_pools.result.query_constrain().all_queries()
+        query_constrain.ranges = queries[:,None]
+        query_constrain._last_queries = self.data_pools.result.query_constrain().last_queries()
 
-        return query_pool
+        return query_constrain
 
-    @property
-    def data_pool(self):
-        return DataPool(self.query_pool, self.exp_modules.oracle_data_pool.result_shape)
+    def result_constrain(self):
+        return self.data_pools.result.result_constrain()
 
     
 
-class KDTreeRegionDataSampler(DataSampler):
+class KDTreeRegionDataSampler(ResultDataSampler):
 
     def __init__(self, region_size = 0.1):
         super().__init__()
@@ -66,31 +65,30 @@ class KDTreeRegionDataSampler(DataSampler):
         self._knn = NearestNeighbors()
         
 
-    def update(self):
-        self._knn.fit(self.exp_modules.queried_data_pool.queries, self.exp_modules.queried_data_pool.results)
+    def result_update(self, subscription: Subscribable):
+        super().result_update(subscription)
+        self._knn.fit(self.data_pools.result.queries, self.data_pools.result.results)
 
     def query(self, queries, size = None):
 
         kneighbor_indexes = self._knn.radius_neighbors(queries, radius=self.region_size ,return_distance=False)
 
-        neighbor_queries = np.asarray([self.exp_modules.queried_data_pool.queries[kneighbor_indexe] for kneighbor_indexe in kneighbor_indexes], dtype=object)
-        kneighbors = np.asarray([self.exp_modules.queried_data_pool.results[kneighbor_indexe] for kneighbor_indexe in kneighbor_indexes], dtype=object)
+        neighbor_queries = np.asarray([self.data_pools.result.queries[kneighbor_indexe] for kneighbor_indexe in kneighbor_indexes], dtype=object)
+        kneighbors = np.asarray([self.data_pools.result.results[kneighbor_indexe] for kneighbor_indexe in kneighbor_indexes], dtype=object)
         
         return (neighbor_queries, kneighbors)
     
-    @property
-    def query_pool(self):
-        query_shape = self.exp_modules.oracle_data_pool.query_shape
-        query_ranges = self.exp_modules.oracle_data_pool.query_ranges
-        query_count = self.exp_modules.queried_data_pool.query_pool.query_count
-        query_pool = QueryPool(query_count=query_count,query_shape=query_shape,query_ranges=query_ranges)
+    def query_constrain(self):
+        query_shape = self.data_pools.result.query_constrain().shape
+        query_ranges = self.data_pools.result.query_constrain().ranges
+        query_count = self.data_pools.result.query_constrain().count
+        query_constrain = QueryConstrain(count=query_count,shape=query_shape,ranges=query_ranges)
         
-        queries = self.exp_modules.queried_data_pool.query_pool.all_queries()
-        query_pool._queries = queries
-        query_pool._last_queries = self.exp_modules.queried_data_pool.query_pool.last_queries()
+        queries = self.data_pools.result.query_constrain().all_queries()
+        query_constrain.ranges = queries[:,None]
+        query_constrain._last_queries = self.data_pools.result.query_constrain().last_queries()
 
-        return query_pool
+        return query_constrain
 
-    @property
-    def data_pool(self):
-        return DataPool(self.query_pool, self.exp_modules.oracle_data_pool.result_shape)
+    def result_constrain(self):
+        return self.data_pools.result.result_constrain()

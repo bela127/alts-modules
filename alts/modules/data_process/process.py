@@ -79,13 +79,11 @@ class DataSourceProcess(Process, ProcessOracleSubscriber):
         queries, results = self.data_source.query(queries)
         return queries, results
 
-    @property
     def query_constrain(self) -> QueryConstrain:
-        return self.data_source.query_constrain
+        return self.data_source.query_constrain()
 
-    @property
     def result_constrain(self) -> ResultConstrain:
-        return self.data_source.result_constrain
+        return self.data_source.result_constrain()
 
 
 @dataclass
@@ -169,17 +167,14 @@ class DelayedProcess(Process, DelayedConstrained):
         queries = np.concatenate((self.last_queries[:,:1] + self.time_source.time_step ,self.last_queries[:,1:]), axis=1) 
         return queries, self.last_results
 
-    @property
     def query_constrain(self) -> QueryConstrain:
-        return self.data_source.query_constrain
+        return self.data_source.query_constrain()
 
-    @property
     def result_constrain(self) -> ResultConstrain:
-        return self.data_source.result_constrain
+        return self.data_source.result_constrain()
 
-    @property
     def delayed_constrain(self) -> ResultConstrain:
-        return self.data_source.result_constrain
+        return self.data_source.result_constrain()
 
 @dataclass
 class DelayedStreamProcess(DelayedProcess, StreamProcess):
@@ -232,8 +227,8 @@ class WindowDSProcess(DelayedStreamProcess):
     
     def __post_init__(self):
         super().__post_init__()
-        self.sliding_query_window = np.empty((0, *self.data_source.query_constrain.shape))
-        self.sliding_result_window = np.empty((0, *self.data_source.result_constrain.shape))
+        self.sliding_query_window = np.empty((0, *self.data_source.query_constrain().shape))
+        self.sliding_result_window = np.empty((0, *self.data_source.result_constrain().shape))
     
     def added_intermediate_data(self, queries, results):
         super().added_intermediate_data(queries, results)

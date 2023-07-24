@@ -43,11 +43,9 @@ class FlatQueriedDataPool(QueriedDataPool):
             self.query_index[tuple(query)] = results + [result]
         super().add(data_points)
 
-    @property
     def query_constrain(self) -> QueryConstrain:
-        return QueryConstrain(count = self.queries.shape[0], query_shape = self._query_constrain.shape, query_ranges = self.queries)
+        return QueryConstrain(count = self.queries.shape[0], shape = self._query_constrain().shape, ranges = self.queries)
 
 
-    @property
     def result_constrain(self) -> ResultConstrain:
-        return ResultConstrain(shape=self._result_constrain.shape)
+        return self._result_constrain()

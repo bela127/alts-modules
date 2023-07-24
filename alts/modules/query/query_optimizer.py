@@ -20,16 +20,16 @@ if TYPE_CHECKING:
 @dataclass
 class NoQueryOptimizer(QueryOptimizer):
     selection_criteria: SelectionCriteria = init(default_factory=NoSelectionCriteria)
-    query_sampler: Required[QuerySampler] = init()
+    query_sampler: QuerySampler = init()
 
     def __post_init__(self):
         super().__post_init__()
-        self.query_sampler = is_set(self.query_sampler)(exp_modules = self.exp_modules)
+        self.query_sampler = self.query_sampler(exp_modules = self.exp_modules)
 
 
     def select(self):
 
-        queries = is_set(self.query_sampler).sample()
+        queries = self.query_sampler.sample()
         queries, scores = self.selection_criteria.query(queries)
 
         return queries, scores
