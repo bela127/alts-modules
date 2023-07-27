@@ -30,10 +30,10 @@ class StreamProcess(Process, TimeSubscriber):
 
     data_pools: StreamDataPools = post_init()
 
-    def __post_init__(self):
+    def post_init(self):
         if self.time_behavior is NOTSET:
             self.time_behavior = TimeBehaviorDataSource(behavior=RandomTimeUniformBehavior(stop_time=self.stop_time))
-        super().__post_init__()
+        super().post_init()
         
         self.time_behavior = self.time_behavior()
         if isinstance(self.data_pools, StreamDataPools):
@@ -55,14 +55,14 @@ class DataSourceProcess(Process, ProcessOracleSubscriber):
     data_pools: ResultDataPools = post_init()
     oracles: POracles = post_init()
 
-    def __post_init__(self):
+    def post_init(self):
         
         self.data_source = self.data_source()
         if isinstance(self.oracles, POracles):
             self.oracles.process = self.oracles.process(query_constrain=self.query_constrain)
         else:
             raise TypeError(f"DataSourceProcess requires POracles")
-        super().__post_init__()
+        super().post_init()
         if isinstance(self.data_pools, ResultDataPools):
             self.data_pools.result = self.data_pools.result(query_constrain=self.query_constrain, result_constrain=self.result_constrain)
         else:
@@ -70,7 +70,7 @@ class DataSourceProcess(Process, ProcessOracleSubscriber):
 
     
     def process_query(self, subscription):
-        queries = self.oracles.process.pop()
+        queries = self.oracles.process.pop(self.oracles.process.count)
         queries, results = self.query(queries)
         self.data_pools.result.add((queries, results))
     
@@ -97,8 +97,8 @@ class DelayedProcess(Process, DelayedConstrained):
     data_pools: PRDataPools = post_init()
     oracles: POracles = post_init()
 
-    def __post_init__(self):
-        super().__post_init__()
+    def post_init(self):
+        super().post_init()
         self.data_source = self.data_source()
 
         if isinstance(self.data_pools, ResultDataPools):
@@ -225,8 +225,8 @@ class WindowDSProcess(DelayedStreamProcess):
 
     window_size: float = init(default=4)
     
-    def __post_init__(self):
-        super().__post_init__()
+    def post_init(self):
+        super().post_init()
         self.sliding_query_window = np.empty((0, *self.data_source.query_constrain().shape))
         self.sliding_result_window = np.empty((0, *self.data_source.result_constrain().shape))
     

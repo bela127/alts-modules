@@ -6,24 +6,22 @@ from dataclasses import dataclass, field
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
 
-from alts.core.data_sampler import ResultDataSampler
+from alts.core.data.data_sampler import ResultDataSampler
 from alts.core.data.constrains import QueryConstrain, ResultConstrain
+from alts.core.configuration import init
 
 if TYPE_CHECKING:
     from typing import Tuple
     from alts.core.subscribable import Subscribable
 
+@dataclass
 class KDTreeKNNDataSampler(ResultDataSampler):
-    sample_size: int = 50
-    sample_size_data_fraction: int = 6
+    sample_size: int = init(default=50)
+    sample_size_data_fraction: int = init(default=6)
 
-
-    def __init__(self, sample_size, sample_size_data_fraction = 6):
-        super().__init__()
-        self.sample_size = sample_size
-        self.sample_size_data_fraction = sample_size_data_fraction
+    def post_init(self):
+        super().post_init()
         self._knn = NearestNeighbors(n_neighbors=self.sample_size)
-        
 
     def result_update(self, subscription: Subscribable):
         super().result_update(subscription)
@@ -56,12 +54,12 @@ class KDTreeKNNDataSampler(ResultDataSampler):
         return self.data_pools.result.result_constrain()
 
     
-
+@dataclass
 class KDTreeRegionDataSampler(ResultDataSampler):
+    region_size: float = init(default=0.1)
 
-    def __init__(self, region_size = 0.1):
-        super().__init__()
-        self.region_size = region_size
+    def post_init(self):
+        super().post_init()
         self._knn = NearestNeighbors()
         
 
@@ -92,3 +90,5 @@ class KDTreeRegionDataSampler(ResultDataSampler):
 
     def result_constrain(self):
         return self.data_pools.result.result_constrain()
+
+print(KDTreeRegionDataSampler.mro())

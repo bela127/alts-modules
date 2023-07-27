@@ -17,8 +17,8 @@ class IterationTimeSource(TimeSource):
     start_time: float = 0
     time_step: float = 1
     
-    def __post_init__(self):
-        super().__post_init__()
+    def post_init(self):
+        super().post_init()
         self._time_offset: float = self.start_time
         self._iter = 0
 

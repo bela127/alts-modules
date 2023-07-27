@@ -86,7 +86,6 @@ class PlotNewDataPointsEvaluator(LogingEvaluator):
 
     queries: NDArray[Shape["query_nr, ... query_dim"], Number] = pre_init(None)
     results: NDArray[Shape["query_nr, ... result_dim"], Number] = pre_init(None)
-    iteration: int = field(init = False, default = 0)
 
     def register(self, experiment: Experiment):
         super().register(experiment)
@@ -101,10 +100,9 @@ class PlotNewDataPointsEvaluator(LogingEvaluator):
 
         self.queries: NDArray[Shape["query_nr, ... query_dim"], Number] = None
         self.results: NDArray[Shape["query_nr, ... result_dim"], Number] = None
-        self.iteration = 0
 
     def plot_new_data_points(self, data_points):
-
+        self.experiment.iteration
         queries, results = data_points
 
         if self.queries is None:
@@ -131,7 +129,6 @@ class PlotQueryDistEvaluator(LogingEvaluator):
     fig_name:str = "Query distribution"
 
     queries: NDArray[Shape["query_nr, ... query_dim"], Number] = field(init = False, default = None)
-    iteration: int = field(init = False, default = 0)
 
     def register(self, experiment: Experiment):
         super().register(experiment)
@@ -159,14 +156,10 @@ class PlotQueryDistEvaluator(LogingEvaluator):
             plot.savefig(f'{self.path}/{self.fig_name}_{self.iteration:05d}.png')
             plot.clf()
 
-        self.iteration += 1
-
 class PlotSampledQueriesEvaluator(LogingEvaluator):
     interactive: bool = True
     folder: str = "fig"
     fig_name:str = "Sampled queries"
-
-    iteration: int = field(init = False, default = 0)
 
     def register(self, experiment: Experiment):
         super().register(experiment)
@@ -183,8 +176,6 @@ class PlotSampledQueriesEvaluator(LogingEvaluator):
         else:
             plot.savefig(f'{self.path}/{self.fig_name}_{self.iteration:05d}.png')
             plot.clf()
-
-        self.iteration += 1
 
 
 @dataclass
@@ -315,8 +306,8 @@ class LogAllEvaluator(LogingEvaluator):
     lpev: LogProcessEvaluator = post_init()
     lrev: LogResultEvaluator = post_init()
 
-    def __post_init__(self):
-        super().__post_init__()
+    def post_init(self):
+        super().post_init()
         self.lsev = LogStreamEvaluator(folder=self.folder, file_name=f"{self.file_name}_stream")()
         self.lpev = LogProcessEvaluator(folder=self.folder, file_name=f"{self.file_name}_process")()
         self.lrev = LogResultEvaluator(folder=self.folder, file_name=f"{self.file_name}_result")()

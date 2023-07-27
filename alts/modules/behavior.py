@@ -7,7 +7,7 @@ import numpy as np
 
 import GPy
 
-from alts.core.behavior import Behavior
+from alts.core.oracle.data_behavior import DataBehavior
 
 if TYPE_CHECKING:
     from typing import Tuple
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class EquidistantTimeUniformBehavior(Behavior):
+class EquidistantTimeUniformBehavior(DataBehavior):
 
     def behavior(self) -> Tuple[NDArray[Shape["change_times"], Number], NDArray[Shape["kps"], Number]]:
         numberOfLoadChanges: int = int((self.stop_time-self.start_time) / self.change_interval)
@@ -25,7 +25,7 @@ class EquidistantTimeUniformBehavior(Behavior):
 
     
 @dataclass
-class RandomTimeUniformBehavior(Behavior):
+class RandomTimeUniformBehavior(DataBehavior):
 
     def behavior(self) -> Tuple[NDArray[Shape["change_times"], Number], NDArray[Shape["var"], Number]]:
         numberOfLoadChanges: int = int((self.stop_time-self.start_time) / self.change_interval)
@@ -35,7 +35,7 @@ class RandomTimeUniformBehavior(Behavior):
 
 
 @dataclass
-class RandomTimeBrownBehavior(Behavior):
+class RandomTimeBrownBehavior(DataBehavior):
 
     def behavior(self) -> Tuple[NDArray[Shape["change_times"], Number], NDArray[Shape["kps"], Number]]:
         offset = (self.upper_value+self.lower_value)/2

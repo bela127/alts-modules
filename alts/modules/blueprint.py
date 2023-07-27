@@ -26,12 +26,8 @@ if TYPE_CHECKING:
     from alts.core.data_process.time_source import TimeSource
     from alts.core.data_process.process import Process
     from alts.core.stopping_criteria import StoppingCriteria
-    from alts.core.data_process.observable_filter import ObservableFilter
-    from alts.core.data.queried_data_pool import QueriedDataPool
-    from alts.core.query.query_sampler import QuerySampler
     from alts.core.experiment_modules import ExperimentModules
     from alts.core.evaluator import Evaluator
-    from alts.core.oracle.query_queue import QueryQueue
     from alts.core.oracle.oracles import Oracles
     from alts.core.data.data_pools import DataPools
 

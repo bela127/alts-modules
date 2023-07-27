@@ -22,8 +22,8 @@ class NoQueryOptimizer(QueryOptimizer):
     selection_criteria: SelectionCriteria = init(default_factory=NoSelectionCriteria)
     query_sampler: QuerySampler = init()
 
-    def __post_init__(self):
-        super().__post_init__()
+    def post_init(self):
+        super().post_init()
         self.query_sampler = self.query_sampler(exp_modules = self.exp_modules)
 
 
@@ -40,12 +40,10 @@ class MCQueryOptimizer(QueryOptimizer):
     query_sampler: QuerySampler  = init()
     num_tries: int = pre_init(default=100)
 
-    def __call__(self, exp_modules: Required[ExperimentModules] = None, **kwargs) -> Self:
-        obj = super().__call__(exp_modules, **kwargs)
-        obj.query_sampler = obj.query_sampler(exp_modules)
-        return obj
-
-    
+    def post_init(self):
+        super().post_init()
+        self.query_sampler = self.query_sampler(self.exp_modules)
+  
 class MaxMCQueryOptimizer(MCQueryOptimizer):
 
     def select(self):

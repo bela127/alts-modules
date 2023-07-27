@@ -14,12 +14,12 @@ from alts.core.data.constrains import QueryConstrain
 from alts.core.configuration import pre_init, is_set, init, post_init
 
 if TYPE_CHECKING:
-    from alts.core.behavior import Behavior
+    from alts.core.oracle.data_behavior import DataBehavior
     from alts.core.configuration import Required
 
     from typing import Tuple, List, Any, Type
     from alts.core.oracle.interpolation_strategy import InterpolationStrategy
-    from alts.core.data_sampler import DataSampler
+    from alts.core.data.data_sampler import DataSampler
 
     from nptyping import  NDArray, Number, Shape
 
@@ -30,10 +30,10 @@ if TYPE_CHECKING:
 @dataclass
 class RandomUniformDataSource(DataSource):
 
-    query_shape: Tuple[int,...] = (1,)
-    result_shape: Tuple[int,...] = (1,)
-    u: float = 1
-    l: float = 0
+    query_shape: Tuple[int,...] = init(default=(1,))
+    result_shape: Tuple[int,...] = init(default=(1,))
+    u: float = init(default=1)
+    l: float = init(default=0)
 
 
     def query(self, queries):
@@ -71,11 +71,11 @@ class LineDataSource(DataSource):
 @dataclass
 class SquareDataSource(DataSource):
 
-    query_shape: Tuple[int,...] = (1,)
-    result_shape: Tuple[int,...] = (1,)
-    x0: float = 0.5
-    y0: float = 0
-    s: float = 5
+    query_shape: Tuple[int,...] = init(default=(1,))
+    result_shape: Tuple[int,...] = init(default=(1,))
+    x0: float = init(default=0.5)
+    y0: float = init(default=0)
+    s: float = init(default=5)
 
     def query(self, queries):
         results = np.dot((queries - self.x0)**2, np.ones((*self.query_shape,*self.result_shape))*self.s) + np.ones(self.result_shape)*self.y0
@@ -93,8 +93,8 @@ class InterpolatingDataSource(DataSource):
     data_sampler: DataSampler = init()
     interpolation_strategy: InterpolationStrategy = init()
 
-    def __post_init__(self):
-        super().__post_init__()
+    def post_init(self):
+        super().post_init()
         self.data_sampler = self.data_sampler()
         self.interpolation_strategy = self.interpolation_strategy(self.data_sampler)
 
@@ -111,9 +111,9 @@ class InterpolatingDataSource(DataSource):
 @dataclass
 class CrossDataSource(DataSource):
 
-    query_shape: Tuple[int,...] = (1,)
-    result_shape: Tuple[int,...] = (1,)
-    a: float = 1
+    query_shape: Tuple[int,...] = init(default=(1,))
+    result_shape: Tuple[int,...] = init(default=(1,))
+    a: float = init(default=1)
 
     def query(self, queries):
 
@@ -135,10 +135,10 @@ class CrossDataSource(DataSource):
 @dataclass
 class DoubleLinearDataSource(DataSource):
 
-    query_shape: Tuple[int,...] = (1,)
-    result_shape: Tuple[int,...] = (1,)
-    a: float = 1
-    slope_factor = 0.5
+    query_shape: Tuple[int,...] = init(default=(1,))
+    result_shape: Tuple[int,...] = init(default=(1,))
+    a: float = init(default=1)
+    slope_factor: float = init(default=0.5)
 
     def query(self, queries):
 
@@ -161,9 +161,9 @@ class DoubleLinearDataSource(DataSource):
 @dataclass
 class HourglassDataSource(DataSource):
 
-    query_shape: Tuple[int,...] = (1,)
-    result_shape: Tuple[int,...] = (1,)
-    a: float = 1
+    query_shape: Tuple[int,...] = init(default=(1,))
+    result_shape: Tuple[int,...] = init(default=(1,))
+    a: float = init(default=1)
 
     def query(self, queries):
 
@@ -190,9 +190,9 @@ class HourglassDataSource(DataSource):
 @dataclass
 class ZDataSource(DataSource):
 
-    query_shape: Tuple[int,...] = (1,)
-    result_shape: Tuple[int,...] = (1,)
-    a: float = 1
+    query_shape: Tuple[int,...] = init(default=(1,))
+    result_shape: Tuple[int,...] = init(default=(1,))
+    a: float = init(default=1)
 
     def query(self, queries):
 
@@ -217,9 +217,9 @@ class ZDataSource(DataSource):
 @dataclass
 class ZInvDataSource(DataSource):
 
-    query_shape: Tuple[int,...] = (1,)
-    result_shape: Tuple[int,...] = (1,)
-    a: float = 1
+    query_shape: Tuple[int,...] = init(default=(1,))
+    result_shape: Tuple[int,...] = init(default=(1,))
+    a: float = init(default=1)
 
     def query(self, queries):
 
@@ -243,10 +243,10 @@ class ZInvDataSource(DataSource):
 @dataclass
 class LinearPeriodicDataSource(DataSource):
 
-    query_shape: Tuple[int,...] = (1,)
-    result_shape: Tuple[int,...] = (1,)
-    a: float = 1
-    p: float = 0.2
+    query_shape: Tuple[int,...] = init(default=(1,))
+    result_shape: Tuple[int,...] = init(default=(1,))
+    a: float = init(default=1)
+    p: float = init(default=0.2)
 
 
     def query(self, queries):
@@ -262,12 +262,12 @@ class LinearPeriodicDataSource(DataSource):
 @dataclass
 class SineDataSource(DataSource):
 
-    query_shape: Tuple[int,...] = (1,)
-    result_shape: Tuple[int,...] = (1,)
-    a: float = 1
-    p: float = 1
-    y0: float = 0
-    x0: float = 0
+    query_shape: Tuple[int,...] = init(default=(1,))
+    result_shape: Tuple[int,...] = init(default=(1,))
+    a: float = init(default=1)
+    p: float = init(default=1)
+    y0: float = init(default=0)
+    x0: float = init(default=0)
 
 
     def query(self, queries):
@@ -284,9 +284,9 @@ class SineDataSource(DataSource):
 @dataclass
 class HypercubeDataSource(DataSource):
 
-    query_shape: Tuple[int,...] = (1,)
-    result_shape: Tuple[int,...] = (1,)
-    w: float = 0.3
+    query_shape: Tuple[int,...] = init(default=(1,))
+    result_shape: Tuple[int,...] = init(default=(1,))
+    w: float = init(default=0.3)
 
     def query(self, queries):
 
@@ -312,9 +312,9 @@ class HypercubeDataSource(DataSource):
 @dataclass
 class StarDataSource(DataSource):
 
-    query_shape: Tuple[int,...] = (1,)
-    result_shape: Tuple[int,...] = (1,)
-    w: float = 0.05
+    query_shape: Tuple[int,...] = init(default=(1,))
+    result_shape: Tuple[int,...] = init(default=(1,))
+    w: float = init(default=0.05)
 
     def query(self, queries):
 
@@ -343,66 +343,26 @@ class StarDataSource(DataSource):
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
-
-@dataclass
-class OldGausianProcessDataSource(DataSource):
-
-    query_shape: Tuple[int,...] = (1,)
-    result_shape: Tuple[int,...] = (1,)
-    s: float = 0.1
-    r: int = np.random.randint(1, 10000000)
-
-    gpr: GaussianProcessRegressor = pre_init(None)
-    queries: NDArray[Shape["query_nr, ... query_dim"], Number] = pre_init(None)
-    results: NDArray[Shape["query_nr, ... result_dim"], Number] = pre_init(None)
-    singleton: OldGausianProcessDataSource = pre_init(None)
-
-    def query(self, queries):
-        results = self.gpr.sample_y(queries)
-        self.queries = np.concatenate((self.queries, queries))
-        self.results = np.concatenate((self.results, results))
-        self.gpr.fit(self.queries, self.results)
-
-        return queries, results
-
-    def query_constrain(self) -> QueryConstrain:
-        x_min = 0
-        x_max = 1
-        query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
-        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
-
-
-    def __call__(self, **kwargs) -> Self:
-        obj = super().__call__( **kwargs)
-        if self.singleton is None:
-            obj.gpr = GaussianProcessRegressor(kernel=RationalQuadratic(length_scale=obj.s), optimizer=None, random_state=obj.r)
-            obj.queries = np.empty((0,*self.query_shape))
-            obj.results = np.empty((0,*self.result_shape))
-            obj.singleton = obj
-            self.singleton = obj
-        return self.singleton
-
 @dataclass
 class GaussianProcessDataSource(DataSource):
 
-    reinit: bool = False
-    query_shape: Tuple[int,...] = (1,)
-    result_shape: Tuple[int,...] = (1,)
-    kern: Optional[GPy.kern.Kern] = None
-    support_points : int= 1000
-    min_support = (-1,)
-    max_support = (1,)
+    reinit: bool = init(default=False)
+    query_shape: Tuple[int,...] = init(default=(1,))
+    result_shape: Tuple[int,...] = init(default=(1,))
+    kern: Optional[GPy.kern.Kern] = init(default=None)
+    support_points: int= init(default=2000)
+    min_support: Tuple[float,...] = init(default=(-1,))
+    max_support: Tuple[float,...] = init(default=(1,))
     
-    regression: GPy.models.GPRegression = field(default=None, init=False, repr=False)
+    regression: GPy.models.GPRegression = pre_init(default=None)
 
-    def __post_init__(self):
+    def post_init(self):
         if self.kern is None:
             self.kern = GPy.kern.RBF(input_dim=np.prod(self.query_shape), lengthscale=0.1)
-        
+        super().post_init()
         self.init_singleton()
     
     def init_singleton(self):
-
         if self.regression is None or self.reinit == True:
             rng = np.random.RandomState(None)
             support = rng.uniform(self.min_support, self.max_support, (self.support_points, *self.query_shape))
@@ -442,40 +402,41 @@ class GaussianProcessDataSource(DataSource):
 
 @dataclass
 class BrownianProcessDataSource(GaussianProcessDataSource):
-    query_shape: Tuple[int,...] = (1,)
-    result_shape: Tuple[int,...] = (1,)
-    min_support = (0,)
-    max_support = (100,)
+    query_shape: Tuple[int,...] = init(default=(1,))
+    result_shape: Tuple[int,...] = init(default=(1,))
+    min_support: Tuple[float,...] = init(default=(0,))
+    max_support: Tuple[float,...] = init(default=(100,))
 
-    def __post_init__(self):
+    def post_init(self):
         self.kern = GPy.kern.Brownian()
-        super().__post_init__()
+        super().post_init()
     
 @dataclass
 class BrownianDriftDataSource(GaussianProcessDataSource):
-    query_shape: Tuple[int,...] = (2,)
-    result_shape: Tuple[int,...] = (1,)
-    brown_var: float = 0.01 #0.005
-    rbf_var: float = 0.25
-    rbf_leng: float = 0.1 #0.4
-    min_support = (0,-1)
-    max_support = (2000,1)
+    query_shape: Tuple[int,...] = init(default=(2,))
+    result_shape: Tuple[int,...] = init(default=(1,))
+    brown_var: float = init(default=0.01) #0.005
+    rbf_var: float = init(default=0.25)
+    rbf_leng: float = init(default=0.1) #0.4
+    min_support: Tuple[float,...] = init(default=(0,-1))
+    max_support: Tuple[float,...] = init(default=(2000,1))
 
-    def __post_init__(self):
+    def post_init(self):
         self.kern = GPy.kern.Brownian(active_dims=[0],variance=self.brown_var)*GPy.kern.RBF(input_dim=1, lengthscale=self.rbf_leng, variance=self.rbf_var, active_dims=[1])+GPy.kern.RBF(input_dim=1, lengthscale=self.rbf_leng, variance=self.rbf_var, active_dims=[1])
-        super().__post_init__()
+        super().post_init()
 
 @dataclass
 class TimeBehaviorDataSource(TimeDataSource):
 
-    query_shape: Tuple[int,...] = (1,)
-    result_shape: Tuple[int,...] = (1,)
-    behavior: Behavior = init()
-    change_times: NDArray[Shape["change_times"], Number] = field(init=False)
-    change_values: NDArray[Shape["change_values"], Number] = field(init=False)
-    current_time: float = field(init=False, default=0)
+    query_shape: Tuple[int,...] = init(default=(1,))
+    result_shape: Tuple[int,...] = init(default=(1,))
+    behavior: DataBehavior = init()
+    change_times: NDArray[Shape["change_times"], Number] = post_init()
+    change_values: NDArray[Shape["change_values"], Number] = post_init()
+    current_time: float = pre_init(default=0)
 
-    def __post_init__(self):
+    def post_init(self):
+        super().post_init()
         self.behavior = is_set(self.behavior)()
         self.change_times, self.change_values = self.behavior.behavior()
 

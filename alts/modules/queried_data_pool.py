@@ -7,7 +7,6 @@ import numpy as np
 from alts.core.data.constrains import QueryConstrain, ResultConstrain
 
 from alts.core.data.queried_data_pool import QueriedDataPool
-from alts.core.query.query_pool import QueryPool
 
 if TYPE_CHECKING:
     from typing import Dict
@@ -17,10 +16,8 @@ class FlatQueriedDataPool(QueriedDataPool):
     implements a pool of already labeled data
     """
 
-    iteration = 0
-
     def __init__(self):
-        super().__init__()
+        super().init(FlatQueriedDataPool)
         self.query_index: Dict = {}
 
     
