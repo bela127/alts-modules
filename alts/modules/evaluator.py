@@ -120,8 +120,38 @@ class PlotNewDataPointsEvaluator(LogingEvaluator):
             plot.savefig(f'{self.path}/{self.fig_name}_{self.iteration:05d}.png')
             plot.clf()
 
-        self.iteration += 1
+@dataclass
+class PlotAllDataPointsEvaluator(LogingEvaluator):
+    interactive: bool = False
+    folder: str = "fig"
+    fig_name:str = "AllData"
 
+    data_pools: ResultDataPools = post_init()
+
+    def register(self, experiment: Experiment):
+        super().register(experiment)
+
+        os.makedirs(self.path, exist_ok=True)
+
+        if isinstance(self.experiment.data_pools, ResultDataPools):
+            self.data_pools = self.experiment.data_pools
+        else:
+            raise TypeError(f"PlotNewDataPointsEvaluator requires ResultDataPools")
+        
+        self.experiment.run = Evaluate(self.experiment.run)
+        self.experiment.run.post(self.log_data)
+    
+    def log_data(self, exp_nr):
+        queries = self.data_pools.result.queries
+        results = self.data_pools.result.results
+
+        fig = plot.figure(self.fig_name)
+        plot.scatter(queries,results)
+        plot.title(self.fig_name)
+        if self.interactive: plot.show()
+        else:
+            plot.savefig(f'{self.path}/{self.fig_name}.png')
+            plot.clf()
 @dataclass
 class PlotQueryDistEvaluator(LogingEvaluator):
     interactive: bool = False
