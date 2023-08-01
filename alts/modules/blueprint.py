@@ -16,7 +16,7 @@ from alts.core.experiment_modules import InitQueryExperimentModules
 from alts.core.query.query_selector import ResultQuerySelector
 from alts.modules.query.query_optimizer import NoQueryOptimizer
 from alts.modules.query.query_decider import AllQueryDecider
-from alts.modules.evaluator import PlotNewDataPointsEvaluator, PrintExpTimeEvaluator
+from alts.modules.evaluator import PlotAllDataPointsEvaluator, PrintExpTimeEvaluator
 from alts.core.oracle.oracles import POracles
 from alts.core.data.data_pools import ResultDataPools
 
@@ -56,4 +56,4 @@ class BaselineBlueprint(Blueprint):
             ),
         )
 
-    evaluators: Iterable[Evaluator] = (PlotNewDataPointsEvaluator(), PrintExpTimeEvaluator())
+    evaluators: Iterable[Evaluator] = (PlotAllDataPointsEvaluator(), PrintExpTimeEvaluator())
