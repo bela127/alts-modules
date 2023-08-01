@@ -87,6 +87,40 @@ class SquareDataSource(DataSource):
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
+@dataclass
+class PowDataSource(DataSource):
+
+    query_shape: Tuple[int,...] = init(default=(1,))
+    result_shape: Tuple[int,...] = init(default=(1,))
+    power: float = init(default=3)
+
+    def query(self, queries):
+        results = np.power(queries, self.power)
+        return queries, results
+
+    def query_constrain(self) -> QueryConstrain:
+        x_min = 0
+        x_max = 1
+        query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
+
+@dataclass
+class ExpDataSource(DataSource):
+
+    query_shape: Tuple[int,...] = init(default=(1,))
+    result_shape: Tuple[int,...] = init(default=(1,))
+    base: float = init(default=2)
+
+    def query(self, queries):
+        results = np.power(self.base, queries)
+        return queries, results
+
+    def query_constrain(self) -> QueryConstrain:
+        x_min = 0
+        x_max = 1
+        query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
+
     
 @dataclass
 class InterpolatingDataSource(DataSource):
@@ -258,6 +292,26 @@ class LinearPeriodicDataSource(DataSource):
         x_max = 1
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
+    
+@dataclass
+class LinearStepDataSource(DataSource):
+
+    query_shape: Tuple[int,...] = init(default=(1,))
+    result_shape: Tuple[int,...] = init(default=(1,))
+    a: float = init(default=1)
+    p: float = init(default=0.2)
+
+    def query(self, queries):
+        remainder = queries % self.p
+        offset = (queries - remainder) / self.p
+        results = offset * self.a
+        return queries, results
+
+    def query_constrain(self) -> QueryConstrain:
+        x_min = 0
+        x_max = 1
+        query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
 @dataclass
 class SineDataSource(DataSource):
@@ -342,6 +396,84 @@ class StarDataSource(DataSource):
         x_max = 0.5
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
+
+
+@dataclass
+class HyperSphereDataSource(DataSource):
+
+    query_shape: Tuple[int,...] = init(default=(1,))
+    result_shape: Tuple[int,...] = init(default=(1,))
+
+    def query(self, queries):
+        x = np.dot(-1*np.square(queries), np.ones((*self.query_shape,*self.result_shape)))
+        y = x + np.ones(self.result_shape)
+        results = np.sqrt(np.abs(y))
+        if (np.random.uniform(0,1) <= 0.5):
+            results = np.negative(results)
+        return queries, results
+
+
+    def query_constrain(self) -> QueryConstrain:
+        x_min = -1
+        x_max = 1
+        query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
+
+@dataclass
+class IndependentDataSource(DataSource):
+    reinit: bool = init(default=False)
+    query_shape: Tuple[int,...] = init(default=(1,))
+    result_shape: Tuple[int,...] = init(default=(1,))
+    number_of_distributions: int = init(default=20)
+
+    all_distributions: Tuple = pre_init(default=(np.random.normal,np.random.uniform,np.random.gamma))
+    distributions: list = pre_init(default=None)
+    coefficients: NDArray[Shape['D'], Number] = pre_init(default=None)
+
+    def post_init(self):
+        super().post_init()
+        self.init_singleton()
+
+
+    def init_singleton(self):
+        if self.distributions is None or self.reinit == True:
+            self.distributions = []
+            for i in range(self.number_of_distributions):
+                loc = np.random.uniform(-10, 10,size=1)
+                scale = np.random.uniform(0.1,2,size=1)
+                shape: ndarray[Any, dtype[signedinteger[Any]]] = np.random.uniform(0.1,5,size=1)
+                distribution = np.random.choice(self.all_distributions)
+                if distribution is np.random.normal:
+                    self.distributions.append({"type": distribution, "kwargs": {"loc": loc, "scale": scale}})
+                elif distribution is np.random.uniform:
+                    self.distributions.append({"type": distribution, "kwargs": {"low": loc-scale/2, "high": loc+scale/2}})
+                elif distribution is np.random.gamma:
+                    self.distributions.append({"type": distribution, "kwargs": {"shape":shape, "scale": scale}})
+            coefficients = np.random.uniform(0,1,size=self.number_of_distributions)
+            self.coefficients = coefficients / coefficients.sum()
+
+
+    def query(self, queries):
+        sample_size = queries.shape[0]
+        distrs = np.random.choice(a=self.distributions, size=(sample_size, *self.result_shape), p=self.coefficients)
+        distrs_flat = distrs.flat
+        results_flat = np.empty_like(distrs_flat, dtype=queries.dtype)
+        for index, distr in enumerate(distrs_flat):
+            results_flat[index] = distr["type"](**distr["kwargs"])
+        results = results_flat.reshape((sample_size, *self.result_shape))
+        return queries, results
+
+    def query_constrain(self) -> QueryConstrain:
+        x_min = 0
+        x_max = 1
+        query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
+    
+    def __call__(self, **kwargs) -> Self:
+        obj = super().__call__( **kwargs)
+        obj.distributions = self.distributions
+        obj.coefficients = self.coefficients
+        return obj
 
 @dataclass
 class GaussianProcessDataSource(DataSource):
