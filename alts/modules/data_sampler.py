@@ -90,5 +90,3 @@ class KDTreeRegionDataSampler(ResultDataSampler):
 
     def result_constrain(self):
         return self.data_pools.result.result_constrain()
-
-print(KDTreeRegionDataSampler.mro())
