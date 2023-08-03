@@ -6,7 +6,7 @@ from abc import abstractmethod
 
 import numpy as np
 
-from alts.core.configuration import Configurable, Required, is_set
+from alts.core.configuration import Configurable, init, Required, is_set
 from alts.core.query.query_decider import QueryDecider
 
 if TYPE_CHECKING:
@@ -17,6 +17,15 @@ if TYPE_CHECKING:
 class AllQueryDecider(QueryDecider):
     def decide(self, query_candidates: NDArray[Shape["query_nr, ... query_dims"], Number], scores: NDArray[Shape["query_nr, [query_score]"], Number]) -> Tuple[bool, NDArray[Shape["query_nr, ... query_dims"], Number]]:
         return True, query_candidates
+
+@dataclass    
+class TopKQueryDecider(QueryDecider):
+    k: int = init(default= 4)
+    def decide(self, query_candidates: NDArray[Shape["query_nr, ... query_dims"], Number], scores: NDArray[Shape["query_nr, [query_score]"], Number]) -> Tuple[bool, NDArray[Shape["query_nr, ... query_dims"], Number]]:
+        index = np.argsort(scores)
+        sorted_candidates = query_candidates[index]
+        selected = sorted_candidates[:self.k]
+        return True, selected
 
 @dataclass
 class NoQueryDecider(QueryDecider):
