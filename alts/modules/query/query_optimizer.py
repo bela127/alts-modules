@@ -38,12 +38,13 @@ class NoQueryOptimizer(QueryOptimizer):
 @dataclass
 class MCQueryOptimizer(QueryOptimizer):
     query_sampler: QuerySampler  = init()
-    num_tries: int = pre_init(default=100)
+    num_tries: int = init(default=100)
 
     def post_init(self):
         super().post_init()
-        self.query_sampler = self.query_sampler(self.exp_modules)
-  
+        self.query_sampler = self.query_sampler(exp_modules=self.exp_modules)
+
+@dataclass
 class MaxMCQueryOptimizer(MCQueryOptimizer):
 
     def select(self):
@@ -51,7 +52,7 @@ class MaxMCQueryOptimizer(MCQueryOptimizer):
         query_candidates = self.query_sampler.sample(self.num_tries)
         query_candidates, candidate_scores = self.selection_criteria.query(query_candidates)
 
-        num_queries = query_candidates.shape[0]
+        num_queries = self.query_sampler.num_queries
 
         ind = np.argpartition(candidate_scores, -num_queries)[-num_queries:]
         queries = query_candidates[ind]
@@ -73,7 +74,7 @@ class ProbWeightedMCQueryOptimizer(MCQueryOptimizer):
         score_sum = np.sum(scores_weight)
         weight = scores_weight / score_sum
 
-        num_queries = query_candidates.shape[0]
+        num_queries = self.query_sampler.num_queries
 
         indexes = np.arange(num_queries)
 

@@ -29,7 +29,7 @@ class KDTreeKNNDataSampler(ResultDataSampler):
 
     def query(self, queries, size = None):
         if size is None: size = self.sample_size
-        if self.data_pools.result.query_constrain().query_count // self.sample_size_data_fraction < size: size = np.ceil(self.data_pools.result.query_constrain().query_count / self.sample_size_data_fraction)
+        if self.data_pools.result.query_constrain().count // self.sample_size_data_fraction < size: size = np.ceil(self.data_pools.result.query_constrain().count / self.sample_size_data_fraction)
 
         kneighbor_indexes = self._knn.kneighbors(queries, n_neighbors=int(size), return_distance=False)
 
