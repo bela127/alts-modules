@@ -59,12 +59,12 @@ class PrintExpTimeEvaluator(Evaluator):
         self.experiment.run.post(self.end_time)
 
     def start_time(self):
-        print("Start timing")
+        print(f"Start timing for {self.experiment.exp_name} {self.experiment.exp_nr}")
         self.start = time.time()
     
     def end_time(self, exp_nr):
         end = time.time()
-        print("Time: ",end - self.start)
+        print(f"Time for {self.experiment.exp_name} {self.experiment.exp_nr}: ",end - self.start)
 
 class PrintTimeSourceEvaluator(Evaluator):
 
