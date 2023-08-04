@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 from dataclasses import dataclass, field
 
 import numpy as np
+from scipy.optimize import differential_evolution
 
 from alts.core.query.query_optimizer import QueryOptimizer
 
@@ -32,6 +33,22 @@ class NoQueryOptimizer(QueryOptimizer):
         queries = self.query_sampler.sample()
         queries, scores = self.selection_criteria.query(queries)
 
+        return queries, scores
+    
+
+@dataclass
+class GAQueryOptimizer(QueryOptimizer):
+
+    def select(self):
+
+        def opt_func(x):
+            queries = x[:,None]
+            queries, scores = self.selection_criteria.query(queries)
+            return scores[0]
+        res = differential_evolution(opt_func, bounds=np.repeat(self.oracles.query_constrain().ranges, 2, axis=0))
+        queries = res.x[:,None]
+        queries, scores = self.selection_criteria.query(queries)
+        
         return queries, scores
 
 
