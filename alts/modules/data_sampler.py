@@ -44,9 +44,9 @@ class KDTreeKNNDataSampler(ResultDataSampler):
         query_count = self.data_pools.result.query_constrain().count
         query_constrain = QueryConstrain(count=query_count,shape=query_shape,ranges=query_ranges)
         
-        queries = self.data_pools.result.query_constrain().all_queries()
+        queries = self.data_pools.result.queries
         query_constrain.ranges = queries[:,None]
-        query_constrain._last_queries = self.data_pools.result.query_constrain().last_queries()
+        query_constrain._last_queries = self.data_pools.result.last_queries
 
         return query_constrain
 
