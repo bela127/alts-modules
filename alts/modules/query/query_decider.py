@@ -22,10 +22,9 @@ class AllQueryDecider(QueryDecider):
 class TopKQueryDecider(QueryDecider):
     k: int = init(default= 4)
     def decide(self, query_candidates: NDArray[Shape["query_nr, ... query_dims"], Number], scores: NDArray[Shape["query_nr, [query_score]"], Number]) -> Tuple[bool, NDArray[Shape["query_nr, ... query_dims"], Number]]:
-        index = np.argsort(scores)
-        sorted_candidates = query_candidates[index]
-        selected = sorted_candidates[:self.k]
-        return True, selected
+        ind = np.argpartition(scores, -self.k)[-self.k:]
+        queries = query_candidates[ind]
+        return True, queries
 
 @dataclass
 class NoQueryDecider(QueryDecider):
