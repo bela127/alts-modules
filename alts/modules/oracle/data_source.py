@@ -93,9 +93,10 @@ class PowDataSource(DataSource):
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     power: float = init(default=3)
+    s: float = init(default=1)
 
     def query(self, queries):
-        results = np.power(queries, self.power)
+        results = np.dot(np.power(queries, self.power), np.ones((*self.query_shape,*self.result_shape))*self.s)
         return queries, results
 
     def query_constrain(self) -> QueryConstrain:
@@ -110,9 +111,10 @@ class ExpDataSource(DataSource):
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     base: float = init(default=2)
+    s: float = init(default=1)
 
     def query(self, queries):
-        results = np.power(self.base, queries)
+        results = np.dot(np.power(self.base, queries*self.s), np.ones((*self.query_shape,*self.result_shape)))
         return queries, results
 
     def query_constrain(self) -> QueryConstrain:
@@ -304,7 +306,7 @@ class LinearStepDataSource(DataSource):
     def query(self, queries):
         remainder = queries % self.p
         offset = (queries - remainder) / self.p
-        results = offset * self.a
+        results = np.dot(offset, np.ones((*self.query_shape, *self.result_shape))*self.a)
         return queries, results
 
     def query_constrain(self) -> QueryConstrain:
@@ -340,7 +342,7 @@ class HypercubeDataSource(DataSource):
 
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
-    w: float = init(default=0.3)
+    w: float = init(default=0.4)
 
     def query(self, queries):
 
@@ -350,7 +352,7 @@ class HypercubeDataSource(DataSource):
 
         results_const = (1- kind)*0.5 + kind*-0.5
 
-        mask = np.greater(queries, -self.w) * np.less(queries, self.w)
+        mask = np.all(np.greater(queries, -self.w) * np.less(queries, self.w), axis = 1)[:,None]
 
         results = mask * results_const + (1 - mask) * random
 
@@ -385,7 +387,7 @@ class StarDataSource(DataSource):
 
         random = np.random.uniform(-0.5,0.5, size=(queries.shape[0], *self.result_shape))
 
-        mask = np.greater(queries, -self.w) * np.less(queries, self.w)
+        mask = np.all(np.greater(queries, -self.w) * np.less(queries, self.w), axis = 1)[:,None]
 
         results = mask * random + (1 - mask) * result_const
 
@@ -407,9 +409,10 @@ class HyperSphereDataSource(DataSource):
     def query(self, queries):
         x = np.dot(-1*np.square(queries), np.ones((*self.query_shape,*self.result_shape)))
         y = x + np.ones(self.result_shape)
-        results = np.sqrt(np.abs(y))
-        if (np.random.uniform(0,1) <= 0.5):
-            results = np.negative(results)
+        top_half = np.sqrt(np.abs(y))
+
+        kind = np.random.randint(2,size=(queries.shape[0], *self.result_shape))
+        results = top_half * kind + np.negative(top_half) * (1 - kind)
         return queries, results
 
 
