@@ -16,20 +16,23 @@ if TYPE_CHECKING:
 
 @dataclass
 class KDTreeKNNDataSampler(ResultDataSampler):
-    sample_size: int = init(default=50)
+    sample_size_max: int = init(default=80)
+    sample_size_min: int = init(default=5)
     sample_size_data_fraction: int = init(default=6)
 
     def post_init(self):
         super().post_init()
-        self._knn = NearestNeighbors(n_neighbors=self.sample_size)
+        self._knn = NearestNeighbors(n_neighbors=self.sample_size_max)
 
     def result_update(self, subscription: Subscribable):
         super().result_update(subscription)
         self._knn.fit(self.data_pools.result.queries, self.data_pools.result.results)
 
     def query(self, queries, size = None):
-        if size is None: size = self.sample_size
+        if size is None: size = self.sample_size_max
         if self.data_pools.result.query_constrain().count // self.sample_size_data_fraction < size: size = np.ceil(self.data_pools.result.query_constrain().count / self.sample_size_data_fraction)
+        if size < self.sample_size_min: size = self.sample_size_min
+
 
         kneighbor_indexes = self._knn.kneighbors(queries, n_neighbors=int(size), return_distance=False)
 
