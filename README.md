@@ -53,26 +53,10 @@ And make sure venv are created inside a project:
 poetry config virtualenvs.in-project true
 ```
 
-GPy still wants an old scipy version, that needs to be build from source:
-
-install build dependencies for scipy (or just let it fail):
-
-```bash
-sudo apt-get install gfortran libopenblas-dev liblapack-dev
-```
-
 install project dependencies:
 
 ```bash
 poetry install
 ```
 
-wait for scipy to build and all other dependencies to install.
-
-Now install manually via pip a new version of scipy (1.8)
-
-```
-pip install scipy==1.8
-pip install scipy>=1.10.0
-```
-
+wait for all dependencies to install.

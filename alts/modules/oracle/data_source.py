@@ -514,7 +514,7 @@ class GaussianProcessDataSource(DataSource):
 
             self.regression = GPy.models.GPRegression(flat_support, flat_result, self.kern, noise_var=0.0)
 
-    def query(self, queries):
+    def query(self, queries) -> Tuple[NDArray[Shape["query_nr, ... query_dim"], Number], NDArray[Shape["query_nr, ... result_dim"], Number]]:
 
         flat_queries = queries.reshape((queries.shape[0], -1))
         
@@ -541,9 +541,10 @@ class BrownianProcessDataSource(GaussianProcessDataSource):
     result_shape: Tuple[int,...] = init(default=(1,))
     min_support: Tuple[float,...] = init(default=(0,))
     max_support: Tuple[float,...] = init(default=(100,))
+    brown_var: float = init(default=0.01)
 
     def post_init(self):
-        self.kern = GPy.kern.Brownian()
+        self.kern = GPy.kern.Brownian(variance=self.brown_var)
         super().post_init()
     
 @dataclass
@@ -559,6 +560,185 @@ class BrownianDriftDataSource(GaussianProcessDataSource):
     def post_init(self):
         self.kern = GPy.kern.Brownian(active_dims=[0],variance=self.brown_var)*GPy.kern.RBF(input_dim=1, lengthscale=self.rbf_leng, variance=self.rbf_var, active_dims=[1])+GPy.kern.RBF(input_dim=1, lengthscale=self.rbf_leng, variance=self.rbf_var, active_dims=[1])
         super().post_init()
+
+@dataclass
+class RBFDriftDataSource(GaussianProcessDataSource):
+    query_shape: Tuple[int,...] = init(default=(2,))
+    result_shape: Tuple[int,...] = init(default=(1,))
+    brown_var: float = init(default=0.01) #0.005
+    rbf_var: float = init(default=0.25)
+    rbf_leng: float = init(default=0.1) #0.4
+    min_support: Tuple[float,...] = init(default=(0,-1))
+    max_support: Tuple[float,...] = init(default=(2000,1))
+
+    def post_init(self):
+        self.kern = GPy.kern.RBF(input_dim=1, active_dims=[0],variance=self.rbf_var*2, lengthscale=self.brown_var*2000)*GPy.kern.RBF(input_dim=1, lengthscale=self.rbf_leng, variance=self.rbf_var, active_dims=[1])+GPy.kern.RBF(input_dim=1, lengthscale=self.rbf_leng, variance=self.rbf_var, active_dims=[1])
+        super().post_init()
+
+@dataclass
+class SinDriftDataSource(GaussianProcessDataSource):
+    query_shape: Tuple[int,...] = init(default=(2,))
+    result_shape: Tuple[int,...] = init(default=(1,))
+    brown_var: float = init(default=0.005) #0.005
+    rbf_var: float = init(default=0.25)
+    rbf_leng: float = init(default=0.1) #0.4
+    min_support: Tuple[float,...] = init(default=(0,-1))
+    max_support: Tuple[float,...] = init(default=(2000,1))
+
+
+    def post_init(self):
+        self.kern = GPy.kern.Cosine(input_dim=1, active_dims=[0],variance=self.rbf_var*2, lengthscale=self.brown_var*2000)*GPy.kern.RBF(input_dim=1, lengthscale=self.rbf_leng, variance=self.rbf_var, active_dims=[1])+GPy.kern.RBF(input_dim=1, lengthscale=self.rbf_leng, variance=self.rbf_var, active_dims=[1])
+        super().post_init()
+
+@dataclass
+class MixedDriftDataSource(GaussianProcessDataSource):
+    support_points: int= init(default=2000)
+    reinit: bool = init(default=False)
+    query_shape: Tuple[int,...] = init(default=(2,))
+    result_shape: Tuple[int,...] = init(default=(1,))
+    brown_var: float = init(default=0.01) #0.005
+    rbf_var: float = init(default=0.25)
+    rbf_leng: float = init(default=0.1) #0.4
+    min_support: Tuple[float,...] = init(default=(0,-1))
+    max_support: Tuple[float,...] = init(default=(2000,1))
+
+    def post_init(self):
+        self.gp_i = GaussianProcessDataSource(
+            kern=GPy.kern.RBF(input_dim=1, lengthscale=self.rbf_leng, variance=self.rbf_var, active_dims=[0]),
+            reinit=self.reinit, support_points=self.support_points, min_support=(self.min_support[1],),
+            max_support=(self.max_support[1],),
+            )()
+        self.gp_w1 = GaussianProcessDataSource(
+            kern=GPy.kern.RBF(input_dim=1, lengthscale=self.rbf_leng, variance=self.rbf_var, active_dims=[0]),
+            reinit=self.reinit, support_points=self.support_points, min_support=(self.min_support[1],),
+            max_support=(self.max_support[1],),
+            )()
+        self.gp_w2 = GaussianProcessDataSource(
+            kern=GPy.kern.RBF(input_dim=1, lengthscale=self.rbf_leng, variance=self.rbf_var, active_dims=[0]),
+            reinit=self.reinit, support_points=self.support_points, min_support=(self.min_support[1],),
+            max_support=(self.max_support[1],),
+            )()
+        self.gp_w3 = GaussianProcessDataSource(
+            kern=GPy.kern.RBF(input_dim=1, lengthscale=self.rbf_leng, variance=self.rbf_var, active_dims=[0]),
+            reinit=self.reinit, support_points=self.support_points, min_support=(self.min_support[1],),
+            max_support=(self.max_support[1],),
+            )()
+        self.gp_b1 = GaussianProcessDataSource(
+            kern=GPy.kern.Brownian(active_dims=[0],variance=self.brown_var),
+            reinit=self.reinit, support_points=self.support_points, min_support=(self.min_support[0],),
+            max_support=(self.max_support[0],),
+            )()
+        self.gp_b2 = GaussianProcessDataSource(
+            kern=GPy.kern.RBF(input_dim=1, active_dims=[0],variance=self.rbf_var*2, lengthscale=self.brown_var*2000),
+            reinit=self.reinit, support_points=self.support_points, min_support=(self.min_support[0],),
+            max_support=(self.max_support[0],),
+            )()
+        self.gp_b3 = GaussianProcessDataSource(
+            kern=GPy.kern.Cosine(input_dim=1, active_dims=[0],variance=self.rbf_var*2, lengthscale=self.brown_var*2000),
+            reinit=self.reinit, support_points=self.support_points, min_support=(self.min_support[0],),
+            max_support=(self.max_support[0],),
+            )()
+        super().post_init()
+
+    def query(self, queries):
+
+        flat_queries = queries.reshape((queries.shape[0], -1))
+
+        y_i = self.gp_i.query(flat_queries[:,1:])[1]
+
+        y_w1 = self.gp_w1.query(flat_queries[:,1:])[1]
+        y_w2 = self.gp_w2.query(flat_queries[:,1:])[1]
+        y_w3 = self.gp_w3.query(flat_queries[:,1:])[1]
+
+        y_b1 = self.gp_b1.query(flat_queries[:,:1])[1]
+        y_b2 = self.gp_b2.query(flat_queries[:,:1])[1]
+        y_b3 = self.gp_b3.query(flat_queries[:,:1])[1]
+
+        
+        flat_results = y_i + y_w1*y_b1 + y_w2*y_b2 + y_w3*y_b3
+        results = flat_results.reshape((queries.shape[0], *self.result_shape))
+
+        return queries, results
+
+    def query_constrain(self) -> QueryConstrain:
+        x_min_max = zip(self.min_support, self.max_support)
+        query_ranges = np.asarray(tuple((x_min, x_max) for x_min, x_max in x_min_max))
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
+
+@dataclass
+class MixedBrownDriftDataSource(GaussianProcessDataSource):
+    support_points: int= init(default=2000)
+    reinit: bool = init(default=False)
+    query_shape: Tuple[int,...] = init(default=(2,))
+    result_shape: Tuple[int,...] = init(default=(1,))
+    brown_var: float = init(default=0.01) #0.005
+    rbf_var: float = init(default=0.25)
+    rbf_leng: float = init(default=0.1) #0.4
+    min_support: Tuple[float,...] = init(default=(0,-1))
+    max_support: Tuple[float,...] = init(default=(2000,1))
+
+    def post_init(self):
+        self.gp_i = GaussianProcessDataSource(
+            kern=GPy.kern.RBF(input_dim=1, lengthscale=self.rbf_leng, variance=self.rbf_var, active_dims=[0]),
+            reinit=self.reinit, support_points=self.support_points, min_support=(self.min_support[1],),
+            max_support=(self.max_support[1],),
+            )()
+        self.gp_w1 = GaussianProcessDataSource(
+            kern=GPy.kern.RBF(input_dim=1, lengthscale=self.rbf_leng, variance=self.rbf_var, active_dims=[0]),
+            reinit=self.reinit, support_points=self.support_points, min_support=(self.min_support[1],),
+            max_support=(self.max_support[1],),
+            )()
+        self.gp_w2 = GaussianProcessDataSource(
+            kern=GPy.kern.RBF(input_dim=1, lengthscale=self.rbf_leng, variance=self.rbf_var, active_dims=[0]),
+            reinit=self.reinit, support_points=self.support_points, min_support=(self.min_support[1],),
+            max_support=(self.max_support[1],),
+            )()
+        self.gp_w3 = GaussianProcessDataSource(
+            kern=GPy.kern.RBF(input_dim=1, lengthscale=self.rbf_leng, variance=self.rbf_var, active_dims=[0]),
+            reinit=self.reinit, support_points=self.support_points, min_support=(self.min_support[1],),
+            max_support=(self.max_support[1],),
+            )()
+        self.gp_b1 = GaussianProcessDataSource(
+            kern=GPy.kern.Brownian(active_dims=[0],variance=self.brown_var),
+            reinit=self.reinit, support_points=self.support_points, min_support=(self.min_support[0],),
+            max_support=(self.max_support[0],),
+            )()
+        self.gp_b2 = GaussianProcessDataSource(
+            kern=GPy.kern.Brownian(active_dims=[0],variance=self.brown_var),
+            reinit=self.reinit, support_points=self.support_points, min_support=(self.min_support[0],),
+            max_support=(self.max_support[0],),
+            )()
+        self.gp_b3 = GaussianProcessDataSource(
+            kern=GPy.kern.Brownian(active_dims=[0],variance=self.brown_var),
+            reinit=self.reinit, support_points=self.support_points, min_support=(self.min_support[0],),
+            max_support=(self.max_support[0],),
+            )()
+        super().post_init()
+
+    def query(self, queries):
+
+        flat_queries = queries.reshape((queries.shape[0], -1))
+
+        y_i = self.gp_i.query(flat_queries[:,1:])[1]
+
+        y_w1 = self.gp_w1.query(flat_queries[:,1:])[1]
+        y_w2 = self.gp_w2.query(flat_queries[:,1:])[1]
+        y_w3 = self.gp_w3.query(flat_queries[:,1:])[1]
+
+        y_b1 = self.gp_b1.query(flat_queries[:,:1])[1]
+        y_b2 = self.gp_b2.query(flat_queries[:,:1])[1]
+        y_b3 = self.gp_b3.query(flat_queries[:,:1])[1]
+
+        
+        flat_results = y_i + y_w1*y_b1 + y_w2*y_b2 + y_w3*y_b3
+        results = flat_results.reshape((queries.shape[0], *self.result_shape))
+
+        return queries, results
+
+    def query_constrain(self) -> QueryConstrain:
+        x_min_max = zip(self.min_support, self.max_support)
+        query_ranges = np.asarray(tuple((x_min, x_max) for x_min, x_max in x_min_max))
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
 @dataclass
 class TimeBehaviorDataSource(TimeDataSource):
