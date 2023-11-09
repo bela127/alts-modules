@@ -71,9 +71,10 @@ class MaxMCQueryOptimizer(MCQueryOptimizer):
 
         num_queries = self.query_sampler.num_queries
 
-        ind = np.argpartition(candidate_scores, -num_queries)[-num_queries:]
-        queries = query_candidates[ind]
-        scores = candidate_scores[ind]
+        ind = np.argpartition(candidate_scores, -num_queries, axis=0)[-num_queries:]
+        ind = ind[:, 0]
+        queries = query_candidates[ind, ...]
+        scores = candidate_scores[ind, ...]
 
         return queries, scores
 
