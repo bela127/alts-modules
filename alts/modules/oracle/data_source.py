@@ -4,8 +4,6 @@ from typing import TYPE_CHECKING, Optional
 from dataclasses import dataclass, field, InitVar
 
 import numpy as np
-from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.gaussian_process.kernels import RationalQuadratic
 import GPy
 
 from alts.core.oracle.data_source import DataSource, TimeDataSource
