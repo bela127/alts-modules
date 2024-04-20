@@ -9,7 +9,7 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.10"
+python = ">=3.9,<3.10"
 #alts-core = { path = "/home/bela/Cloud/code/Git/alts-core", develop = true }
 alts-core = {git = "https://github.com/bela127/alts-core.git"}
 nptyping = ">=2.0.0a1"
