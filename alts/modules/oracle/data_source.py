@@ -1,3 +1,6 @@
+"""
+:doc:`Core Module </core/oracle/data_source>`
+"""
 from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 
@@ -27,7 +30,20 @@ if TYPE_CHECKING:
 
 @dataclass
 class RandomUniformDataSource(DataSource):
+    """
+    | **Description**
+    |   A ``RandomUniformDataSource`` is a random source of data.
+    |   For more details see `numpy.random.uniorm <https://numpy.org/doc/stable/reference/random/generated/numpy.random.uniform.html>`_.
 
+    :param query_shape: The expected shape of the queries
+    :type query_shape: tuple of ints
+    :param result_shape: The expected shape of the results
+    :type result_shape: tuple of ints
+    :param u: The upper bound of query values (exclusive)
+    :type u: float
+    :param l: The lower bound of query values (inclusive)
+    :type l: float
+    """
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     u: float = init(default=1)
@@ -35,10 +51,36 @@ class RandomUniformDataSource(DataSource):
 
 
     def query(self, queries):
+        """
+        | **Description**
+        |   ``query()`` is the access point to the data of the ``DataSource``.
+        |   It returns *results* in the range of ``[l,u)`` to given *queries* in the range of ``[0,1)`` upon request.
+
+        :param queries: Requested Query
+        :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
+        :return: Processed Query, Result 
+        :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
+
+        | **Example**
+        |   Let ``y = query(x)``, ``l = 0.0`` and ``u = 1.0``. Since  ``l <= y < u``, we now have ``0.0 <= y < 1.0``.
+        |   The resulting graph of ``y = query(x)`` might look something like this.
+        |   .. image:: ./images/RandomUniformDataSource.png      
+        """
         results = np.random.uniform(low=self.l, high=self.u, size=(queries.shape[0], * self.result_shape))
         return queries, results
 
     def query_constrain(self) -> QueryConstrain:
+        """
+        | **Description**
+        |   See :func:`DataSource.query_constrain()` 
+
+        | **Current Constraints**
+        |   *Shape:* ``query_shape``
+        |   *Value Range:* [0, 1)
+
+        :return: Constraints around queries
+        :rtype: QueryConstrain
+        """
         x_min = 0
         x_max = 1
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
@@ -47,7 +89,19 @@ class RandomUniformDataSource(DataSource):
 
 @dataclass
 class LineDataSource(DataSource):
+    """
+    | **Description**
+    |   A ``LineDataSource`` is a deterministic source of data representing a linear equation ``y = ax + b``.
 
+    :param query_shape: The expected shape of the queries
+    :type query_shape: tuple of ints
+    :param result_shape: The expected shape of the results
+    :type result_shape: tuple of ints
+    :param a: Coefficient of degree 1
+    :type a: float
+    :param b: Coefficient of degree 0
+    :type b: float
+    """
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     a: float = init(default=1)
@@ -55,10 +109,36 @@ class LineDataSource(DataSource):
 
 
     def query(self, queries):
+        """
+        | **Description**
+        |   ``query()`` is the access point to the data of the ``DataSource``.
+        |   It returns *results* in the range of ``[b,a+b)`` to given *queries* in the range of ``[0,1)`` upon request.
+
+        :param queries: Requested Query
+        :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
+        :return: Processed Query, Result 
+        :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
+
+        | **Example**
+        |   Let ``y = query(x)``, ``a = 1.0`` and ``b = 0.0``. This represents the linear equation ``y = x``.
+        |   The resulting graph of ``y = query(x)`` should look something like this.
+        |   .. image:: ./images/LineDataSource.png      
+        """
         results = np.dot(queries, np.ones((*self.query_shape,*self.result_shape))*self.a) + np.ones(self.result_shape)*self.b
         return queries, results
 
     def query_constrain(self) -> QueryConstrain:
+        """
+        | **Description**
+        |   See :func:`DataSource.query_constrain()` 
+
+        | **Current Constraints**
+        |   *Shape:* ``query_shape``
+        |   *Value Range:* [0, 1)
+
+        :return: Constraints around queries
+        :rtype: QueryConstrain
+        """
         x_min = 0
         x_max = 1
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
@@ -68,7 +148,21 @@ class LineDataSource(DataSource):
 
 @dataclass
 class SquareDataSource(DataSource):
+    """
+    | **Description**
+    |   A ``SquareDataSource`` is a deterministic source of data representing a square parabola ``s * (x - x0)^2 + y0``. 
 
+    :param query_shape: The expected shape of the queries
+    :type query_shape: tuple of ints
+    :param result_shape: The expected shape of the results
+    :type result_shape: tuple of ints
+    :param x0: Offset of the parabola in x-direction
+    :type x0: float
+    :param y0: Offset of the parabola in y-direction
+    :type y0: float
+    :param s: Coefficient of degree 2
+    :type s: float
+    """
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     x0: float = init(default=0.5)
@@ -76,10 +170,36 @@ class SquareDataSource(DataSource):
     s: float = init(default=5)
 
     def query(self, queries):
+        """
+        | **Description**
+        |   ``query()`` is the access point to the data of the ``DataSource``.
+        |   It returns *results* in the range of TODO to given *queries* in the range of ``[0,1)`` upon request.
+
+        :param queries: Requested Query
+        :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
+        :return: Processed Query, Result 
+        :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
+
+        | **Example**
+        |   Let ``y = query(x)``, ``x0 = 0.5``, ``y0 = 0.0`` and ``s = 5.0``. This represents the quadratic equation ``y = 5 * (x - 0.5)^2 + 0``.
+        |   The resulting graph of ``y = query(x)`` should look something like this.
+        |   .. image:: ./images/SquareDataSource.png      
+        """
         results = np.dot((queries - self.x0)**2, np.ones((*self.query_shape,*self.result_shape))*self.s) + np.ones(self.result_shape)*self.y0
         return queries, results
 
     def query_constrain(self) -> QueryConstrain:
+        """
+        | **Description**
+        |   See :func:`DataSource.query_constrain()` 
+
+        | **Current Constraints**
+        |   *Shape:* ``query_shape``
+        |   *Value Range:* [0, 1)
+
+        :return: Constraints around queries
+        :rtype: QueryConstrain
+        """
         x_min = 0
         x_max = 1
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
@@ -87,17 +207,55 @@ class SquareDataSource(DataSource):
 
 @dataclass
 class PowDataSource(DataSource):
+    """
+    | **Description**
+    |   A ``PowDataSource`` is a deterministic source of data representing an exponential equation ``s * x^power``. 
 
+    :param query_shape: The expected shape of the queries
+    :type query_shape: tuple of ints
+    :param result_shape: The expected shape of the results
+    :type result_shape: tuple of ints
+    :param power: Power of x
+    :type power: float
+    :param s: Coefficient of x^power
+    :type s: float
+    """
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     power: float = init(default=3)
     s: float = init(default=1)
 
     def query(self, queries):
+        """
+        | **Description**
+        |   ``query()`` is the access point to the data of the ``DataSource``.
+        |   It returns *results* in the range of TODO to given *queries* in the range of ``[0,1)`` upon request.
+
+        :param queries: Requested Query
+        :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
+        :return: Processed Query, Result 
+        :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
+
+        | **Example**
+        |   Let ``y = query(x)``, ``power = 3.0`` and ``s = 1.0``. This represents the exponential equation ``y = 1 * x^3``.
+        |   The resulting graph of ``y = query(x)`` should look something like this.
+        |   .. image:: ./images/PowDataSource.png      
+        """
         results = np.dot(np.power(queries, self.power), np.ones((*self.query_shape,*self.result_shape))*self.s)
         return queries, results
 
     def query_constrain(self) -> QueryConstrain:
+        """
+        | **Description**
+        |   See :func:`DataSource.query_constrain()` 
+
+        | **Current Constraints**
+        |   *Shape:* ``query_shape``
+        |   *Value Range:* [0, 1)
+
+        :return: Constraints around queries
+        :rtype: QueryConstrain
+        """
         x_min = 0
         x_max = 1
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
