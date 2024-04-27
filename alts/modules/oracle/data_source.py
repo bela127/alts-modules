@@ -112,7 +112,7 @@ class LineDataSource(DataSource):
         """
         | **Description**
         |   ``query()`` is the access point to the data of the ``DataSource``.
-        |   It returns *results* in the range of ``[b,a+b)`` to given *queries* in the range of ``[0,1)`` upon request.
+        |   It returns *results* in the range of TODO to given *queries* in the range of ``[0,1)`` upon request.
 
         :param queries: Requested Query
         :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
@@ -263,17 +263,55 @@ class PowDataSource(DataSource):
 
 @dataclass
 class ExpDataSource(DataSource):
+    """
+    | **Description**
+    |   An ``ExpDataSource`` is a deterministic source of data representing an exponential equation ``s * base^x``. 
 
+    :param query_shape: The expected shape of the queries
+    :type query_shape: tuple of ints
+    :param result_shape: The expected shape of the results
+    :type result_shape: tuple of ints
+    :param base: Basis to the exponent x
+    :type base: float
+    :param s: Coefficient of base^x
+    :type s: float
+    """
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     base: float = init(default=2)
     s: float = init(default=1)
 
     def query(self, queries):
+        """
+        | **Description**
+        |   ``query()`` is the access point to the data of the ``DataSource``.
+        |   It returns *results* in the range of TODO to given *queries* in the range of ``[0,1)`` upon request.
+
+        :param queries: Requested Query
+        :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
+        :return: Processed Query, Result 
+        :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
+
+        | **Example**
+        |   Let ``y = query(x)``, ``base = 2.0`` and ``s = 1.0``. This represents the exponential equation ``y = 1 * 2^x``.
+        |   The resulting graph of ``y = query(x)`` should look something like this.
+        |   .. image:: ./images/ExpDataSource.png      
+        """
         results = np.dot(np.power(self.base, queries*self.s), np.ones((*self.query_shape,*self.result_shape)))
         return queries, results
 
     def query_constrain(self) -> QueryConstrain:
+        """
+        | **Description**
+        |   See :func:`DataSource.query_constrain()` 
+
+        | **Current Constraints**
+        |   *Shape:* ``query_shape``
+        |   *Value Range:* [0, 1)
+
+        :return: Constraints around queries
+        :rtype: QueryConstrain
+        """
         x_min = 0
         x_max = 1
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
@@ -282,6 +320,10 @@ class ExpDataSource(DataSource):
     
 @dataclass
 class InterpolatingDataSource(DataSource):
+    """
+    | **Description**
+    |   TODO
+    """
     data_sampler: DataSampler = init()
     interpolation_strategy: InterpolationStrategy = init()
 
@@ -302,13 +344,38 @@ class InterpolatingDataSource(DataSource):
 
 @dataclass
 class CrossDataSource(DataSource):
+    """
+    | **Description**
+    |   A ``CrossDataSource`` is a semi-random source of data choosing one of the following equations at random {``-a * x``, ``a * x``}. 
 
+    :param query_shape: The expected shape of the queries
+    :type query_shape: tuple of ints
+    :param result_shape: The expected shape of the results
+    :type result_shape: tuple of ints
+    :param a: Coefficient of x
+    :type a: float
+    """
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     a: float = init(default=1)
 
     def query(self, queries):
+        """
+        | **Description**
+        |   ``query()`` is the access point to the data of the ``DataSource``.
+        |   It returns *results* in the range of TODO to given *queries* in the range of ``[-0.5,0.5)`` upon request.
 
+        :param queries: Requested Query
+        :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
+        :return: Processed Query, Result 
+        :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
+
+        | **Example**
+        |   Let ``y = query(x)`` and ``a = 1.0``. This represents the linear equations {``y = -1 * x``, ``y = 1 * x``}.
+        |   Upon each call of query() it will choose one of those two equations at random to evaluate.
+        |   The resulting graph of ``y = query(x)`` should look something like this.
+        |   .. image:: ./images/CrossDataSource.png      
+        """
         direction = np.random.randint(2,size=(queries.shape[0], *self.result_shape))
 
         results_up = np.dot(queries, np.ones((*self.query_shape,*self.result_shape))*self.a) 
@@ -319,6 +386,17 @@ class CrossDataSource(DataSource):
         return queries, results
 
     def query_constrain(self) -> QueryConstrain:
+        """
+        | **Description**
+        |   See :func:`DataSource.query_constrain()` 
+
+        | **Current Constraints**
+        |   *Shape:* ``query_shape``
+        |   *Value Range:* [-0.5, 0.5)
+
+        :return: Constraints around queries
+        :rtype: QueryConstrain
+        """
         x_min = -0.5
         x_max = 0.5
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
@@ -326,14 +404,41 @@ class CrossDataSource(DataSource):
 
 @dataclass
 class DoubleLinearDataSource(DataSource):
+    """
+    | **Description**
+    |   A ``DoubleLinearDataSource`` is a semi-random source of data choosing one of the following equations at random {``a * x``, ``a * x * slope_factor``}. 
 
+    :param query_shape: The expected shape of the queries
+    :type query_shape: tuple of ints
+    :param result_shape: The expected shape of the results
+    :type result_shape: tuple of ints
+    :param a: Coefficient of x
+    :type a: float
+    :param slope_factor: Coefficient that is randomly in- or excluded 
+    :type slope_factor: float
+    """
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     a: float = init(default=1)
     slope_factor: float = init(default=0.5)
 
     def query(self, queries):
+        """
+        | **Description**
+        |   ``query()`` is the access point to the data of the ``DataSource``.
+        |   It returns *results* in the range of TODO to given *queries* in the range of ``[-0.5,0.5)`` upon request.
 
+        :param queries: Requested Query
+        :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
+        :return: Processed Query, Result 
+        :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
+
+        | **Example**
+        |   Let ``y = query(x)``, ``a = 1.0`` and ``slope_factor = 0.5``. This represents the linear equations {``y = 1 * x``, ``y = 0.5 * 1 * x``}.
+        |   Upon each call of query() it will choose one of those two equations at random to evaluate.
+        |   The resulting graph of ``y = query(x)`` should look something like this.
+        |   .. image:: ./images/DoubleLinearDataSource.png      
+        """
         slope = np.random.randint(2,size=(queries.shape[0], *self.result_shape))
 
         results_steap = np.dot(queries, np.ones((*self.query_shape,*self.result_shape))*self.a) 
@@ -344,6 +449,17 @@ class DoubleLinearDataSource(DataSource):
         return queries, results
 
     def query_constrain(self) -> QueryConstrain:
+         """
+        | **Description**
+        |   See :func:`DataSource.query_constrain()` 
+
+        | **Current Constraints**
+        |   *Shape:* ``query_shape``
+        |   *Value Range:* [-0.5, 0.5)
+
+        :return: Constraints around queries
+        :rtype: QueryConstrain
+        """
         x_min = -0.5
         x_max = 0.5
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
@@ -352,7 +468,9 @@ class DoubleLinearDataSource(DataSource):
         
 @dataclass
 class HourglassDataSource(DataSource):
-
+    """
+    TODO
+    """
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     a: float = init(default=1)
