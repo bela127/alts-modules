@@ -64,7 +64,6 @@ class RandomUniformDataSource(DataSource):
         | **Example**
         |   Let ``y = query(x)``, ``l = 0.0`` and ``u = 1.0``. Since  ``l <= y < u``, we now have ``0.0 <= y < 1.0``.
         |   The resulting graph of ``y = query(x)`` might look something like this.
-        |   .. image:: ./images/RandomUniformDataSource.png      
         """
         results = np.random.uniform(low=self.l, high=self.u, size=(queries.shape[0], * self.result_shape))
         return queries, results
@@ -122,7 +121,6 @@ class LineDataSource(DataSource):
         | **Example**
         |   Let ``y = query(x)``, ``a = 1.0`` and ``b = 0.0``. This represents the linear equation ``y = x``.
         |   The resulting graph of ``y = query(x)`` should look something like this.
-        |   .. image:: ./images/LineDataSource.png      
         """
         results = np.dot(queries, np.ones((*self.query_shape,*self.result_shape))*self.a) + np.ones(self.result_shape)*self.b
         return queries, results
@@ -183,7 +181,6 @@ class SquareDataSource(DataSource):
         | **Example**
         |   Let ``y = query(x)``, ``x0 = 0.5``, ``y0 = 0.0`` and ``s = 5.0``. This represents the quadratic equation ``y = 5 * (x - 0.5)^2 + 0``.
         |   The resulting graph of ``y = query(x)`` should look something like this.
-        |   .. image:: ./images/SquareDataSource.png      
         """
         results = np.dot((queries - self.x0)**2, np.ones((*self.query_shape,*self.result_shape))*self.s) + np.ones(self.result_shape)*self.y0
         return queries, results
@@ -238,8 +235,7 @@ class PowDataSource(DataSource):
 
         | **Example**
         |   Let ``y = query(x)``, ``power = 3.0`` and ``s = 1.0``. This represents the exponential equation ``y = 1 * x^3``.
-        |   The resulting graph of ``y = query(x)`` should look something like this.
-        |   .. image:: ./images/PowDataSource.png      
+        |   The resulting graph of ``y = query(x)`` should look something like this.   
         """
         results = np.dot(np.power(queries, self.power), np.ones((*self.query_shape,*self.result_shape))*self.s)
         return queries, results
@@ -294,8 +290,7 @@ class ExpDataSource(DataSource):
 
         | **Example**
         |   Let ``y = query(x)``, ``base = 2.0`` and ``s = 1.0``. This represents the exponential equation ``y = 1 * 2^x``.
-        |   The resulting graph of ``y = query(x)`` should look something like this.
-        |   .. image:: ./images/ExpDataSource.png      
+        |   The resulting graph of ``y = query(x)`` should look something like this.     
         """
         results = np.dot(np.power(self.base, queries*self.s), np.ones((*self.query_shape,*self.result_shape)))
         return queries, results
@@ -373,8 +368,7 @@ class CrossDataSource(DataSource):
         | **Example**
         |   Let ``y = query(x)`` and ``a = 1.0``. This represents the linear equations {``y = -1 * x``, ``y = 1 * x``}.
         |   Upon each call of query() it will choose one of those two equations at random to evaluate.
-        |   The resulting graph of ``y = query(x)`` should look something like this.
-        |   .. image:: ./images/CrossDataSource.png      
+        |   The resulting graph of ``y = query(x)`` should look something like this. 
         """
         direction = np.random.randint(2,size=(queries.shape[0], *self.result_shape))
 
@@ -436,8 +430,7 @@ class DoubleLinearDataSource(DataSource):
         | **Example**
         |   Let ``y = query(x)``, ``a = 1.0`` and ``slope_factor = 0.5``. This represents the linear equations {``y = 1 * x``, ``y = 0.5 * 1 * x``}.
         |   Upon each call of query() it will choose one of those two equations at random to evaluate.
-        |   The resulting graph of ``y = query(x)`` should look something like this.
-        |   .. image:: ./images/DoubleLinearDataSource.png      
+        |   The resulting graph of ``y = query(x)`` should look something like this.  
         """
         slope = np.random.randint(2,size=(queries.shape[0], *self.result_shape))
 
