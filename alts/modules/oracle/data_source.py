@@ -449,7 +449,7 @@ class DoubleLinearDataSource(DataSource):
         return queries, results
 
     def query_constrain(self) -> QueryConstrain:
-         """
+        """
         | **Description**
         |   See :func:`DataSource.query_constrain()` 
 
