@@ -44,14 +44,11 @@ class RandomUniformDataSource(DataSource):
     :param l: The lower bound of query values (inclusive)
     :type l: float
     """
-    params: list = 2 * []
+    n_params: int = 2
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
-    params[0] = init(default=1)
-    params[1] = init(default=0)
-    u: float = params[0]
-    l: float = params[1]
-
+    u: float = init(default=1)
+    l: float = init(default=0)
 
     def query(self, queries):
         """
@@ -120,14 +117,11 @@ class LineDataSource(DataSource):
     :param b: Coefficient of degree 0
     :type b: float
     """
-    params: list = 2 * []
+    n_params: int = 2
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
-    params[0] = init(default=1)
-    params[1] = init(default=0)
-    a: float = params[0]
-    b: float = params[1]
-
+    a: float = init(default=1)
+    b: float = init(default=0)
 
     def query(self, queries):
         """
@@ -198,15 +192,12 @@ class SquareDataSource(DataSource):
     :param s: Coefficient of degree 2
     :type s: float
     """
-    params: list = 3 * []
+    n_params: int = 3
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
-    params[0] = init(default=0.5)
-    params[1] = init(default=0)
-    params[2] = init(default=5)
-    x0: float = params[0]
-    y0: float = params[1]
-    s: float = params[2]
+    x0: float = init(default=0.5)
+    y0: float = init(default=0)
+    s: float = init(default=5)
 
     def query(self, queries):
         """
@@ -275,6 +266,7 @@ class PowDataSource(DataSource):
     :param s: Coefficient of x^power
     :type s: float
     """
+    n_params: int = 2
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     power: float = init(default=3)
@@ -314,6 +306,23 @@ class PowDataSource(DataSource):
         x_max = 1
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
+    
+    def result_constrain(self) -> ResultConstrain:
+        """
+        | **Description**
+        |   See :func:`DataSource.result_constrain()` 
+
+        | **Current Constraints**
+        |   *Shape:* ``result_shape``
+        |   *Value Range:* TODO table
+
+        :return: Constraints around results
+        :rtype: ResultConstrain
+        """
+        y_min = self.s if (self.s<0 and self.power>=0 or self.s>=0 and self.power<=0) else 0 if (self.p>0 and self.s>=0) else np.NINF
+        y_max = self.s if (self.s<0 and self.power<=0 or self.s>=0 and self.power>=0) else 0 if (self.p>0 and self.s<0) else np.INF
+        result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
+        return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
 @dataclass
 class ExpDataSource(DataSource):
@@ -330,6 +339,7 @@ class ExpDataSource(DataSource):
     :param s: Coefficient of base^x
     :type s: float
     """
+    n_params: int = 2
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     base: float = init(default=2)
@@ -369,12 +379,29 @@ class ExpDataSource(DataSource):
         x_max = 1
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
+    
+    def result_constrain(self) -> ResultConstrain:
+        """
+        | **Description**
+        |   See :func:`DataSource.result_constrain()` 
+
+        | **Current Constraints**
+        |   *Shape:* ``result_shape``
+        |   *Value Range:* TODO table
+
+        :return: Constraints around results
+        :rtype: ResultConstrain
+        """
+        y_min = self.s if (self.s<0 and self.b>=0 and self.b<1 or self.s>0 and self.b>=1) else self.s*self.b if (self.s==0 or self.s>=0 and self.b<1 or self.s<0 and self.b>=1) else -self.s*self.b
+        y_max = self.s if (self.s>=0 and self.b>=1 and self.b<1 or self.s<0 and self.b>=1) else self.s*self.b if (self.s==0 or self.s<0 and self.b<1 or self.s>=0 and self.b>=1) else -self.s*self.b
+        result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
+        return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
 @dataclass
 class InterpolatingDataSource(DataSource):
     """
     | **Description**
-    |   TODO
+    |   TODO desc
     """
     data_sampler: DataSampler = init()
     interpolation_strategy: InterpolationStrategy = init()
@@ -391,6 +418,8 @@ class InterpolatingDataSource(DataSource):
     
     def query_constrain(self) -> QueryConstrain:
         return self.interpolation_strategy.query_constrain()
+    
+    #TODO result_constrain
 
 @dataclass
 class CrossDataSource(DataSource):
@@ -405,6 +434,7 @@ class CrossDataSource(DataSource):
     :param a: Coefficient of x
     :type a: float
     """
+    n_params: int = 1
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     a: float = init(default=1)
@@ -450,6 +480,23 @@ class CrossDataSource(DataSource):
         x_max = 0.5
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
+    
+    def result_constrain(self) -> ResultConstrain:
+        """
+        | **Description**
+        |   See :func:`DataSource.result_constrain()` 
+
+        | **Current Constraints**
+        |   *Shape:* ``result_shape``
+        |   *Value Range:* TODO table
+
+        :return: Constraints around results
+        :rtype: ResultConstrain
+        """
+        y_min = -self.a/4 if self.a>=0 else self.a/4
+        y_max = self.a/4 if self.a>=0 else -self.a/4
+        result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
+        return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
 @dataclass
 class DoubleLinearDataSource(DataSource):
@@ -466,6 +513,7 @@ class DoubleLinearDataSource(DataSource):
     :param slope_factor: Coefficient that is randomly in- or excluded 
     :type slope_factor: float
     """
+    n_params: int = 2
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     a: float = init(default=1)
@@ -512,11 +560,36 @@ class DoubleLinearDataSource(DataSource):
         x_max = 0.5
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
+    
+    def result_constrain(self) -> ResultConstrain:
+        """
+        | **Description**
+        |   See :func:`DataSource.result_constrain()` 
+
+        | **Current Constraints**
+        |   *Shape:* ``result_shape``
+        |   *Value Range:* TODO table
+
+        :return: Constraints around results
+        :rtype: ResultConstrain
+        """
+        y_min = self.s*self.a/2 if (self.a<0 and self.s>1 or self.a>=0 and self.s<-1) else -self.a*self.s/2 if (self.a>=0 and self.s>1 or self.a<0 and self.s<-1) else self.a/2 if (self.a<0 and self.s>=-1 and self.s<=1) else -self.a/2
+        y_max = -self.s*self.a/2 if (self.a<0 and self.s>1 or self.a>=0 and self.s<-1) else self.a*self.s/2 if (self.a>=0 and self.s>1 or self.a<0 and self.s<-1) else -self.a/2 if (self.a<0 and self.s>=-1 and self.s<=1) else self.a/2
+        result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
+        return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
 @dataclass
 class HourglassDataSource(DataSource):
     """
-    TODO
+    | **Description**
+    |   A ``HourglassDataSource`` is a semi-random source of data choosing one of the following equations at random {``a * x``, ``-a * x`` , ``-a/2``, ``a/2``}. 
+
+    :param query_shape: The expected shape of the queries
+    :type query_shape: tuple of ints
+    :param result_shape: The expected shape of the results
+    :type result_shape: tuple of ints
+    :param a: Coefficient of x
+    :type a: float
     """
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
@@ -543,18 +616,35 @@ class HourglassDataSource(DataSource):
         x_max = 0.5
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
+    
+    def result_constrain(self) -> ResultConstrain:
+        """
+        | **Description**
+        |   See :func:`DataSource.result_constrain()` 
+
+        | **Current Constraints**
+        |   *Shape:* ``result_shape``
+        |   *Value Range:* TODO table
+
+        :return: Constraints around results
+        :rtype: ResultConstrain
+        """
+        y_min = self.a/2 if self.a<0 else -self.a/2
+        y_max = -self.a/2 if self.a<0 else self.a/2
+        result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
+        return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
 @dataclass
 class ZDataSource(DataSource):
     """
     | **Description**
-    |   A ``ZDataSource`` is a semi-random source of data choosing one of the following equations at random TODO. 
+    |   A ``ZDataSource`` is a semi-random source of data choosing one of the following equations at random {``a * x`` , ``-a/2``, ``a/2``}. 
 
     :param query_shape: The expected shape of the queries
     :type query_shape: tuple of ints
     :param result_shape: The expected shape of the results
     :type result_shape: tuple of ints
-    :param a: TODO
+    :param a: Coefficient of x
     :type a: float
     """
     query_shape: Tuple[int,...] = init(default=(1,))
@@ -580,10 +670,37 @@ class ZDataSource(DataSource):
         x_max = 0.5
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
+    
+    def result_constrain(self) -> ResultConstrain:
+            """
+            | **Description**
+            |   See :func:`DataSource.result_constrain()` 
+
+            | **Current Constraints**
+            |   *Shape:* ``result_shape``
+            |   *Value Range:* TODO table
+
+            :return: Constraints around results
+            :rtype: ResultConstrain
+            """
+            y_min = self.a/2 if self.a<0 else -self.a/2
+            y_max = -self.a/2 if self.a<0 else self.a/2
+            result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
+            return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)    
 
 @dataclass
 class ZInvDataSource(DataSource):
+    """
+    | **Description**
+    |   A ``ZInvDataSource`` is a semi-random source of data choosing one of the following equations at random {``-a * x`` , ``-a/2``, ``a/2``}. 
 
+    :param query_shape: The expected shape of the queries
+    :type query_shape: tuple of ints
+    :param result_shape: The expected shape of the results
+    :type result_shape: tuple of ints
+    :param a: Coefficient of x
+    :type a: float
+    """
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     a: float = init(default=1)
@@ -606,6 +723,23 @@ class ZInvDataSource(DataSource):
         x_max = 0.5
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
+    
+    def result_constrain(self) -> ResultConstrain:
+        """
+        | **Description**
+        |   See :func:`DataSource.result_constrain()` 
+
+        | **Current Constraints**
+        |   *Shape:* ``result_shape``
+        |   *Value Range:* TODO table
+
+        :return: Constraints around results
+        :rtype: ResultConstrain
+        """
+        y_min = self.a/2 if self.a<0 else -self.a/2
+        y_max = -self.a/2 if self.a<0 else self.a/2
+        result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
+        return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
 @dataclass
 class LinearPeriodicDataSource(DataSource):
