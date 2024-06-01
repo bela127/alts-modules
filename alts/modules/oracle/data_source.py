@@ -32,7 +32,7 @@ if TYPE_CHECKING:
 class RandomUniformDataSource(DataSource):
     """
     | **Description**
-    |   A ``RandomUniformDataSource`` is a random source of data.
+    |   A ``RandomUniformDataSource`` is a **random** source of data.
     |   For more details see `numpy.random.uniorm <https://numpy.org/doc/stable/reference/random/generated/numpy.random.uniform.html>`_.
 
     :param query_shape: The expected shape of the queries
@@ -44,10 +44,13 @@ class RandomUniformDataSource(DataSource):
     :param l: The lower bound of query values (inclusive)
     :type l: float
     """
+    params: list = 2 * []
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
-    u: float = init(default=1)
-    l: float = init(default=0)
+    params[0] = init(default=1)
+    params[1] = init(default=0)
+    u: float = params[0]
+    l: float = params[1]
 
 
     def query(self, queries):
@@ -102,12 +105,11 @@ class RandomUniformDataSource(DataSource):
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
         return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
-
 @dataclass
 class LineDataSource(DataSource):
     """
     | **Description**
-    |   A ``LineDataSource`` is a deterministic source of data representing a linear equation ``y = ax + b``.
+    |   A ``LineDataSource`` is a **deterministic** source of data representing a linear equation ``y = ax + b``.
 
     :param query_shape: The expected shape of the queries
     :type query_shape: tuple of ints
@@ -118,9 +120,9 @@ class LineDataSource(DataSource):
     :param b: Coefficient of degree 0
     :type b: float
     """
+    params: list = 2 * []
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
-    params: list = 2 * []
     params[0] = init(default=1)
     params[1] = init(default=0)
     a: float = params[0]
@@ -169,7 +171,7 @@ class LineDataSource(DataSource):
 
         | **Current Constraints**
         |   *Shape:* ``result_shape``
-        |   *Value Range:* TODO
+        |   *Value Range:* TODO table
 
         :return: Constraints around results
         :rtype: ResultConstrain
@@ -179,13 +181,11 @@ class LineDataSource(DataSource):
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
         return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
-
-
 @dataclass
 class SquareDataSource(DataSource):
     """
     | **Description**
-    |   A ``SquareDataSource`` is a deterministic source of data representing a square parabola ``s * (x - x0)^2 + y0``. 
+    |   A ``SquareDataSource`` is a **deterministic** source of data representing a square parabola ``s * (x - x0)^2 + y0``. 
 
     :param query_shape: The expected shape of the queries
     :type query_shape: tuple of ints
@@ -198,11 +198,15 @@ class SquareDataSource(DataSource):
     :param s: Coefficient of degree 2
     :type s: float
     """
+    params: list = 3 * []
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
-    x0: float = init(default=0.5)
-    y0: float = init(default=0)
-    s: float = init(default=5)
+    params[0] = init(default=0.5)
+    params[1] = init(default=0)
+    params[2] = init(default=5)
+    x0: float = params[0]
+    y0: float = params[1]
+    s: float = params[2]
 
     def query(self, queries):
         """
@@ -238,6 +242,23 @@ class SquareDataSource(DataSource):
         x_max = 1
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
+    
+    def result_constrain(self) -> ResultConstrain:
+        """
+        | **Description**
+        |   See :func:`DataSource.result_constrain()` 
+
+        | **Current Constraints**
+        |   *Shape:* ``result_shape``
+        |   *Value Range:* TODO table
+
+        :return: Constraints around results
+        :rtype: ResultConstrain
+        """
+        y_min = self.s*self.x0**2+self.y0 if self.s<0 else self.y0
+        y_max = self.y0 if (self.s<0 and 0<=self.x0 and self.x0<1) else self.s*self.x0**2+self.y0 if (self.x0<0 and self.s<0 or self.s>=0 and self.x0>=0.5) else self.s*(1-self.x0)**2+self.y0
+        result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
+        return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
 @dataclass
 class PowDataSource(DataSource):
@@ -349,7 +370,6 @@ class ExpDataSource(DataSource):
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
-    
 @dataclass
 class InterpolatingDataSource(DataSource):
     """
@@ -371,8 +391,6 @@ class InterpolatingDataSource(DataSource):
     
     def query_constrain(self) -> QueryConstrain:
         return self.interpolation_strategy.query_constrain()
-
-
 
 @dataclass
 class CrossDataSource(DataSource):
@@ -495,7 +513,6 @@ class DoubleLinearDataSource(DataSource):
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
-        
 @dataclass
 class HourglassDataSource(DataSource):
     """
@@ -650,7 +667,6 @@ class SineDataSource(DataSource):
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
-
 @dataclass
 class HypercubeDataSource(DataSource):
 
@@ -712,7 +728,6 @@ class StarDataSource(DataSource):
         x_max = 0.5
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
-
 
 @dataclass
 class HyperSphereDataSource(DataSource):
@@ -848,7 +863,6 @@ class GaussianProcessDataSource(DataSource):
         obj.regression = self.regression
         return obj
     
-
 @dataclass
 class BrownianProcessDataSource(GaussianProcessDataSource):
     query_shape: Tuple[int,...] = init(default=(1,))
