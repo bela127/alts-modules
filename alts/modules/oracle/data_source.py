@@ -84,6 +84,23 @@ class RandomUniformDataSource(DataSource):
         x_max = 1
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
+    
+    def result_constrain(self) -> ResultConstrain:
+        """
+        | **Description**
+        |   See :func:`DataSource.result_constrain()` 
+
+        | **Current Constraints**
+        |   *Shape:* ``result_shape``
+        |   *Value Range:* [l, u)
+
+        :return: Constraints around results
+        :rtype: ResultConstrain
+        """
+        y_min = 0
+        y_max = 1
+        result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
+        return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
 
 @dataclass
@@ -151,11 +168,11 @@ class LineDataSource(DataSource):
         |   See :func:`DataSource.result_constrain()` 
 
         | **Current Constraints**
-        |   *Shape:* ``query_shape``
-        |   *Value Range:* [0, 1)
+        |   *Shape:* ``result_shape``
+        |   *Value Range:* TODO
 
-        :return: Constraints around queries
-        :rtype: QueryConstrain
+        :return: Constraints around results
+        :rtype: ResultConstrain
         """
         y_min = self.a + self.b if self.a < 0 else self.b
         y_max = self.b if self.a <= 0 else self.a + self.b
