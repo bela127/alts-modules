@@ -10,7 +10,7 @@ import numpy as np
 import GPy
 
 from alts.core.oracle.data_source import DataSource, TimeDataSource
-from alts.core.data.constrains import QueryConstrain
+from alts.core.data.constrains import QueryConstrain, ResultConstrain
 
 from alts.core.configuration import pre_init, is_set, init, post_init
 
@@ -103,15 +103,18 @@ class LineDataSource(DataSource):
     """
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
-    a: float = init(default=1)
-    b: float = init(default=0)
+    params: list = 2 * []
+    params[0] = init(default=1)
+    params[1] = init(default=0)
+    a: float = params[0]
+    b: float = params[1]
 
 
     def query(self, queries):
         """
         | **Description**
         |   ``query()`` is the access point to the data of the ``DataSource``.
-        |   It returns *results* in the range of TODO to given *queries* in the range of ``[0,1)`` upon request.
+        |   It returns *results* in the range of ``[min(a,0) + b, max(a,0) + b)`` to given *queries* in the range of ``[0,1)`` upon request.
 
         :param queries: Requested Query
         :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
@@ -141,6 +144,23 @@ class LineDataSource(DataSource):
         x_max = 1
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
+    
+    def result_constrain(self) -> ResultConstrain:
+        """
+        | **Description**
+        |   See :func:`DataSource.result_constrain()` 
+
+        | **Current Constraints**
+        |   *Shape:* ``query_shape``
+        |   *Value Range:* [0, 1)
+
+        :return: Constraints around queries
+        :rtype: QueryConstrain
+        """
+        y_min = self.a + self.b if self.a < 0 else self.b
+        y_max = self.b if self.a <= 0 else self.a + self.b
+        result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
+        return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
 
 
@@ -171,7 +191,7 @@ class SquareDataSource(DataSource):
         """
         | **Description**
         |   ``query()`` is the access point to the data of the ``DataSource``.
-        |   It returns *results* in the range of TODO to given *queries* in the range of ``[0,1)`` upon request.
+        |   It returns *results* in the range of ``[min(s,0)*x0^2 + y0, max(s * min(1 - 2*x0), s * max(1 - 2*x0)) + y0)`` to given *queries* in the range of ``[0,1)`` upon request.
 
         :param queries: Requested Query
         :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
@@ -226,7 +246,7 @@ class PowDataSource(DataSource):
         """
         | **Description**
         |   ``query()`` is the access point to the data of the ``DataSource``.
-        |   It returns *results* in the range of TODO to given *queries* in the range of ``[0,1)`` upon request.
+        |   It returns *results* in the range of [0 if power > 0 else s, inf if power < 0 else s) to given *queries* in the range of ``[0,1)`` upon request.
 
         :param queries: Requested Query
         :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
@@ -492,7 +512,17 @@ class HourglassDataSource(DataSource):
 
 @dataclass
 class ZDataSource(DataSource):
+    """
+    | **Description**
+    |   A ``ZDataSource`` is a semi-random source of data choosing one of the following equations at random TODO. 
 
+    :param query_shape: The expected shape of the queries
+    :type query_shape: tuple of ints
+    :param result_shape: The expected shape of the results
+    :type result_shape: tuple of ints
+    :param a: TODO
+    :type a: float
+    """
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     a: float = init(default=1)
@@ -698,7 +728,7 @@ class IndependentDataSource(DataSource):
 
     all_distributions: Tuple = pre_init(default=(np.random.normal,np.random.uniform,np.random.gamma))
     distributions: list = pre_init(default=None)
-    coefficients: NDArray[Shape['D'], Number] = pre_init(default=None)
+    coefficients: NDArray[Shape['D'], Number] = pre_init(default=None) # type: ignore
 
     def post_init(self):
         super().post_init()
@@ -711,7 +741,7 @@ class IndependentDataSource(DataSource):
             for i in range(self.number_of_distributions):
                 loc = np.random.uniform(-10, 10,size=1)
                 scale = np.random.uniform(0.1,2,size=1)
-                shape: ndarray[Any, dtype[signedinteger[Any]]] = np.random.uniform(0.1,5,size=1)
+                shape: np.ndarray[Any, np.dtype[np.signedinteger[Any]]] = np.random.uniform(0.1,5,size=1)
                 distribution = np.random.choice(self.all_distributions)
                 if distribution is np.random.normal:
                     self.distributions.append({"type": distribution, "kwargs": {"loc": loc, "scale": scale}})
@@ -781,7 +811,7 @@ class GaussianProcessDataSource(DataSource):
 
             self.regression = GPy.models.GPRegression(flat_support, flat_result, self.kern, noise_var=0.0)
 
-    def query(self, queries) -> Tuple[NDArray[Shape["query_nr, ... query_dim"], Number], NDArray[Shape["query_nr, ... result_dim"], Number]]:
+    def query(self, queries) -> Tuple[NDArray[Shape["query_nr, ... query_dim"], Number], NDArray[Shape["query_nr, ... result_dim"], Number]]: # type: ignore
 
         flat_queries = queries.reshape((queries.shape[0], -1))
         
@@ -1013,8 +1043,8 @@ class TimeBehaviorDataSource(TimeDataSource):
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     behavior: DataBehavior = init()
-    change_times: NDArray[Shape["change_times"], Number] = post_init()
-    change_values: NDArray[Shape["change_values"], Number] = post_init()
+    change_times: NDArray[Shape["change_times"], Number] = post_init() # type: ignore
+    change_values: NDArray[Shape["change_values"], Number] = post_init() # type: ignore
     current_time: float = pre_init(default=0)
 
     def post_init(self):
@@ -1027,7 +1057,7 @@ class TimeBehaviorDataSource(TimeDataSource):
     def exhausted(self):
         return self.current_time < self.behavior.stop_time
 
-    def query(self, queries: NDArray[ Shape["query_nr, ... query_dim"], Number]) -> Tuple[NDArray[Shape["query_nr, ... query_dim"], Number], NDArray[Shape["query_nr, ... result_dim"], Number]]:
+    def query(self, queries: NDArray[ Shape["query_nr, ... query_dim"], Number]) -> Tuple[NDArray[Shape["query_nr, ... query_dim"], Number], NDArray[Shape["query_nr, ... result_dim"], Number]]: # type: ignore
         times = queries
         self.current_time = times[-1,0]
 
