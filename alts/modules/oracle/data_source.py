@@ -53,18 +53,14 @@ class RandomUniformDataSource(DataSource):
     def query(self, queries):
         """
         | **Description**
-        |   ``query()`` is the access point to the data of the ``DataSource``.
-        |   It returns *results* in the range of ``[l,u)`` to given *queries* in the range of ``[0,1)`` upon request.
+        |   See :func:`DataSource.query()`
 
         :param queries: Requested Query
         :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
         :return: Processed Query, Result 
         :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
-
-        | **Example**
-        |   Let ``y = query(x)``, ``l = 0.0`` and ``u = 1.0``. Since  ``l <= y < u``, we now have ``0.0 <= y < 1.0``.
-        |   The resulting graph of ``y = query(x)`` might look something like this.
         """
+         #TODO Ambition interactive view of graphs
         results = np.random.uniform(low=self.l, high=self.u, size=(queries.shape[0], * self.result_shape))
         return queries, results
 
@@ -126,18 +122,14 @@ class LineDataSource(DataSource):
     def query(self, queries):
         """
         | **Description**
-        |   ``query()`` is the access point to the data of the ``DataSource``.
-        |   It returns *results* in the range of ``[min(a,0) + b, max(a,0) + b)`` to given *queries* in the range of ``[0,1)`` upon request.
+        |   See :func:`DataSource.query()`
 
         :param queries: Requested Query
         :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
         :return: Processed Query, Result 
         :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
-
-        | **Example**
-        |   Let ``y = query(x)``, ``a = 1.0`` and ``b = 0.0``. This represents the linear equation ``y = x``.
-        |   The resulting graph of ``y = query(x)`` should look something like this.
         """
+         #TODO Ambition interactive view of graphs
         results = np.dot(queries, np.ones((*self.query_shape,*self.result_shape))*self.a) + np.ones(self.result_shape)*self.b
         return queries, results
 
@@ -202,18 +194,14 @@ class SquareDataSource(DataSource):
     def query(self, queries):
         """
         | **Description**
-        |   ``query()`` is the access point to the data of the ``DataSource``.
-        |   It returns *results* in the range of ``[min(s,0)*x0^2 + y0, max(s * min(1 - 2*x0), s * max(1 - 2*x0)) + y0)`` to given *queries* in the range of ``[0,1)`` upon request.
+        |   See :func:`DataSource.query()`
 
         :param queries: Requested Query
         :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
         :return: Processed Query, Result 
         :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
-
-        | **Example**
-        |   Let ``y = query(x)``, ``x0 = 0.5``, ``y0 = 0.0`` and ``s = 5.0``. This represents the quadratic equation ``y = 5 * (x - 0.5)^2 + 0``.
-        |   The resulting graph of ``y = query(x)`` should look something like this.
         """
+         #TODO Ambition interactive view of graphs
         results = np.dot((queries - self.x0)**2, np.ones((*self.query_shape,*self.result_shape))*self.s) + np.ones(self.result_shape)*self.y0
         return queries, results
 
@@ -275,18 +263,14 @@ class PowDataSource(DataSource):
     def query(self, queries):
         """
         | **Description**
-        |   ``query()`` is the access point to the data of the ``DataSource``.
-        |   It returns *results* in the range of [0 if power > 0 else s, inf if power < 0 else s) to given *queries* in the range of ``[0,1)`` upon request.
+        |   See :func:`DataSource.query()`
 
         :param queries: Requested Query
         :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
         :return: Processed Query, Result 
         :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
-
-        | **Example**
-        |   Let ``y = query(x)``, ``power = 3.0`` and ``s = 1.0``. This represents the exponential equation ``y = 1 * x^3``.
-        |   The resulting graph of ``y = query(x)`` should look something like this.   
         """
+         #TODO Ambition interactive view of graphs
         results = np.dot(np.power(queries, self.power), np.ones((*self.query_shape,*self.result_shape))*self.s)
         return queries, results
 
@@ -348,18 +332,14 @@ class ExpDataSource(DataSource):
     def query(self, queries):
         """
         | **Description**
-        |   ``query()`` is the access point to the data of the ``DataSource``.
-        |   It returns *results* in the range of TODO to given *queries* in the range of ``[0,1)`` upon request.
+        |   See :func:`DataSource.query()`
 
         :param queries: Requested Query
         :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
         :return: Processed Query, Result 
         :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
-
-        | **Example**
-        |   Let ``y = query(x)``, ``base = 2.0`` and ``s = 1.0``. This represents the exponential equation ``y = 1 * 2^x``.
-        |   The resulting graph of ``y = query(x)`` should look something like this.     
         """
+         #TODO Ambition interactive view of graphs
         results = np.dot(np.power(self.base, queries*self.s), np.ones((*self.query_shape,*self.result_shape)))
         return queries, results
 
@@ -442,19 +422,14 @@ class CrossDataSource(DataSource):
     def query(self, queries):
         """
         | **Description**
-        |   ``query()`` is the access point to the data of the ``DataSource``.
-        |   It returns *results* in the range of TODO to given *queries* in the range of ``[-0.5,0.5)`` upon request.
+        |   See :func:`DataSource.query()`
 
         :param queries: Requested Query
         :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
         :return: Processed Query, Result 
         :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
-
-        | **Example**
-        |   Let ``y = query(x)`` and ``a = 1.0``. This represents the linear equations {``y = -1 * x``, ``y = 1 * x``}.
-        |   Upon each call of query() it will choose one of those two equations at random to evaluate.
-        |   The resulting graph of ``y = query(x)`` should look something like this. 
         """
+         #TODO Ambition interactive view of graphs
         direction = np.random.randint(2,size=(queries.shape[0], *self.result_shape))
 
         results_up = np.dot(queries, np.ones((*self.query_shape,*self.result_shape))*self.a) 
@@ -522,19 +497,14 @@ class DoubleLinearDataSource(DataSource):
     def query(self, queries):
         """
         | **Description**
-        |   ``query()`` is the access point to the data of the ``DataSource``.
-        |   It returns *results* in the range of TODO to given *queries* in the range of ``[-0.5,0.5)`` upon request.
+        |   See :func:`DataSource.query()`
 
         :param queries: Requested Query
         :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
         :return: Processed Query, Result 
         :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
-
-        | **Example**
-        |   Let ``y = query(x)``, ``a = 1.0`` and ``slope_factor = 0.5``. This represents the linear equations {``y = 1 * x``, ``y = 0.5 * 1 * x``}.
-        |   Upon each call of query() it will choose one of those two equations at random to evaluate.
-        |   The resulting graph of ``y = query(x)`` should look something like this.  
         """
+         #TODO Ambition interactive view of graphs
         slope = np.random.randint(2,size=(queries.shape[0], *self.result_shape))
 
         results_steap = np.dot(queries, np.ones((*self.query_shape,*self.result_shape))*self.a) 
@@ -596,7 +566,16 @@ class HourglassDataSource(DataSource):
     a: float = init(default=1)
 
     def query(self, queries):
+        """
+        | **Description**
+        |   See :func:`DataSource.query()`
 
+        :param queries: Requested Query
+        :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
+        :return: Processed Query, Result 
+        :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
+        """
+         #TODO Ambition interactive view of graphs
         kind = np.random.randint(2,size=(queries.shape[0], *self.result_shape))
 
         results_up = np.dot(queries, np.ones((*self.query_shape,*self.result_shape))*self.a) 
@@ -612,6 +591,17 @@ class HourglassDataSource(DataSource):
         return queries, results
 
     def query_constrain(self) -> QueryConstrain:
+        """
+        | **Description**
+        |   See :func:`DataSource.query_constrain()` 
+
+        | **Current Constraints**
+        |   *Shape:* ``query_shape``
+        |   *Value Range:* [0, 1)
+
+        :return: Constraints around queries
+        :rtype: QueryConstrain
+        """
         x_min = -0.5
         x_max = 0.5
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
@@ -652,7 +642,16 @@ class ZDataSource(DataSource):
     a: float = init(default=1)
 
     def query(self, queries):
+        """
+        | **Description**
+        |   See :func:`DataSource.query()`
 
+        :param queries: Requested Query
+        :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
+        :return: Processed Query, Result 
+        :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
+        """
+         #TODO Ambition interactive view of graphs
         kind = np.random.randint(2,size=(queries.shape[0], *self.result_shape))
 
         results_const = (1- kind)*0.5 + kind*-0.5
@@ -666,6 +665,17 @@ class ZDataSource(DataSource):
         return queries, results
 
     def query_constrain(self) -> QueryConstrain:
+        """
+        | **Description**
+        |   See :func:`DataSource.query_constrain()` 
+
+        | **Current Constraints**
+        |   *Shape:* ``query_shape``
+        |   *Value Range:* [0, 1)
+
+        :return: Constraints around queries
+        :rtype: QueryConstrain
+        """
         x_min = -0.5
         x_max = 0.5
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
@@ -706,7 +716,16 @@ class ZInvDataSource(DataSource):
     a: float = init(default=1)
 
     def query(self, queries):
+        """
+        | **Description**
+        |   See :func:`DataSource.query()`
 
+        :param queries: Requested Query
+        :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
+        :return: Processed Query, Result 
+        :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
+        """
+         #TODO Ambition interactive view of graphs
         kind = np.random.randint(2,size=(queries.shape[0], *self.result_shape))
 
         results_const = (1- kind)*0.5 + kind*-0.5
@@ -719,6 +738,17 @@ class ZInvDataSource(DataSource):
         return queries, results
 
     def query_constrain(self) -> QueryConstrain:
+        """
+        | **Description**
+        |   See :func:`DataSource.query_constrain()` 
+
+        | **Current Constraints**
+        |   *Shape:* ``query_shape``
+        |   *Value Range:* [0, 1)
+
+        :return: Constraints around queries
+        :rtype: QueryConstrain
+        """
         x_min = -0.5
         x_max = 0.5
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
@@ -743,7 +773,8 @@ class ZInvDataSource(DataSource):
 
 @dataclass
 class LinearPeriodicDataSource(DataSource):
-
+    # ax mod p
+    #TODO Error if p = 0
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     a: float = init(default=1)
@@ -751,6 +782,16 @@ class LinearPeriodicDataSource(DataSource):
 
 
     def query(self, queries):
+        """
+        | **Description**
+        |   See :func:`DataSource.query()`
+
+        :param queries: Requested Query
+        :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
+        :return: Processed Query, Result 
+        :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
+        """
+         #TODO Ambition interactive view of graphs
         results = np.dot(queries % self.p, np.ones((*self.query_shape, *self.result_shape))*self.a)
         return queries, results
 
@@ -760,15 +801,42 @@ class LinearPeriodicDataSource(DataSource):
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
     
+    def result_constrain(self) -> ResultConstrain:
+        """
+        | **Description**
+        |   See :func:`DataSource.result_constrain()` 
+
+        | **Current Constraints**
+        |   *Shape:* ``result_shape``
+        |   *Value Range:* TODO table
+
+        :return: Constraints around results
+        :rtype: ResultConstrain
+        """
+        y_min = self.a/2 if self.a<0 else -self.a/2
+        y_max = -self.a/2 if self.a<0 else self.a/2
+        result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
+        return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
+    
 @dataclass
 class LinearStepDataSource(DataSource):
-
+    # a(x%p) mod p
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     a: float = init(default=1)
     p: float = init(default=0.2)
 
     def query(self, queries):
+        """
+        | **Description**
+        |   See :func:`DataSource.query()`
+
+        :param queries: Requested Query
+        :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
+        :return: Processed Query, Result 
+        :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
+        """
+         #TODO Ambition interactive view of graphs
         remainder = queries % self.p
         offset = (queries - remainder) / self.p
         results = np.dot(offset, np.ones((*self.query_shape, *self.result_shape))*self.a)
@@ -782,7 +850,7 @@ class LinearStepDataSource(DataSource):
 
 @dataclass
 class SineDataSource(DataSource):
-
+    #sin((x-x0)*2pi*p)
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     a: float = init(default=1)
@@ -792,6 +860,16 @@ class SineDataSource(DataSource):
 
 
     def query(self, queries):
+        """
+        | **Description**
+        |   See :func:`DataSource.query()`
+
+        :param queries: Requested Query
+        :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
+        :return: Processed Query, Result 
+        :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
+        """
+         #TODO Ambition interactive view of graphs
         results = np.dot(np.sin((queries-self.x0) * 2 * np.pi * self.p), np.ones((*self.query_shape,*self.result_shape))*self.a) + np.ones(self.result_shape)*self.y0
         return queries, results
 
@@ -803,13 +881,22 @@ class SineDataSource(DataSource):
 
 @dataclass
 class HypercubeDataSource(DataSource):
-
+    #TODO HYPER
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     w: float = init(default=0.4)
 
     def query(self, queries):
+        """
+        | **Description**
+        |   See :func:`DataSource.query()`
 
+        :param queries: Requested Query
+        :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
+        :return: Processed Query, Result 
+        :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
+        """
+         #TODO Ambition interactive view of graphs
         kind = np.random.randint(2,size=(queries.shape[0], *self.result_shape))
 
         random = np.random.uniform(-0.5,0.5, size=(queries.shape[0], *self.result_shape))
@@ -831,13 +918,22 @@ class HypercubeDataSource(DataSource):
 
 @dataclass
 class StarDataSource(DataSource):
-
+    #TODO HYPER
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     w: float = init(default=0.05)
 
     def query(self, queries):
+        """
+        | **Description**
+        |   See :func:`DataSource.query()`
 
+        :param queries: Requested Query
+        :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
+        :return: Processed Query, Result 
+        :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
+        """
+         #TODO Ambition interactive view of graphs
         direction = np.random.randint(2,size=(queries.shape[0], *self.result_shape))
 
         results_up = np.dot(queries, np.ones((*self.query_shape,*self.result_shape))) 
@@ -865,11 +961,21 @@ class StarDataSource(DataSource):
 
 @dataclass
 class HyperSphereDataSource(DataSource):
-
+    #TODO HYPER
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
 
     def query(self, queries):
+        """
+        | **Description**
+        |   See :func:`DataSource.query()`
+
+        :param queries: Requested Query
+        :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
+        :return: Processed Query, Result 
+        :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
+        """
+         #TODO Ambition interactive view of graphs
         x = np.dot(-1*np.square(queries), np.ones((*self.query_shape,*self.result_shape)))
         y = x + np.ones(self.result_shape)
         top_half = np.sqrt(np.abs(y))
@@ -887,6 +993,8 @@ class HyperSphereDataSource(DataSource):
 
 @dataclass
 class IndependentDataSource(DataSource):
+    #wtf is this
+    #TODO INDEPENDENT
     reinit: bool = init(default=False)
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
@@ -920,6 +1028,16 @@ class IndependentDataSource(DataSource):
 
 
     def query(self, queries):
+        """
+        | **Description**
+        |   See :func:`DataSource.query()`
+
+        :param queries: Requested Query
+        :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
+        :return: Processed Query, Result 
+        :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
+        """
+         #TODO Ambition interactive view of graphs
         sample_size = queries.shape[0]
         distrs = np.random.choice(a=self.distributions, size=(sample_size, *self.result_shape), p=self.coefficients)
         distrs_flat = distrs.flat
@@ -943,7 +1061,8 @@ class IndependentDataSource(DataSource):
 
 @dataclass
 class GaussianProcessDataSource(DataSource):
-
+    #pls explain
+    #TODO GAUSSIAN
     reinit: bool = init(default=False)
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
@@ -978,7 +1097,16 @@ class GaussianProcessDataSource(DataSource):
             self.regression = GPy.models.GPRegression(flat_support, flat_result, self.kern, noise_var=0.0)
 
     def query(self, queries) -> Tuple[NDArray[Shape["query_nr, ... query_dim"], Number], NDArray[Shape["query_nr, ... result_dim"], Number]]: # type: ignore
+        """
+        | **Description**
+        |   See :func:`DataSource.query()`
 
+        :param queries: Requested Query
+        :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
+        :return: Processed Query, Result 
+        :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
+        """
+         #TODO Ambition interactive view of graphs
         flat_queries = queries.reshape((queries.shape[0], -1))
         
         flat_results, pred_cov = self.regression.predict_noiseless(flat_queries)
@@ -999,6 +1127,7 @@ class GaussianProcessDataSource(DataSource):
     
 @dataclass
 class BrownianProcessDataSource(GaussianProcessDataSource):
+    #TODO DRIFT
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     min_support: Tuple[float,...] = init(default=(0,))
@@ -1011,6 +1140,7 @@ class BrownianProcessDataSource(GaussianProcessDataSource):
     
 @dataclass
 class BrownianDriftDataSource(GaussianProcessDataSource):
+    #TODO DRIFT
     query_shape: Tuple[int,...] = init(default=(2,))
     result_shape: Tuple[int,...] = init(default=(1,))
     brown_var: float = init(default=0.01) #0.005
@@ -1025,6 +1155,7 @@ class BrownianDriftDataSource(GaussianProcessDataSource):
 
 @dataclass
 class RBFDriftDataSource(GaussianProcessDataSource):
+    #TODO DRIFT
     query_shape: Tuple[int,...] = init(default=(2,))
     result_shape: Tuple[int,...] = init(default=(1,))
     brown_var: float = init(default=0.01) #0.005
@@ -1039,6 +1170,7 @@ class RBFDriftDataSource(GaussianProcessDataSource):
 
 @dataclass
 class SinDriftDataSource(GaussianProcessDataSource):
+    #TODO DRIFT
     query_shape: Tuple[int,...] = init(default=(2,))
     result_shape: Tuple[int,...] = init(default=(1,))
     brown_var: float = init(default=0.005) #0.005
@@ -1054,6 +1186,7 @@ class SinDriftDataSource(GaussianProcessDataSource):
 
 @dataclass
 class MixedDriftDataSource(GaussianProcessDataSource):
+    #TODO DRIFT
     support_points: int= init(default=2000)
     reinit: bool = init(default=False)
     query_shape: Tuple[int,...] = init(default=(2,))
@@ -1103,7 +1236,16 @@ class MixedDriftDataSource(GaussianProcessDataSource):
         super().post_init()
 
     def query(self, queries):
+        """
+        | **Description**
+        |   See :func:`DataSource.query()`
 
+        :param queries: Requested Query
+        :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
+        :return: Processed Query, Result 
+        :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
+        """
+         #TODO Ambition interactive view of graphs
         flat_queries = queries.reshape((queries.shape[0], -1))
 
         y_i = self.gp_i.query(flat_queries[:,1:])[1]
@@ -1129,6 +1271,7 @@ class MixedDriftDataSource(GaussianProcessDataSource):
 
 @dataclass
 class MixedBrownDriftDataSource(GaussianProcessDataSource):
+    #TODO DRIFT
     support_points: int= init(default=2000)
     reinit: bool = init(default=False)
     query_shape: Tuple[int,...] = init(default=(2,))
@@ -1178,7 +1321,16 @@ class MixedBrownDriftDataSource(GaussianProcessDataSource):
         super().post_init()
 
     def query(self, queries):
+        """
+        | **Description**
+        |   See :func:`DataSource.query()`
 
+        :param queries: Requested Query
+        :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
+        :return: Processed Query, Result 
+        :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
+        """
+         #TODO Ambition interactive view of graphs
         flat_queries = queries.reshape((queries.shape[0], -1))
 
         y_i = self.gp_i.query(flat_queries[:,1:])[1]
@@ -1204,7 +1356,7 @@ class MixedBrownDriftDataSource(GaussianProcessDataSource):
 
 @dataclass
 class TimeBehaviorDataSource(TimeDataSource):
-
+    #TODO TIME
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     behavior: DataBehavior = init()
@@ -1223,6 +1375,16 @@ class TimeBehaviorDataSource(TimeDataSource):
         return self.current_time < self.behavior.stop_time
 
     def query(self, queries: NDArray[ Shape["query_nr, ... query_dim"], Number]) -> Tuple[NDArray[Shape["query_nr, ... query_dim"], Number], NDArray[Shape["query_nr, ... result_dim"], Number]]: # type: ignore
+        """
+        | **Description**
+        |   See :func:`DataSource.query()`
+
+        :param queries: Requested Query
+        :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
+        :return: Processed Query, Result 
+        :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
+        """
+         #TODO Ambition interactive view of graphs
         times = queries
         self.current_time = times[-1,0]
 
