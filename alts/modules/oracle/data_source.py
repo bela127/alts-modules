@@ -54,7 +54,7 @@ class RandomUniformDataSource(DataSource):
     def query(self, queries):
         """
         | **Description**
-        |   See :func:`DataSource.query()`
+        |   See :func:`alts.core.oracle.data_source.DataSource.query()`
 
         :param queries: Requested Query
         :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
