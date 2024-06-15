@@ -159,7 +159,11 @@ class LineDataSource(DataSource):
 
         | **Current Constraints**
         |   *Shape:* ``result_shape``
-        |   *Value Range:* TODO table
+        |   *Value Range:*
+        ===== ======
+        a < 0 a >= 0
+        ===== ======
+        a + b b
 
         :return: Constraints around results
         :rtype: ResultConstrain
