@@ -2,6 +2,7 @@
 :doc:`Core Module </core/oracle/data_source>`
 """
 from __future__ import annotations
+from math import floor
 from typing import TYPE_CHECKING, Optional
 
 from dataclasses import dataclass, field, InitVar
@@ -27,7 +28,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
 
-
+#Finished 1
 @dataclass
 class RandomUniformDataSource(DataSource):
     """
@@ -98,6 +99,7 @@ class RandomUniformDataSource(DataSource):
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
         return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
+#Finished 1
 @dataclass
 class LineDataSource(DataSource):
     """
@@ -167,6 +169,7 @@ class LineDataSource(DataSource):
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
         return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
+#Finished 1
 @dataclass
 class SquareDataSource(DataSource):
     """
@@ -239,11 +242,12 @@ class SquareDataSource(DataSource):
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
         return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
+#Finished 1
 @dataclass
 class PowDataSource(DataSource):
     """
     | **Description**
-    |   A ``PowDataSource`` is a deterministic source of data representing an exponential equation ``s * x^power``. 
+    |   A ``PowDataSource`` is a **deterministic** source of data representing an exponential equation ``s * x^power``. 
 
     :param query_shape: The expected shape of the queries
     :type query_shape: tuple of ints
@@ -308,11 +312,12 @@ class PowDataSource(DataSource):
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
         return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
+#Finished 1
 @dataclass
 class ExpDataSource(DataSource):
     """
     | **Description**
-    |   An ``ExpDataSource`` is a deterministic source of data representing an exponential equation ``s * base^x``. 
+    |   An ``ExpDataSource`` is a **deterministic** source of data representing an exponential equation ``s * base^x``. 
 
     :param query_shape: The expected shape of the queries
     :type query_shape: tuple of ints
@@ -377,6 +382,7 @@ class ExpDataSource(DataSource):
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
         return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
+#TODO
 @dataclass
 class InterpolatingDataSource(DataSource):
     """
@@ -401,11 +407,12 @@ class InterpolatingDataSource(DataSource):
     
     #TODO result_constrain
 
+#Finished 1
 @dataclass
 class CrossDataSource(DataSource):
     """
     | **Description**
-    |   A ``CrossDataSource`` is a semi-random source of data choosing one of the following equations at random {``-a * x``, ``a * x``}. 
+    |   A ``CrossDataSource`` is a **semi-random** source of data choosing one of the following equations at random {``-a * x``, ``a * x``}. 
 
     :param query_shape: The expected shape of the queries
     :type query_shape: tuple of ints
@@ -473,11 +480,12 @@ class CrossDataSource(DataSource):
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
         return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
+#Finished 1
 @dataclass
 class DoubleLinearDataSource(DataSource):
     """
     | **Description**
-    |   A ``DoubleLinearDataSource`` is a semi-random source of data choosing one of the following equations at random {``a * x``, ``a * x * slope_factor``}. 
+    |   A ``DoubleLinearDataSource`` is a **semi-random** source of data choosing one of the following equations at random {``a * x``, ``a * x * slope_factor``}. 
 
     :param query_shape: The expected shape of the queries
     :type query_shape: tuple of ints
@@ -548,11 +556,12 @@ class DoubleLinearDataSource(DataSource):
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
         return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
+#Finished 1
 @dataclass
 class HourglassDataSource(DataSource):
     """
     | **Description**
-    |   A ``HourglassDataSource`` is a semi-random source of data choosing one of the following equations at random {``a * x``, ``-a * x`` , ``-a/2``, ``a/2``}. 
+    |   A ``HourglassDataSource`` is a **semi-random** source of data choosing one of the following equations at random {``a * x``, ``-a * x`` , ``-a/2``, ``a/2``}. 
 
     :param query_shape: The expected shape of the queries
     :type query_shape: tuple of ints
@@ -561,6 +570,7 @@ class HourglassDataSource(DataSource):
     :param a: Coefficient of x
     :type a: float
     """
+    n_params: int = 1
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     a: float = init(default=1)
@@ -624,11 +634,12 @@ class HourglassDataSource(DataSource):
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
         return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
+#Finished 1
 @dataclass
 class ZDataSource(DataSource):
     """
     | **Description**
-    |   A ``ZDataSource`` is a semi-random source of data choosing one of the following equations at random {``a * x`` , ``-a/2``, ``a/2``}. 
+    |   A ``ZDataSource`` is a **semi-random** source of data choosing one of the following equations at random {``a * x`` , ``-a/2``, ``a/2``}. 
 
     :param query_shape: The expected shape of the queries
     :type query_shape: tuple of ints
@@ -637,6 +648,7 @@ class ZDataSource(DataSource):
     :param a: Coefficient of x
     :type a: float
     """
+    n_params: int = 1
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     a: float = init(default=1)
@@ -698,11 +710,12 @@ class ZDataSource(DataSource):
             result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
             return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)    
 
+#Finished 1
 @dataclass
 class ZInvDataSource(DataSource):
     """
     | **Description**
-    |   A ``ZInvDataSource`` is a semi-random source of data choosing one of the following equations at random {``-a * x`` , ``-a/2``, ``a/2``}. 
+    |   A ``ZInvDataSource`` is a **semi-random** source of data choosing one of the following equations at random {``-a * x`` , ``-a/2``, ``a/2``}. 
 
     :param query_shape: The expected shape of the queries
     :type query_shape: tuple of ints
@@ -711,6 +724,7 @@ class ZInvDataSource(DataSource):
     :param a: Coefficient of x
     :type a: float
     """
+    n_params: int = 1
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     a: float = init(default=1)
@@ -771,10 +785,23 @@ class ZInvDataSource(DataSource):
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
         return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
+#Finished 1
 @dataclass
 class LinearPeriodicDataSource(DataSource):
-    # ax mod p
-    #TODO Error if p = 0
+    """
+    | **Description**
+    |   A ``LinearPeriodicDataSource`` is a **deterministic** source of data representing the equation ``a*x mod p``. 
+
+    :param query_shape: The expected shape of the queries
+    :type query_shape: tuple of ints
+    :param result_shape: The expected shape of the results
+    :type result_shape: tuple of ints
+    :param a: Coefficient of x
+    :type a: float
+    :param p: Modulo divisor
+    :type p: float
+    """
+    n_params: int = 2
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     a: float = init(default=1)
@@ -813,14 +840,28 @@ class LinearPeriodicDataSource(DataSource):
         :return: Constraints around results
         :rtype: ResultConstrain
         """
-        y_min = self.a/2 if self.a<0 else -self.a/2
-        y_max = -self.a/2 if self.a<0 else self.a/2
+        y_min = 0 if self.p>0 or self.p<0 and self.a==0 else self.p if self.p<0 and self.a!=0 else np.nan
+        y_max = 0 if self.p<0 or self.p>0 and self.a==0 else self.p if self.p>0 and self.a!=0 else np.nan
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
         return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
     
+#Finished 1
 @dataclass
 class LinearStepDataSource(DataSource):
-    # a(x%p) mod p
+    """
+    | **Description**
+    |   A ``LinearStepDataSource`` is a **deterministic** source of data representing the equation ``a*(x%p)``. 
+
+    :param query_shape: The expected shape of the queries
+    :type query_shape: tuple of ints
+    :param result_shape: The expected shape of the results
+    :type result_shape: tuple of ints
+    :param a: Coefficient of x
+    :type a: float
+    :param p: Integer divisor
+    :type p: float
+    """
+    n_params: int = 2
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     a: float = init(default=1)
@@ -847,10 +888,28 @@ class LinearStepDataSource(DataSource):
         x_max = 1
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
+    
+    def result_constrain(self) -> ResultConstrain:
+        """
+        | **Description**
+        |   See :func:`DataSource.result_constrain()` 
 
+        | **Current Constraints**
+        |   *Shape:* ``result_shape``
+        |   *Value Range:* TODO table
+
+        :return: Constraints around results
+        :rtype: ResultConstrain
+        """
+        y_min = 0 if self.p>0 and self.a<=0 or self.p<0 and self.a>=0 else self.a*floor(1/self.p) if self.p<0 and self.a>0 or self.p>0 and self.a<0 else np.nan
+        y_max = 0 if self.p>0 and self.a>=0 or self.p<0 and self.a<=0 else self.a*floor(1/self.p) if self.p<0 and self.a<0 or self.p>0 and self.a>0 else np.nan
+        result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
+        return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
+
+#TODO
 @dataclass
 class SineDataSource(DataSource):
-    #sin((x-x0)*2pi*p)
+    #sin((x-x0)*2pi*p) + y0
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     a: float = init(default=1)
@@ -879,6 +938,7 @@ class SineDataSource(DataSource):
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
+#TODO
 @dataclass
 class HypercubeDataSource(DataSource):
     #TODO HYPER
@@ -916,6 +976,7 @@ class HypercubeDataSource(DataSource):
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
+#TODO
 @dataclass
 class StarDataSource(DataSource):
     #TODO HYPER
@@ -959,6 +1020,7 @@ class StarDataSource(DataSource):
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
+#TODO
 @dataclass
 class HyperSphereDataSource(DataSource):
     #TODO HYPER
@@ -991,6 +1053,7 @@ class HyperSphereDataSource(DataSource):
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
+#TODO
 @dataclass
 class IndependentDataSource(DataSource):
     #wtf is this
@@ -1059,6 +1122,7 @@ class IndependentDataSource(DataSource):
         obj.coefficients = self.coefficients
         return obj
 
+#TODO
 @dataclass
 class GaussianProcessDataSource(DataSource):
     #pls explain
@@ -1125,6 +1189,7 @@ class GaussianProcessDataSource(DataSource):
         obj.regression = self.regression
         return obj
     
+#TODO
 @dataclass
 class BrownianProcessDataSource(GaussianProcessDataSource):
     #TODO DRIFT
@@ -1138,6 +1203,7 @@ class BrownianProcessDataSource(GaussianProcessDataSource):
         self.kern = GPy.kern.Brownian(variance=self.brown_var)
         super().post_init()
     
+#TODO
 @dataclass
 class BrownianDriftDataSource(GaussianProcessDataSource):
     #TODO DRIFT
@@ -1153,6 +1219,7 @@ class BrownianDriftDataSource(GaussianProcessDataSource):
         self.kern = GPy.kern.Brownian(active_dims=[0],variance=self.brown_var)*GPy.kern.RBF(input_dim=1, lengthscale=self.rbf_leng, variance=self.rbf_var, active_dims=[1])+GPy.kern.RBF(input_dim=1, lengthscale=self.rbf_leng, variance=self.rbf_var, active_dims=[1])
         super().post_init()
 
+#TODO
 @dataclass
 class RBFDriftDataSource(GaussianProcessDataSource):
     #TODO DRIFT
@@ -1168,6 +1235,7 @@ class RBFDriftDataSource(GaussianProcessDataSource):
         self.kern = GPy.kern.RBF(input_dim=1, active_dims=[0],variance=self.rbf_var*2, lengthscale=self.brown_var*2000)*GPy.kern.RBF(input_dim=1, lengthscale=self.rbf_leng, variance=self.rbf_var, active_dims=[1])+GPy.kern.RBF(input_dim=1, lengthscale=self.rbf_leng, variance=self.rbf_var, active_dims=[1])
         super().post_init()
 
+#TODO
 @dataclass
 class SinDriftDataSource(GaussianProcessDataSource):
     #TODO DRIFT
