@@ -1252,6 +1252,7 @@ class SinDriftDataSource(GaussianProcessDataSource):
         self.kern = GPy.kern.Cosine(input_dim=1, active_dims=[0],variance=self.rbf_var*2, lengthscale=self.brown_var*2000)*GPy.kern.RBF(input_dim=1, lengthscale=self.rbf_leng, variance=self.rbf_var, active_dims=[1])+GPy.kern.RBF(input_dim=1, lengthscale=self.rbf_leng, variance=self.rbf_var, active_dims=[1])
         super().post_init()
 
+#TODO
 @dataclass
 class MixedDriftDataSource(GaussianProcessDataSource):
     #TODO DRIFT
@@ -1337,6 +1338,7 @@ class MixedDriftDataSource(GaussianProcessDataSource):
         query_ranges = np.asarray(tuple((x_min, x_max) for x_min, x_max in x_min_max))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
+#TODO
 @dataclass
 class MixedBrownDriftDataSource(GaussianProcessDataSource):
     #TODO DRIFT
@@ -1422,6 +1424,7 @@ class MixedBrownDriftDataSource(GaussianProcessDataSource):
         query_ranges = np.asarray(tuple((x_min, x_max) for x_min, x_max in x_min_max))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
+#TODO
 @dataclass
 class TimeBehaviorDataSource(TimeDataSource):
     #TODO TIME
