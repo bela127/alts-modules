@@ -164,6 +164,7 @@ class LineDataSource(DataSource):
         a < 0 a >= 0
         ===== ======
         a + b b
+        ===== ======
 
         :return: Constraints around results
         :rtype: ResultConstrain
