@@ -160,11 +160,11 @@ class LineDataSource(DataSource):
         | **Current Constraints**
         |   *Shape:* ``result_shape``
         |   *Value Range:*
-        +=====+=======+========+=====+========+=======+
+        +-----+-------+--------+-----+--------+-------+
         | MIN | a < 0 | a >= 0 | MAX | a <= 0 | a > 0 |
         +=====+=======+========+=====+========+=======+
         |     | a + b | b      |     | b      | a + b |
-        +=====+=======+========+=====+========+=======+
+        +-----+-------+--------+-----+--------+-------+
 
         :return: Constraints around results
         :rtype: ResultConstrain
