@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
 
-#Finished 1
+#Finished 2
 @dataclass
 class RandomUniformDataSource(DataSource):
     """
@@ -99,7 +99,7 @@ class RandomUniformDataSource(DataSource):
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
         return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
-#Finished 1
+#Finished 2
 @dataclass
 class LineDataSource(DataSource):
     """
@@ -160,11 +160,11 @@ class LineDataSource(DataSource):
         | **Current Constraints**
         |   *Shape:* ``result_shape``
         |   *Value Range:*
-        ===== ======
-        a < 0 a >= 0
-        ===== ======
-        a + b b
-        ===== ======
+        +===+=====+======+ +===+======+=====+
+        |MIN|a < 0|a >= 0| |MAX|a <= 0|a > 0|
+        +===+=====+======+ +===+======+=====+
+        |   |a + b|b     | |   |b     |a + b|
+        +===+=====+======+ +===+======+=====+
 
         :return: Constraints around results
         :rtype: ResultConstrain
@@ -174,7 +174,7 @@ class LineDataSource(DataSource):
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
         return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
-#Finished 1
+#Finished 2
 @dataclass
 class SquareDataSource(DataSource):
     """
@@ -237,7 +237,18 @@ class SquareDataSource(DataSource):
 
         | **Current Constraints**
         |   *Shape:* ``result_shape``
-        |   *Value Range:* TODO table
+        |   *Value Range:*
+        +===+=========+======+ +=============+=============+=============+
+        |MIN|s < 0    |s >= 0| |MAX          |s < 0        |s >= 0       |
+        +===+=========+======+ +=============+=============+=============+
+        |   |s*x0^2+y0|y0    | |x0 < 0       |s*x0^2+y0    |s*(1-x0)^2+y0|
+        +===+=========+======+ +=============+=============+=============+
+                               |0 <= x0 < 0.5|y0           |s*(1-x0)^2+y0|
+                               +=============+=============+=============+
+                               |0.5 <= x0 < 1|y0           |s*x0^2+y0    |
+                               +=============+=============+=============+
+                               |1 <= x0      |s*(1-x0)^2+y0|s*x0^2+y0    |
+                               +=============+=============+=============+
 
         :return: Constraints around results
         :rtype: ResultConstrain
@@ -247,7 +258,7 @@ class SquareDataSource(DataSource):
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
         return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
-#Finished 1
+#Finished 2
 @dataclass
 class PowDataSource(DataSource):
     """
@@ -307,7 +318,14 @@ class PowDataSource(DataSource):
 
         | **Current Constraints**
         |   *Shape:* ``result_shape``
-        |   *Value Range:* TODO table
+        |   *Value Range:*
+        +======+=====+=====+=====+ +======+=====+=====+=====+
+        |MIN   |p < 0|p = 0|p > 0| |MAX   |p < 0|p = 0|p > 0|  
+        +======+=====+=====+=====+ +======+=====+=====+=====+
+        |s < 0 |-inf |s    |s    | |s < 0 |s    |s    |0    |  
+        +======+=====+=====+=====+ +======+=====+=====+=====+
+        |s >= 0|s    |s    |0    | |s >= 0|inf  |s    |s    |  
+        +======+=====+=====+=====+ +======+=====+=====+=====+
 
         :return: Constraints around results
         :rtype: ResultConstrain
@@ -317,7 +335,7 @@ class PowDataSource(DataSource):
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
         return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
-#Finished 1
+#Finished 2
 @dataclass
 class ExpDataSource(DataSource):
     """
@@ -377,7 +395,16 @@ class ExpDataSource(DataSource):
 
         | **Current Constraints**
         |   *Shape:* ``result_shape``
-        |   *Value Range:* TODO table
+        |   *Value Range:* 
+        +======+=====+=====+==========+=====+=====+ +======+=====+=====+==========+=====+=====+
+        |MIN   |b < 0|b = 0|0 <= b < 1|b = 1|b > 1| |MAX   |b < 0|b = 0|0 <= b < 1|b = 1|b > 1|
+        +======+=====+=====+==========+=====+=====+ +======+=====+=====+==========+=====+=====+
+        |s < 0 |N/A  |s    |s         |s    |s * b| |s < 0 |N/A  |s    |s * b     |s    |s    |
+        +======+=====+=====+==========+=====+=====+ +======+=====+=====+==========+=====+=====+
+        |s = 0 |N/A  |0    |0         |0    |0    | |s = 0 |N/A  |0    |0         |0    |0    |
+        +======+=====+=====+==========+=====+=====+ +======+=====+=====+==========+=====+=====+
+        |s >= 0|N/A  |0    |s * b     |s    |s    | |s >= 0|N/A  |s    |s         |s    |s * b|
+        +======+=====+=====+==========+=====+=====+ +======+=====+=====+==========+=====+=====+
 
         :return: Constraints around results
         :rtype: ResultConstrain
@@ -412,7 +439,7 @@ class InterpolatingDataSource(DataSource):
     
     #TODO result_constrain
 
-#Finished 1
+#Finished 2
 @dataclass
 class CrossDataSource(DataSource):
     """
@@ -475,7 +502,12 @@ class CrossDataSource(DataSource):
 
         | **Current Constraints**
         |   *Shape:* ``result_shape``
-        |   *Value Range:* TODO table
+        |   *Value Range:*
+        +=====+=====+=====+======+ +=====+======+=====+=====+
+        |MIN  |a < 0|a = 0|a > 0 | |MAX  |a < 0 |a = 0|a > 0|
+        +=====+=====+=====+======+ +=====+======+=====+=====+
+        |     |1/4*a|0    |-1/4*a| |     |-1/4*a|0    |1/4*a|
+        +=====+=====+=====+======+ +=====+======+=====+=====+
 
         :return: Constraints around results
         :rtype: ResultConstrain
@@ -485,7 +517,7 @@ class CrossDataSource(DataSource):
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
         return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
-#Finished 1
+#Finished 2
 @dataclass
 class DoubleLinearDataSource(DataSource):
     """
@@ -551,7 +583,16 @@ class DoubleLinearDataSource(DataSource):
 
         | **Current Constraints**
         |   *Shape:* ``result_shape``
-        |   *Value Range:* TODO table
+        |   *Value Range:* 
+        +============+========+========+ +============+========+========+
+        |MIN         |a < 0   |a >= 0  | |MAX         |a < 0   |a >= 0  |
+        +============+========+========+ +============+========+========+
+        |s < -1      |-1/2*a*s|1/2*a*s | |s < -1      |1/2*a*s |-1/2*a*s|
+        +============+========+========+ +============+========+========+
+        |-1 <= s < 1 |1/2*a   |-1/2*a  | |-1 <= s < 1 |-1/2*a  |1/2*a   |
+        +============+========+========+ +============+========+========+
+        |1 <= s      |1/2*a*s |-1/2*a*s| |1 <= s      |-1/2*a*s|1/2*a*s |
+        +============+========+========+ +============+========+========+
 
         :return: Constraints around results
         :rtype: ResultConstrain
@@ -561,7 +602,7 @@ class DoubleLinearDataSource(DataSource):
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
         return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
-#Finished 1
+#Finished 2
 @dataclass
 class HourglassDataSource(DataSource):
     """
@@ -629,7 +670,12 @@ class HourglassDataSource(DataSource):
 
         | **Current Constraints**
         |   *Shape:* ``result_shape``
-        |   *Value Range:* TODO table
+        |   *Value Range:*
+        +===+=====+======+ +===+======+======+
+        |MIN|a < 0|a >= 0| |MAX|a < 0 |a >= 0|
+        +===+=====+======+ +===+======+======+
+        |   |1/2*a|-1/2*a| |   |-1/2*a|1/2*a |
+        +===+=====+======+ +===+======+======+
 
         :return: Constraints around results
         :rtype: ResultConstrain
@@ -639,7 +685,7 @@ class HourglassDataSource(DataSource):
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
         return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
-#Finished 1
+#Finished 2
 @dataclass
 class ZDataSource(DataSource):
     """
@@ -705,7 +751,12 @@ class ZDataSource(DataSource):
 
             | **Current Constraints**
             |   *Shape:* ``result_shape``
-            |   *Value Range:* TODO table
+            |   *Value Range:*
+            +===+=====+======+ +===+======+======+
+            |MIN|a < 0|a >= 0| |MAX|a < 0 |a >= 0|
+            +===+=====+======+ +===+======+======+
+            |   |1/2*a|-1/2*a| |   |-1/2*a|1/2*a |
+            +===+=====+======+ +===+======+======+
 
             :return: Constraints around results
             :rtype: ResultConstrain
@@ -715,7 +766,7 @@ class ZDataSource(DataSource):
             result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
             return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)    
 
-#Finished 1
+#Finished 2
 @dataclass
 class ZInvDataSource(DataSource):
     """
@@ -780,7 +831,12 @@ class ZInvDataSource(DataSource):
 
         | **Current Constraints**
         |   *Shape:* ``result_shape``
-        |   *Value Range:* TODO table
+        |   *Value Range:*
+        +===+=====+======+ +===+======+======+
+        |MIN|a < 0|a >= 0| |MAX|a < 0 |a >= 0|
+        +===+=====+======+ +===+======+======+
+        |   |1/2*a|-1/2*a| |   |-1/2*a|1/2*a |
+        +===+=====+======+ +===+======+======+
 
         :return: Constraints around results
         :rtype: ResultConstrain
@@ -790,7 +846,7 @@ class ZInvDataSource(DataSource):
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
         return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
-#Finished 1
+#Finished 2
 @dataclass
 class LinearPeriodicDataSource(DataSource):
     """
@@ -840,7 +896,16 @@ class LinearPeriodicDataSource(DataSource):
 
         | **Current Constraints**
         |   *Shape:* ``result_shape``
-        |   *Value Range:* TODO table
+        |   *Value Range:*
+        +=====+=====+=====+=====+ +=====+=====+=====+=====+
+        |MIN  |a < 0|a = 0|a > 0| |MAX  |a < 0|a = 0|a > 0|
+        +=====+=====+=====+=====+ +=====+=====+=====+=====+
+        |p < 0|p    |0    |p    | |p < 0|0    |0    |0    |
+        +=====+=====+=====+=====+ +=====+=====+=====+=====+
+        |p = 0|N/A  |N/A  |N/A  | |p = 0|N/A  |N/A  |N/A  |
+        +=====+=====+=====+=====+ +=====+=====+=====+=====+
+        |p > 0|0    |0    |0    | |p > 0|p    |0    |p    |
+        +=====+=====+=====+=====+ +=====+=====+=====+=====+
 
         :return: Constraints around results
         :rtype: ResultConstrain
@@ -850,7 +915,7 @@ class LinearPeriodicDataSource(DataSource):
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
         return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
     
-#Finished 1
+#Finished 2
 @dataclass
 class LinearStepDataSource(DataSource):
     """
@@ -901,7 +966,16 @@ class LinearStepDataSource(DataSource):
 
         | **Current Constraints**
         |   *Shape:* ``result_shape``
-        |   *Value Range:* TODO table
+        |   *Value Range:*
+        +=====+============+=====+============+ +=====+============+=====+============+
+        |MIN  |a < 0       |a = 0|a > 0       | |MAX  |a < 0       |a = 0|a > 0       |
+        +=====+============+=====+============+ +=====+============+=====+============+
+        |p < 0|0           |0    |a*floor(1/p)| |p < 0|a*floor(1/p)|0    |0           |
+        +=====+============+=====+============+ +=====+============+=====+============+
+        |p = 0|N/A         |N/A  |N/A         | |p = 0|N/A         |N/A  |N/A         |
+        +=====+============+=====+============+ +=====+============+=====+============+
+        |p > 0|a*floor(1/p)|0    |0           | |p > 0|0           |0    |a*floor(1/p)|
+        +=====+============+=====+============+ +=====+============+=====+============+
 
         :return: Constraints around results
         :rtype: ResultConstrain
