@@ -11,7 +11,7 @@ import numpy as np
 import GPy
 
 from alts.core.oracle.data_source import DataSource, TimeDataSource
-from alts.core.data.constraints import QueryConstraint, ResultConstraint
+from alts.core.data.constrains import QueryConstrain, ResultConstrain
 
 from alts.core.configuration import pre_init, is_set, init, post_init
 
@@ -65,39 +65,39 @@ class RandomUniformDataSource(DataSource):
         results = np.random.uniform(low=self.l, high=self.u, size=(queries.shape[0], * self.result_shape))
         return queries, results
 
-    def query_constraint(self) -> QueryConstraint:
+    def query_constrain(self) -> QueryConstrain:
         """
         | **Description**
-        |   See :func:`DataSource.query_constraint()` 
+        |   See :func:`DataSource.query_constrain()` 
 
         | **Current Constraints**
         |   *Shape:* ``query_shape``
         |   *Value Range:* [0, 1)
 
         :return: Constraints around queries
-        :rtype: QueryConstraint
+        :rtype: QueryConstrain
         """
         x_min = 0
         x_max = 1
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
-        return QueryConstraint(count=None, shape=self.query_shape, ranges=query_ranges)
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
     
-    def result_constraint(self) -> ResultConstraint:
+    def result_constrain(self) -> ResultConstrain:
         """
         | **Description**
-        |   See :func:`DataSource.result_constraint()` 
+        |   See :func:`DataSource.result_constrain()` 
 
         | **Current Constraints**
         |   *Shape:* ``result_shape``
         |   *Value Range:* [l, u)
 
         :return: Constraints around results
-        :rtype: ResultConstraint
+        :rtype: ResultConstrain
         """
         y_min = 0
         y_max = 1
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
-        return ResultConstraint(count=None, shape=self.result_shape, ranges=result_ranges)
+        return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
 #Finished 2
 @dataclass
@@ -135,27 +135,27 @@ class LineDataSource(DataSource):
         results = np.dot(queries, np.ones((*self.query_shape,*self.result_shape))*self.a) + np.ones(self.result_shape)*self.b
         return queries, results
 
-    def query_constraint(self) -> QueryConstraint:
+    def query_constrain(self) -> QueryConstrain:
         """
         | **Description**
-        |   See :func:`DataSource.query_constraint()` 
+        |   See :func:`DataSource.query_constrain()` 
 
         | **Current Constraints**
         |   *Shape:* ``query_shape``
         |   *Value Range:* [0, 1)
 
         :return: Constraints around queries
-        :rtype: QueryConstraint
+        :rtype: QueryConstrain
         """
         x_min = 0
         x_max = 1
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
-        return QueryConstraint(count=None, shape=self.query_shape, ranges=query_ranges)
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
     
-    def result_constraint(self) -> ResultConstraint:
+    def result_constrain(self) -> ResultConstrain:
         """
         | **Description**
-        |   See :func:`DataSource.result_constraint()` 
+        |   See :func:`DataSource.result_constrain()` 
 
         | **Current Constraints**
         |   *Shape:* ``result_shape``
@@ -167,12 +167,12 @@ class LineDataSource(DataSource):
         +-----+-------+--------+-----+--------+-------+
 
         :return: Constraints around results
-        :rtype: ResultConstraint
+        :rtype: ResultConstrain
         """
         y_min = self.a + self.b if self.a < 0 else self.b
         y_max = self.b if self.a <= 0 else self.a + self.b
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
-        return ResultConstraint(count=None, shape=self.result_shape, ranges=result_ranges)
+        return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
 #Finished 2
 @dataclass
@@ -213,27 +213,27 @@ class SquareDataSource(DataSource):
         results = np.dot((queries - self.x0)**2, np.ones((*self.query_shape,*self.result_shape))*self.s) + np.ones(self.result_shape)*self.y0
         return queries, results
 
-    def query_constraint(self) -> QueryConstraint:
+    def query_constrain(self) -> QueryConstrain:
         """
         | **Description**
-        |   See :func:`DataSource.query_constraint()` 
+        |   See :func:`DataSource.query_constrain()` 
 
         | **Current Constraints**
         |   *Shape:* ``query_shape``
         |   *Value Range:* [0, 1)
 
         :return: Constraints around queries
-        :rtype: QueryConstraint
+        :rtype: QueryConstrain
         """
         x_min = 0
         x_max = 1
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
-        return QueryConstraint(count=None, shape=self.query_shape, ranges=query_ranges)
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
     
-    def result_constraint(self) -> ResultConstraint:
+    def result_constrain(self) -> ResultConstrain:
         """
         | **Description**
-        |   See :func:`DataSource.result_constraint()` 
+        |   See :func:`DataSource.result_constrain()` 
 
         | **Current Constraints**
         |   *Shape:* ``result_shape``
@@ -251,12 +251,12 @@ class SquareDataSource(DataSource):
         +---+---------+------+-------------+-------------+-------------+
 
         :return: Constraints around results
-        :rtype: ResultConstraint
+        :rtype: ResultConstrain
         """
         y_min = self.s*self.x0**2+self.y0 if self.s<0 else self.y0
         y_max = self.y0 if (self.s<0 and 0<=self.x0 and self.x0<1) else self.s*self.x0**2+self.y0 if (self.x0<0 and self.s<0 or self.s>=0 and self.x0>=0.5) else self.s*(1-self.x0)**2+self.y0
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
-        return ResultConstraint(count=None, shape=self.result_shape, ranges=result_ranges)
+        return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
 #Finished 2
 @dataclass
@@ -294,27 +294,27 @@ class PowDataSource(DataSource):
         results = np.dot(np.power(queries, self.power), np.ones((*self.query_shape,*self.result_shape))*self.s)
         return queries, results
 
-    def query_constraint(self) -> QueryConstraint:
+    def query_constrain(self) -> QueryConstrain:
         """
         | **Description**
-        |   See :func:`DataSource.query_constraint()` 
+        |   See :func:`DataSource.query_constrain()` 
 
         | **Current Constraints**
         |   *Shape:* ``query_shape``
         |   *Value Range:* [0, 1)
 
         :return: Constraints around queries
-        :rtype: QueryConstraint
+        :rtype: QueryConstrain
         """
         x_min = 0
         x_max = 1
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
-        return QueryConstraint(count=None, shape=self.query_shape, ranges=query_ranges)
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
     
-    def result_constraint(self) -> ResultConstraint:
+    def result_constrain(self) -> ResultConstrain:
         """
         | **Description**
-        |   See :func:`DataSource.result_constraint()` 
+        |   See :func:`DataSource.result_constrain()` 
 
         | **Current Constraints**
         |   *Shape:* ``result_shape``
@@ -328,12 +328,12 @@ class PowDataSource(DataSource):
         +------+-----+-----+-----+------+-----+-----+-----+
 
         :return: Constraints around results
-        :rtype: ResultConstraint
+        :rtype: ResultConstrain
         """
         y_min = self.s if (self.s<0 and self.power>=0 or self.s>=0 and self.power<=0) else 0 if (self.p>0 and self.s>=0) else np.NINF
         y_max = self.s if (self.s<0 and self.power<=0 or self.s>=0 and self.power>=0) else 0 if (self.p>0 and self.s<0) else np.INF
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
-        return ResultConstraint(count=None, shape=self.result_shape, ranges=result_ranges)
+        return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
 #Finished 2
 @dataclass
@@ -371,27 +371,27 @@ class ExpDataSource(DataSource):
         results = np.dot(np.power(self.base, queries*self.s), np.ones((*self.query_shape,*self.result_shape)))
         return queries, results
 
-    def query_constraint(self) -> QueryConstraint:
+    def query_constrain(self) -> QueryConstrain:
         """
         | **Description**
-        |   See :func:`DataSource.query_constraint()` 
+        |   See :func:`DataSource.query_constrain()` 
 
         | **Current Constraints**
         |   *Shape:* ``query_shape``
         |   *Value Range:* [0, 1)
 
         :return: Constraints around queries
-        :rtype: QueryConstraint
+        :rtype: QueryConstrain
         """
         x_min = 0
         x_max = 1
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
-        return QueryConstraint(count=None, shape=self.query_shape, ranges=query_ranges)
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
     
-    def result_constraint(self) -> ResultConstraint:
+    def result_constrain(self) -> ResultConstrain:
         """
         | **Description**
-        |   See :func:`DataSource.result_constraint()` 
+        |   See :func:`DataSource.result_constrain()` 
 
         | **Current Constraints**
         |   *Shape:* ``result_shape``
@@ -407,12 +407,12 @@ class ExpDataSource(DataSource):
         +------+-----+-----+----------+-----+-----+------+-----+-----+----------+-----+-----+
 
         :return: Constraints around results
-        :rtype: ResultConstraint
+        :rtype: ResultConstrain
         """
         y_min = self.s if (self.s<0 and self.b>=0 and self.b<1 or self.s>0 and self.b>=1) else self.s*self.b if (self.s==0 or self.s>=0 and self.b<1 or self.s<0 and self.b>=1) else -self.s*self.b
         y_max = self.s if (self.s>=0 and self.b>=1 and self.b<1 or self.s<0 and self.b>=1) else self.s*self.b if (self.s==0 or self.s<0 and self.b<1 or self.s>=0 and self.b>=1) else -self.s*self.b
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
-        return ResultConstraint(count=None, shape=self.result_shape, ranges=result_ranges)
+        return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
 #Finished 1
 @dataclass
@@ -452,25 +452,25 @@ class InterpolatingDataSource(DataSource):
         data_points = self.interpolation_strategy.interpolate(data_points)
         return data_points
     
-    def query_constraint(self) -> QueryConstraint:
+    def query_constrain(self) -> QueryConstrain:
         """
         | **Description**
-        |   See :func:`DataSource.query_constraint()` 
+        |   See :func:`DataSource.query_constrain()` 
 
         :return: Constraints around queries
-        :rtype: QueryConstraint
+        :rtype: QueryConstrain
         """
-        return self.interpolation_strategy.query_constraint()
+        return self.interpolation_strategy.query_constrain()
     
-    def result_constraint(self) -> ResultConstraint:
+    def result_constrain(self) -> ResultConstrain:
         """
         | **Description**
-        |   See :func:`DataSource.result_constraint()` 
+        |   See :func:`DataSource.result_constrain()` 
 
         :return: Constraints around results
-        :rtype: ResultConstraint
+        :rtype: ResultConstrain
         """
-        return self.interpolation_strategy.result_constraint()
+        return self.interpolation_strategy.result_constrain()
 
 #Finished 2
 @dataclass
@@ -511,27 +511,27 @@ class CrossDataSource(DataSource):
 
         return queries, results
 
-    def query_constraint(self) -> QueryConstraint:
+    def query_constrain(self) -> QueryConstrain:
         """
         | **Description**
-        |   See :func:`DataSource.query_constraint()` 
+        |   See :func:`DataSource.query_constrain()` 
 
         | **Current Constraints**
         |   *Shape:* ``query_shape``
         |   *Value Range:* [-0.5, 0.5)
 
         :return: Constraints around queries
-        :rtype: QueryConstraint
+        :rtype: QueryConstrain
         """
         x_min = -0.5
         x_max = 0.5
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
-        return QueryConstraint(count=None, shape=self.query_shape, ranges=query_ranges)
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
     
-    def result_constraint(self) -> ResultConstraint:
+    def result_constrain(self) -> ResultConstrain:
         """
         | **Description**
-        |   See :func:`DataSource.result_constraint()` 
+        |   See :func:`DataSource.result_constrain()` 
 
         | **Current Constraints**
         |   *Shape:* ``result_shape``
@@ -543,12 +543,12 @@ class CrossDataSource(DataSource):
         +-----+-----+-----+------+-----+------+-----+-----+
 
         :return: Constraints around results
-        :rtype: ResultConstraint
+        :rtype: ResultConstrain
         """
         y_min = -self.a/4 if self.a>=0 else self.a/4
         y_max = self.a/4 if self.a>=0 else -self.a/4
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
-        return ResultConstraint(count=None, shape=self.result_shape, ranges=result_ranges)
+        return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
 #Finished 2
 @dataclass
@@ -592,27 +592,27 @@ class DoubleLinearDataSource(DataSource):
 
         return queries, results
 
-    def query_constraint(self) -> QueryConstraint:
+    def query_constrain(self) -> QueryConstrain:
         """
         | **Description**
-        |   See :func:`DataSource.query_constraint()` 
+        |   See :func:`DataSource.query_constrain()` 
 
         | **Current Constraints**
         |   *Shape:* ``query_shape``
         |   *Value Range:* [-0.5, 0.5)
 
         :return: Constraints around queries
-        :rtype: QueryConstraint
+        :rtype: QueryConstrain
         """
         x_min = -0.5
         x_max = 0.5
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
-        return QueryConstraint(count=None, shape=self.query_shape, ranges=query_ranges)
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
     
-    def result_constraint(self) -> ResultConstraint:
+    def result_constrain(self) -> ResultConstrain:
         """
         | **Description**
-        |   See :func:`DataSource.result_constraint()` 
+        |   See :func:`DataSource.result_constrain()` 
 
         | **Current Constraints**
         |   *Shape:* ``result_shape``
@@ -628,12 +628,12 @@ class DoubleLinearDataSource(DataSource):
         +------------+--------+--------+------------+--------+--------+
 
         :return: Constraints around results
-        :rtype: ResultConstraint
+        :rtype: ResultConstrain
         """
         y_min = self.s*self.a/2 if (self.a<0 and self.s>1 or self.a>=0 and self.s<-1) else -self.a*self.s/2 if (self.a>=0 and self.s>1 or self.a<0 and self.s<-1) else self.a/2 if (self.a<0 and self.s>=-1 and self.s<=1) else -self.a/2
         y_max = -self.s*self.a/2 if (self.a<0 and self.s>1 or self.a>=0 and self.s<-1) else self.a*self.s/2 if (self.a>=0 and self.s>1 or self.a<0 and self.s<-1) else -self.a/2 if (self.a<0 and self.s>=-1 and self.s<=1) else self.a/2
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
-        return ResultConstraint(count=None, shape=self.result_shape, ranges=result_ranges)
+        return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
 #Finished 2
 @dataclass
@@ -679,27 +679,27 @@ class HourglassDataSource(DataSource):
 
         return queries, results
 
-    def query_constraint(self) -> QueryConstraint:
+    def query_constrain(self) -> QueryConstrain:
         """
         | **Description**
-        |   See :func:`DataSource.query_constraint()` 
+        |   See :func:`DataSource.query_constrain()` 
 
         | **Current Constraints**
         |   *Shape:* ``query_shape``
         |   *Value Range:* [0, 1)
 
         :return: Constraints around queries
-        :rtype: QueryConstraint
+        :rtype: QueryConstrain
         """
         x_min = -0.5
         x_max = 0.5
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
-        return QueryConstraint(count=None, shape=self.query_shape, ranges=query_ranges)
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
     
-    def result_constraint(self) -> ResultConstraint:
+    def result_constrain(self) -> ResultConstrain:
         """
         | **Description**
-        |   See :func:`DataSource.result_constraint()` 
+        |   See :func:`DataSource.result_constrain()` 
 
         | **Current Constraints**
         |   *Shape:* ``result_shape``
@@ -711,12 +711,12 @@ class HourglassDataSource(DataSource):
         +---+-----+------+---+------+------+
 
         :return: Constraints around results
-        :rtype: ResultConstraint
+        :rtype: ResultConstrain
         """
         y_min = self.a/2 if self.a<0 else -self.a/2
         y_max = -self.a/2 if self.a<0 else self.a/2
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
-        return ResultConstraint(count=None, shape=self.result_shape, ranges=result_ranges)
+        return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
 #Finished 2
 @dataclass
@@ -760,27 +760,27 @@ class ZDataSource(DataSource):
 
         return queries, results
 
-    def query_constraint(self) -> QueryConstraint:
+    def query_constrain(self) -> QueryConstrain:
         """
         | **Description**
-        |   See :func:`DataSource.query_constraint()` 
+        |   See :func:`DataSource.query_constrain()` 
 
         | **Current Constraints**
         |   *Shape:* ``query_shape``
         |   *Value Range:* [0, 1)
 
         :return: Constraints around queries
-        :rtype: QueryConstraint
+        :rtype: QueryConstrain
         """
         x_min = -0.5
         x_max = 0.5
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
-        return QueryConstraint(count=None, shape=self.query_shape, ranges=query_ranges)
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
     
-    def result_constraint(self) -> ResultConstraint:
+    def result_constrain(self) -> ResultConstrain:
             """
             | **Description**
-            |   See :func:`DataSource.result_constraint()` 
+            |   See :func:`DataSource.result_constrain()` 
 
             | **Current Constraints**
             |   *Shape:* ``result_shape``
@@ -792,12 +792,12 @@ class ZDataSource(DataSource):
             +---+-----+------+---+------+------+
 
             :return: Constraints around results
-            :rtype: ResultConstraint
+            :rtype: ResultConstrain
             """
             y_min = self.a/2 if self.a<0 else -self.a/2
             y_max = -self.a/2 if self.a<0 else self.a/2
             result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
-            return ResultConstraint(count=None, shape=self.result_shape, ranges=result_ranges)    
+            return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)    
 
 #Finished 2
 @dataclass
@@ -840,27 +840,27 @@ class ZInvDataSource(DataSource):
 
         return queries, results
 
-    def query_constraint(self) -> QueryConstraint:
+    def query_constrain(self) -> QueryConstrain:
         """
         | **Description**
-        |   See :func:`DataSource.query_constraint()` 
+        |   See :func:`DataSource.query_constrain()` 
 
         | **Current Constraints**
         |   *Shape:* ``query_shape``
         |   *Value Range:* [0, 1)
 
         :return: Constraints around queries
-        :rtype: QueryConstraint
+        :rtype: QueryConstrain
         """
         x_min = -0.5
         x_max = 0.5
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
-        return QueryConstraint(count=None, shape=self.query_shape, ranges=query_ranges)
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
     
-    def result_constraint(self) -> ResultConstraint:
+    def result_constrain(self) -> ResultConstrain:
         """
         | **Description**
-        |   See :func:`DataSource.result_constraint()` 
+        |   See :func:`DataSource.result_constrain()` 
 
         | **Current Constraints**
         |   *Shape:* ``result_shape``
@@ -872,12 +872,12 @@ class ZInvDataSource(DataSource):
         +---+-----+------+---+------+------+
 
         :return: Constraints around results
-        :rtype: ResultConstraint
+        :rtype: ResultConstrain
         """
         y_min = self.a/2 if self.a<0 else -self.a/2
         y_max = -self.a/2 if self.a<0 else self.a/2
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
-        return ResultConstraint(count=None, shape=self.result_shape, ranges=result_ranges)
+        return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
 #Finished 2
 @dataclass
@@ -916,16 +916,16 @@ class LinearPeriodicDataSource(DataSource):
         results = np.dot(queries % self.p, np.ones((*self.query_shape, *self.result_shape))*self.a)
         return queries, results
 
-    def query_constraint(self) -> QueryConstraint:
+    def query_constrain(self) -> QueryConstrain:
         x_min = 0
         x_max = 1
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
-        return QueryConstraint(count=None, shape=self.query_shape, ranges=query_ranges)
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
     
-    def result_constraint(self) -> ResultConstraint:
+    def result_constrain(self) -> ResultConstrain:
         """
         | **Description**
-        |   See :func:`DataSource.result_constraint()` 
+        |   See :func:`DataSource.result_constrain()` 
 
         | **Current Constraints**
         |   *Shape:* ``result_shape``
@@ -941,12 +941,12 @@ class LinearPeriodicDataSource(DataSource):
         +-----+-----+-----+-----+-----+-----+-----+-----+
 
         :return: Constraints around results
-        :rtype: ResultConstraint
+        :rtype: ResultConstrain
         """
         y_min = 0 if self.p>0 or self.p<0 and self.a==0 else self.p if self.p<0 and self.a!=0 else np.nan
         y_max = 0 if self.p<0 or self.p>0 and self.a==0 else self.p if self.p>0 and self.a!=0 else np.nan
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
-        return ResultConstraint(count=None, shape=self.result_shape, ranges=result_ranges)
+        return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
     
 #Finished 2
 @dataclass
@@ -986,16 +986,16 @@ class LinearStepDataSource(DataSource):
         results = np.dot(offset, np.ones((*self.query_shape, *self.result_shape))*self.a)
         return queries, results
 
-    def query_constraint(self) -> QueryConstraint:
+    def query_constrain(self) -> QueryConstrain:
         x_min = 0
         x_max = 1
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
-        return QueryConstraint(count=None, shape=self.query_shape, ranges=query_ranges)
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
     
-    def result_constraint(self) -> ResultConstraint:
+    def result_constrain(self) -> ResultConstrain:
         """
         | **Description**
-        |   See :func:`DataSource.result_constraint()` 
+        |   See :func:`DataSource.result_constrain()` 
 
         | **Current Constraints**
         |   *Shape:* ``result_shape``
@@ -1011,12 +1011,12 @@ class LinearStepDataSource(DataSource):
         +-----+------------+-----+------------+-----+------------+-----+------------+
 
         :return: Constraints around results
-        :rtype: ResultConstraint
+        :rtype: ResultConstrain
         """
         y_min = 0 if self.p>0 and self.a<=0 or self.p<0 and self.a>=0 else self.a*floor(1/self.p) if self.p<0 and self.a>0 or self.p>0 and self.a<0 else np.nan
         y_max = 0 if self.p>0 and self.a>=0 or self.p<0 and self.a<=0 else self.a*floor(1/self.p) if self.p<0 and self.a<0 or self.p>0 and self.a>0 else np.nan
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
-        return ResultConstraint(count=None, shape=self.result_shape, ranges=result_ranges)
+        return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
 #TODO
 @dataclass
@@ -1044,11 +1044,11 @@ class SineDataSource(DataSource):
         results = np.dot(np.sin((queries-self.x0) * 2 * np.pi * self.p), np.ones((*self.query_shape,*self.result_shape))*self.a) + np.ones(self.result_shape)*self.y0
         return queries, results
 
-    def query_constraint(self) -> QueryConstraint:
+    def query_constrain(self) -> QueryConstrain:
         x_min = 0
         x_max = 1
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
-        return QueryConstraint(count=None, shape=self.query_shape, ranges=query_ranges)
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
 #TODO
 @dataclass
@@ -1082,11 +1082,11 @@ class HypercubeDataSource(DataSource):
         return queries, results
 
 
-    def query_constraint(self) -> QueryConstraint:
+    def query_constrain(self) -> QueryConstrain:
         x_min = -0.5
         x_max = 0.5
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
-        return QueryConstraint(count=None, shape=self.query_shape, ranges=query_ranges)
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
 #TODO
 @dataclass
@@ -1126,11 +1126,11 @@ class StarDataSource(DataSource):
 
         return queries, results
 
-    def query_constraint(self) -> QueryConstraint:
+    def query_constrain(self) -> QueryConstrain:
         x_min = -0.5
         x_max = 0.5
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
-        return QueryConstraint(count=None, shape=self.query_shape, ranges=query_ranges)
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
 #TODO
 @dataclass
@@ -1159,11 +1159,11 @@ class HyperSphereDataSource(DataSource):
         return queries, results
 
 
-    def query_constraint(self) -> QueryConstraint:
+    def query_constrain(self) -> QueryConstrain:
         x_min = -1
         x_max = 1
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
-        return QueryConstraint(count=None, shape=self.query_shape, ranges=query_ranges)
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
 #TODO
 @dataclass
@@ -1222,11 +1222,11 @@ class IndependentDataSource(DataSource):
         results = results_flat.reshape((sample_size, *self.result_shape))
         return queries, results
 
-    def query_constraint(self) -> QueryConstraint:
+    def query_constrain(self) -> QueryConstrain:
         x_min = 0
         x_max = 1
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
-        return QueryConstraint(count=None, shape=self.query_shape, ranges=query_ranges)
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
     
     def __call__(self, **kwargs) -> Self:
         obj = super().__call__( **kwargs)
@@ -1290,10 +1290,10 @@ class GaussianProcessDataSource(DataSource):
 
         return queries, results
 
-    def query_constraint(self) -> QueryConstraint:
+    def query_constrain(self) -> QueryConstrain:
         x_min_max = zip(self.min_support, self.max_support)
         query_ranges = np.asarray(tuple((x_min, x_max) for x_min, x_max in x_min_max))
-        return QueryConstraint(count=None, shape=self.query_shape, ranges=query_ranges)
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
 
     def __call__(self, **kwargs) -> Self:
@@ -1445,10 +1445,10 @@ class MixedDriftDataSource(GaussianProcessDataSource):
 
         return queries, results
 
-    def query_constraint(self) -> QueryConstraint:
+    def query_constrain(self) -> QueryConstrain:
         x_min_max = zip(self.min_support, self.max_support)
         query_ranges = np.asarray(tuple((x_min, x_max) for x_min, x_max in x_min_max))
-        return QueryConstraint(count=None, shape=self.query_shape, ranges=query_ranges)
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
 #TODO
 @dataclass
@@ -1531,10 +1531,10 @@ class MixedBrownDriftDataSource(GaussianProcessDataSource):
 
         return queries, results
 
-    def query_constraint(self) -> QueryConstraint:
+    def query_constrain(self) -> QueryConstrain:
         x_min_max = zip(self.min_support, self.max_support)
         query_ranges = np.asarray(tuple((x_min, x_max) for x_min, x_max in x_min_max))
-        return QueryConstraint(count=None, shape=self.query_shape, ranges=query_ranges)
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
 #TODO
 @dataclass
