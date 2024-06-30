@@ -1,6 +1,7 @@
 """
 :doc:`Core Module </core/oracle/data_source>`
 """
+#TODO Remove count from result_constrain
 from __future__ import annotations
 from math import floor
 from typing import TYPE_CHECKING, Optional
@@ -414,7 +415,7 @@ class ExpDataSource(DataSource):
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
         return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
 
-#Finished 1
+#Finished 2
 @dataclass
 class InterpolatingDataSource(DataSource):
     """
