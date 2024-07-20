@@ -1,6 +1,7 @@
 """
 :doc:`Core Module </core/oracle/data_source>`
 """
+#TODO Add Defaults
 from __future__ import annotations
 from math import floor
 from typing import TYPE_CHECKING, Optional
@@ -40,10 +41,10 @@ class RandomUniformDataSource(DataSource):
     :type query_shape: tuple of ints
     :param result_shape: The expected shape of the results
     :type result_shape: tuple of ints
-    :param u: The upper bound of query values (exclusive)
-    :type u: float
-    :param l: The lower bound of query values (inclusive)
-    :type l: float
+    :param u: The upper bound of query values (exclusive), defaults to 1
+    :type u: float (optional)
+    :param l: The lower bound of query values (inclusive), defaults to 0
+    :type l: float (optional)
     """
     n_params: int = 2
     query_shape: Tuple[int,...] = init(default=(1,))
@@ -110,10 +111,10 @@ class LineDataSource(DataSource):
     :type query_shape: tuple of ints
     :param result_shape: The expected shape of the results
     :type result_shape: tuple of ints
-    :param a: Coefficient of degree 1
-    :type a: float
-    :param b: Coefficient of degree 0
-    :type b: float
+    :param a: Coefficient of degree 1, defaults to 1
+    :type a: float (optional)
+    :param b: Coefficient of degree 0, defaults to 0
+    :type b: float (optional)
     """
     n_params: int = 2
     query_shape: Tuple[int,...] = init(default=(1,))
@@ -185,12 +186,12 @@ class SquareDataSource(DataSource):
     :type query_shape: tuple of ints
     :param result_shape: The expected shape of the results
     :type result_shape: tuple of ints
-    :param x0: Offset of the parabola in x-direction
-    :type x0: float
-    :param y0: Offset of the parabola in y-direction
-    :type y0: float
-    :param s: Coefficient of degree 2
-    :type s: float
+    :param x0: Offset of the parabola in x-direction, defaults to 0.5
+    :type x0: float (optional)
+    :param y0: Offset of the parabola in y-direction, defaults to 0
+    :type y0: float (optional)
+    :param s: Coefficient of degree 2, defaults to 5
+    :type s: float (optional)
     """
     n_params: int = 3
     query_shape: Tuple[int,...] = init(default=(1,))
