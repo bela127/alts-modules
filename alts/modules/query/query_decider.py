@@ -1,3 +1,7 @@
+#Fully documented as of 20.07.2024
+"""
+:doc:`Core Module </core/query/query_decider>`
+"""
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
@@ -15,28 +19,99 @@ if TYPE_CHECKING:
 
 @dataclass    
 class AllQueryDecider(QueryDecider):
-    def decide(self, query_candidates: NDArray[Shape["query_nr, ... query_dims"], Number], scores: NDArray[Shape["query_nr, [query_score]"], Number]) -> Tuple[bool, NDArray[Shape["query_nr, ... query_dims"], Number]]:
+    """
+    | **Description**
+    |   Always picks all query candidates.
+    """
+    def decide(self, query_candidates: NDArray[Shape["query_nr, ... query_dims"], Number], scores: NDArray[Shape["query_nr, [query_score]"], Number]) -> Tuple[bool, NDArray[Shape["query_nr, ... query_dims"], Number]]: # type: ignore
+        """
+        | **Description**
+        |   Returns the list of candidates. 
+        |   Decides always.
+
+        :param query_candidates: A list of queries to choose from
+        :type query_candidates: Iterable over `NDArrays <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_ 
+        :param scores: A list of scores associated to the queries in ``query_candidates`` (Not used here)
+        :type scores: Iterable over `NDArrays <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_ 
+        :return: ``True``, ``query_candidates``
+        :rtype: boolean, Iterable over `NDArrays <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_ 
+        """
         return True, query_candidates
 
 @dataclass    
 class TopKQueryDecider(QueryDecider):
+    """
+    | **Description**
+    |   Always picks the ``k`` best query candidates based on their score.
+
+    :param k: How many queries to pick, defaults to 4
+    :type k: int (optional) 
+    """
     k: int = init(default= 4)
-    def decide(self, query_candidates: NDArray[Shape["query_nr, ... query_dims"], Number], scores: NDArray[Shape["query_nr, [query_score]"], Number]) -> Tuple[bool, NDArray[Shape["query_nr, ... query_dims"], Number]]:
+
+    def decide(self, query_candidates: NDArray[Shape["query_nr, ... query_dims"], Number], scores: NDArray[Shape["query_nr, [query_score]"], Number]) -> Tuple[bool, NDArray[Shape["query_nr, ... query_dims"], Number]]: # type: ignore
+        """
+        | **Description**
+        |   Returns the ``k`` query candidates with the highest scores.
+        |   Decides always.
+
+        :param query_candidates: A list of queries to choose from
+        :type query_candidates: Iterable over `NDArrays <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_ 
+        :param scores: A list of scores associated to the queries in ``query_candidates`` (Not used here)
+        :type scores: Iterable over `NDArrays <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_ 
+        :return: ``True``, ``query_candidates``
+        :rtype: boolean, Iterable over `NDArrays <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_ 
+        """
         ind = np.argpartition(scores, -self.k)[-self.k:]
         queries = query_candidates[ind]
         return True, queries
 
 @dataclass
 class NoQueryDecider(QueryDecider):
-    def decide(self, query_candidates: NDArray[Shape["query_nr, ... query_dims"], Number], scores: NDArray[Shape["query_nr, [query_score]"], Number]) -> Tuple[bool, NDArray[Shape["query_nr, ... query_dims"], Number]]:
+    """
+    | **Description**
+    |   Never picks any query candidates.
+    """
+    def decide(self, query_candidates: NDArray[Shape["query_nr, ... query_dims"], Number], scores: NDArray[Shape["query_nr, [query_score]"], Number]) -> Tuple[bool, NDArray[Shape["query_nr, ... query_dims"], Number]]: # type: ignore
+        """
+        | **Description**
+        |   Returns the ``k`` query candidates with the highest scores. 
+        |   Decides always.
+
+        :param query_candidates: A list of queries to choose from
+        :type query_candidates: Iterable over `NDArrays <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_ 
+        :param scores: A list of scores associated to the queries in ``query_candidates`` (Not used here)
+        :type scores: Iterable over `NDArrays <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_ 
+        :return: ``False``, Empty list of queries
+        :rtype: boolean, Iterable over `NDArrays <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_ 
+        """
         query = np.empty((0, *query_candidates.shape[1:]))
         return False, query
 
 @dataclass
 class ThresholdQueryDecider(QueryDecider):
-    threshold: float = 0.5
+    """
+    | **Description**
+    |   Picks all query candidates that have a score above a certain threshold.
 
-    def decide(self, query_candidates: NDArray[Shape["query_nr, ... query_dims"], Number], scores: NDArray[Shape["query_nr, [query_score]"], Number]) -> Tuple[bool, NDArray[Shape["query_nr, ... query_dims"], Number]]:
+    :param threshold: The threshold the query candidates have to exceed, defaults to 0.5
+    :type k: float (optional) 
+    """
+    threshold: float = init(default= 0.5)
+
+    def decide(self, query_candidates: NDArray[Shape["query_nr, ... query_dims"], Number], scores: NDArray[Shape["query_nr, [query_score]"], Number]) -> Tuple[bool, NDArray[Shape["query_nr, ... query_dims"], Number]]: # type: ignore
+        """
+        | **Description**
+        |   Returns all query candidates with a score above the threshold. 
+        |   Decides only if there are any query candidates fulfilling this requirement.
+
+        :param query_candidates: A list of queries to choose from
+        :type query_candidates: Iterable over `NDArrays <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_ 
+        :param scores: A list of scores associated to the queries in ``query_candidates`` (Not used here)
+        :type scores: Iterable over `NDArrays <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_ 
+        :return: Whether it wants to decide, List of query candidates above the threshold
+        :rtype: boolean, Iterable over `NDArrays <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_ 
+        """
         query = query_candidates[scores[:,0]>self.threshold]
         flag = query.shape[0] > 0
         return flag, query
