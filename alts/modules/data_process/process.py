@@ -88,7 +88,7 @@ class DataSourceProcess(Process, ProcessOracleSubscriber):
 
 @dataclass
 class DelayedProcess(Process, DelayedConstrained):
-
+    #QUESTION why would it be delayed?
     data_source: DataSource = init()
 
     has_new_data: bool = pre_init(default=False)
@@ -182,7 +182,7 @@ class DelayedStreamProcess(DelayedProcess, StreamProcess):
 
 @dataclass
 class IntegratingDSProcess(DelayedStreamProcess):
-
+    #QUESTION what does it do?
     integration_time: float = init(default=4)
     integrated_result: Optional[NDArray[Shape["data_nr, ... output_shape"], Number]] = pre_init(None)
     start_time: float = pre_init(0.0)
