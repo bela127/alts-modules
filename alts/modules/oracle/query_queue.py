@@ -3,4 +3,5 @@ from alts.core.oracle.query_queue import QueryQueue
 
 @dataclass
 class FCFSQueryQueue(QueryQueue):
+    #QUESTION FCFS
     pass

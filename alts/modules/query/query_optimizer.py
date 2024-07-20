@@ -38,7 +38,7 @@ class NoQueryOptimizer(QueryOptimizer):
 
 @dataclass
 class GAQueryOptimizer(QueryOptimizer):
-
+    #QUESTION what does it do
     def select(self):
 
         def opt_func(x):
