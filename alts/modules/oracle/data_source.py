@@ -1,7 +1,6 @@
 """
 :doc:`Core Module </core/oracle/data_source>`
 """
-#TODO Remove count from result_constrain
 from __future__ import annotations
 from math import floor
 from typing import TYPE_CHECKING, Optional
@@ -98,7 +97,7 @@ class RandomUniformDataSource(DataSource):
         y_min = 0
         y_max = 1
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
-        return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
+        return ResultConstrain(shape=self.result_shape, ranges=result_ranges)
 
 #Finished 2
 @dataclass
@@ -173,7 +172,7 @@ class LineDataSource(DataSource):
         y_min = self.a + self.b if self.a < 0 else self.b
         y_max = self.b if self.a <= 0 else self.a + self.b
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
-        return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
+        return ResultConstrain(shape=self.result_shape, ranges=result_ranges)
 
 #Finished 2
 @dataclass
@@ -257,7 +256,7 @@ class SquareDataSource(DataSource):
         y_min = self.s*self.x0**2+self.y0 if self.s<0 else self.y0
         y_max = self.y0 if (self.s<0 and 0<=self.x0 and self.x0<1) else self.s*self.x0**2+self.y0 if (self.x0<0 and self.s<0 or self.s>=0 and self.x0>=0.5) else self.s*(1-self.x0)**2+self.y0
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
-        return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
+        return ResultConstrain(shape=self.result_shape, ranges=result_ranges)
 
 #Finished 2
 @dataclass
@@ -334,7 +333,7 @@ class PowDataSource(DataSource):
         y_min = self.s if (self.s<0 and self.power>=0 or self.s>=0 and self.power<=0) else 0 if (self.p>0 and self.s>=0) else np.NINF
         y_max = self.s if (self.s<0 and self.power<=0 or self.s>=0 and self.power>=0) else 0 if (self.p>0 and self.s<0) else np.INF
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
-        return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
+        return ResultConstrain(shape=self.result_shape, ranges=result_ranges)
 
 #Finished 2
 @dataclass
@@ -413,7 +412,7 @@ class ExpDataSource(DataSource):
         y_min = self.s if (self.s<0 and self.b>=0 and self.b<1 or self.s>0 and self.b>=1) else self.s*self.b if (self.s==0 or self.s>=0 and self.b<1 or self.s<0 and self.b>=1) else -self.s*self.b
         y_max = self.s if (self.s>=0 and self.b>=1 and self.b<1 or self.s<0 and self.b>=1) else self.s*self.b if (self.s==0 or self.s<0 and self.b<1 or self.s>=0 and self.b>=1) else -self.s*self.b
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
-        return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
+        return ResultConstrain(shape=self.result_shape, ranges=result_ranges)
 
 #Finished 2
 @dataclass
@@ -549,7 +548,7 @@ class CrossDataSource(DataSource):
         y_min = -self.a/4 if self.a>=0 else self.a/4
         y_max = self.a/4 if self.a>=0 else -self.a/4
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
-        return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
+        return ResultConstrain(shape=self.result_shape, ranges=result_ranges)
 
 #Finished 2
 @dataclass
@@ -634,7 +633,7 @@ class DoubleLinearDataSource(DataSource):
         y_min = self.s*self.a/2 if (self.a<0 and self.s>1 or self.a>=0 and self.s<-1) else -self.a*self.s/2 if (self.a>=0 and self.s>1 or self.a<0 and self.s<-1) else self.a/2 if (self.a<0 and self.s>=-1 and self.s<=1) else -self.a/2
         y_max = -self.s*self.a/2 if (self.a<0 and self.s>1 or self.a>=0 and self.s<-1) else self.a*self.s/2 if (self.a>=0 and self.s>1 or self.a<0 and self.s<-1) else -self.a/2 if (self.a<0 and self.s>=-1 and self.s<=1) else self.a/2
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
-        return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
+        return ResultConstrain(shape=self.result_shape, ranges=result_ranges)
 
 #Finished 2
 @dataclass
@@ -717,7 +716,7 @@ class HourglassDataSource(DataSource):
         y_min = self.a/2 if self.a<0 else -self.a/2
         y_max = -self.a/2 if self.a<0 else self.a/2
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
-        return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
+        return ResultConstrain(shape=self.result_shape, ranges=result_ranges)
 
 #Finished 2
 @dataclass
@@ -798,7 +797,7 @@ class ZDataSource(DataSource):
             y_min = self.a/2 if self.a<0 else -self.a/2
             y_max = -self.a/2 if self.a<0 else self.a/2
             result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
-            return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)    
+            return ResultConstrain(shape=self.result_shape, ranges=result_ranges)    
 
 #Finished 2
 @dataclass
@@ -878,7 +877,7 @@ class ZInvDataSource(DataSource):
         y_min = self.a/2 if self.a<0 else -self.a/2
         y_max = -self.a/2 if self.a<0 else self.a/2
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
-        return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
+        return ResultConstrain(shape=self.result_shape, ranges=result_ranges)
 
 #Finished 2
 @dataclass
@@ -947,7 +946,7 @@ class LinearPeriodicDataSource(DataSource):
         y_min = 0 if self.p>0 or self.p<0 and self.a==0 else self.p if self.p<0 and self.a!=0 else np.nan
         y_max = 0 if self.p<0 or self.p>0 and self.a==0 else self.p if self.p>0 and self.a!=0 else np.nan
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
-        return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
+        return ResultConstrain(shape=self.result_shape, ranges=result_ranges)
     
 #Finished 2
 @dataclass
@@ -1017,7 +1016,7 @@ class LinearStepDataSource(DataSource):
         y_min = 0 if self.p>0 and self.a<=0 or self.p<0 and self.a>=0 else self.a*floor(1/self.p) if self.p<0 and self.a>0 or self.p>0 and self.a<0 else np.nan
         y_max = 0 if self.p>0 and self.a>=0 or self.p<0 and self.a<=0 else self.a*floor(1/self.p) if self.p<0 and self.a<0 or self.p>0 and self.a>0 else np.nan
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
-        return ResultConstrain(count=None, shape=self.result_shape, ranges=result_ranges)
+        return ResultConstrain(shape=self.result_shape, ranges=result_ranges)
 
 #TODO
 @dataclass
