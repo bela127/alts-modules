@@ -933,7 +933,7 @@ class LinearPeriodicDataSource(DataSource):
 class LinearStepDataSource(DataSource):
     """
     | **Description**
-    |   A ``LinearStepDataSource`` is a **deterministic** source of data representing the equation ``a*(x%p)``. 
+    |   A ``LinearStepDataSource`` is a **deterministic** source of data representing the equation ``a*(x-mod(x,p))/p``. 
 
     :param query_shape: The expected shape of the queries
     :type query_shape: tuple of ints
@@ -947,7 +947,7 @@ class LinearStepDataSource(DataSource):
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     a: float = init(default=1)
-    p: float = init(default=0.2)
+    p: float = init(default=0.2) 
 
     def query(self, queries):
         """
@@ -979,6 +979,7 @@ class LinearStepDataSource(DataSource):
         | **Current Constraints**
         |   *Shape:* ``result_shape``
         |   *Value Range:*
+        #TODO REDO
         +-----+------------+-----+------------+-----+------------+-----+------------+
         |MIN  |a < 0       |a = 0|a > 0       |MAX  |a < 0       |a = 0|a > 0       |
         +=====+============+=====+============+=====+============+=====+============+
