@@ -46,7 +46,6 @@ class RandomUniformDataSource(DataSource):
     :param l: The lower bound of query values (inclusive), defaults to 0
     :type l: float (optional)
     """
-    n_params: int = 2
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     u: float = init(default=1)
@@ -116,7 +115,6 @@ class LineDataSource(DataSource):
     :param b: Coefficient of degree 0, defaults to 0
     :type b: float (optional)
     """
-    n_params: int = 2
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     a: float = init(default=1)
@@ -193,7 +191,6 @@ class SquareDataSource(DataSource):
     :param s: Coefficient of degree 2, defaults to 5
     :type s: float (optional)
     """
-    n_params: int = 3
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     x0: float = init(default=0.5)
@@ -275,7 +272,6 @@ class PowDataSource(DataSource):
     :param s: Coefficient of x^power
     :type s: float
     """
-    n_params: int = 2
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     power: float = init(default=3)
@@ -352,7 +348,6 @@ class ExpDataSource(DataSource):
     :param s: Coefficient of base^x
     :type s: float
     """
-    n_params: int = 2
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     base: float = init(default=2)
@@ -487,7 +482,6 @@ class CrossDataSource(DataSource):
     :param a: Coefficient of x
     :type a: float
     """
-    n_params: int = 1
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     a: float = init(default=1)
@@ -567,7 +561,6 @@ class DoubleLinearDataSource(DataSource):
     :param slope_factor: Coefficient that is randomly in- or excluded 
     :type slope_factor: float
     """
-    n_params: int = 2
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     a: float = init(default=1)
@@ -650,7 +643,6 @@ class HourglassDataSource(DataSource):
     :param a: Coefficient of x
     :type a: float
     """
-    n_params: int = 1
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     a: float = init(default=1)
@@ -733,7 +725,6 @@ class ZDataSource(DataSource):
     :param a: Coefficient of x
     :type a: float
     """
-    n_params: int = 1
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     a: float = init(default=1)
@@ -814,7 +805,6 @@ class ZInvDataSource(DataSource):
     :param a: Coefficient of x
     :type a: float
     """
-    n_params: int = 1
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     a: float = init(default=1)
@@ -896,7 +886,6 @@ class LinearPeriodicDataSource(DataSource):
     :param p: Modulo divisor
     :type p: float
     """
-    n_params: int = 2
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     a: float = init(default=1)
@@ -965,7 +954,6 @@ class LinearStepDataSource(DataSource):
     :param p: Integer divisor
     :type p: float
     """
-    n_params: int = 2
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     a: float = init(default=1)
@@ -1335,6 +1323,7 @@ class BrownianDriftDataSource(GaussianProcessDataSource):
 #TODO
 @dataclass
 class RBFDriftDataSource(GaussianProcessDataSource):
+    #Radial basis function
     #TODO DRIFT
     query_shape: Tuple[int,...] = init(default=(2,))
     result_shape: Tuple[int,...] = init(default=(1,))
