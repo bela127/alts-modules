@@ -30,7 +30,7 @@ class NoiseAugmentation(Augmentation):
 
     rng = np.random.default_rng()
 
-    def query(self, queries: NDArray[ Shape["query_nr, ... query_dim"], Number]) -> Tuple[NDArray[Shape["query_nr, ... query_dim"], Number], NDArray[Shape["query_nr, ... result_dim"], Number]]:
+    def query(self, queries: NDArray[ Shape["query_nr, ... query_dim"], Number]) -> Tuple[NDArray[Shape["query_nr, ... query_dim"], Number], NDArray[Shape["query_nr, ... result_dim"], Number]]: # type: ignore
         """
         | **Description**
         |   Applies random noise with the given standard deviation ``noise_ratio`` to the result.
