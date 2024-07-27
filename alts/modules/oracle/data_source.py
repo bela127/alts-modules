@@ -261,20 +261,20 @@ class SquareDataSource(DataSource):
 class PowDataSource(DataSource):
     """
     | **Description**
-    |   A ``PowDataSource`` is a **deterministic** source of data representing an exponential equation ``s * x^power``. 
+    |   A ``PowDataSource`` is a **deterministic** source of data representing an exponential equation ``s * x^p``. 
 
     :param query_shape: The expected shape of the queries
     :type query_shape: tuple of ints
     :param result_shape: The expected shape of the results
     :type result_shape: tuple of ints
-    :param power: Power of x
-    :type power: float
+    :param p: Power of x
+    :type p: float
     :param s: Coefficient of x^power
     :type s: float
     """
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
-    power: float = init(default=3)
+    p: float = init(default=3)
     s: float = init(default=1)
 
     def query(self, queries):
@@ -288,7 +288,7 @@ class PowDataSource(DataSource):
         :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
         """
          #TODO Ambition interactive view of graphs
-        results = np.dot(np.power(queries, self.power), np.ones((*self.query_shape,*self.result_shape))*self.s)
+        results = np.dot(np.power(queries, self.p), np.ones((*self.query_shape,*self.result_shape))*self.s)
         return queries, results
 
     def query_constrain(self) -> QueryConstrain:
@@ -327,8 +327,8 @@ class PowDataSource(DataSource):
         :return: Constraints around results
         :rtype: ResultConstrain
         """
-        y_min = self.s if (self.s<0 and self.power>=0 or self.s>=0 and self.power<=0) else 0 if (self.p>0 and self.s>=0) else np.NINF
-        y_max = self.s if (self.s<0 and self.power<=0 or self.s>=0 and self.power>=0) else 0 if (self.p>0 and self.s<0) else np.INF
+        y_min = self.s if (self.s<0 and self.p>=0 or self.s>=0 and self.p<=0) else 0 if (self.p>0 and self.s>=0) else np.NINF
+        y_max = self.s if (self.s<0 and self.p<=0 or self.s>=0 and self.p>=0) else 0 if (self.p>0 and self.s<0) else np.INF # type: ignore
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
         return ResultConstrain(shape=self.result_shape, ranges=result_ranges)
 
@@ -337,20 +337,20 @@ class PowDataSource(DataSource):
 class ExpDataSource(DataSource):
     """
     | **Description**
-    |   An ``ExpDataSource`` is a **deterministic** source of data representing an exponential equation ``s * base^x``. 
+    |   An ``ExpDataSource`` is a **deterministic** source of data representing an exponential equation ``s * b^x``. 
 
     :param query_shape: The expected shape of the queries
     :type query_shape: tuple of ints
     :param result_shape: The expected shape of the results
     :type result_shape: tuple of ints
-    :param base: Basis to the exponent x
-    :type base: float
+    :param b: Basis to the exponent x
+    :type b: float
     :param s: Coefficient of base^x
     :type s: float
     """
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
-    base: float = init(default=2)
+    b: float = init(default=2)
     s: float = init(default=1)
 
     def query(self, queries):
@@ -364,7 +364,7 @@ class ExpDataSource(DataSource):
         :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
         """
          #TODO Ambition interactive view of graphs
-        results = np.dot(np.power(self.base, queries*self.s), np.ones((*self.query_shape,*self.result_shape)))
+        results = np.dot(np.power(self.b, queries*self.s), np.ones((*self.query_shape,*self.result_shape)))
         return queries, results
 
     def query_constrain(self) -> QueryConstrain:
@@ -457,16 +457,6 @@ class InterpolatingDataSource(DataSource):
         :rtype: QueryConstrain
         """
         return self.interpolation_strategy.query_constrain()
-    
-    def result_constrain(self) -> ResultConstrain:
-        """
-        | **Description**
-        |   See :func:`DataSource.result_constrain()` 
-
-        :return: Constraints around results
-        :rtype: ResultConstrain
-        """
-        return self.interpolation_strategy.result_constrain()
 
 #Finished 2
 @dataclass
@@ -550,7 +540,7 @@ class CrossDataSource(DataSource):
 class DoubleLinearDataSource(DataSource):
     """
     | **Description**
-    |   A ``DoubleLinearDataSource`` is a **semi-random** source of data choosing one of the following equations at random {``a * x``, ``a * x * slope_factor``}. 
+    |   A ``DoubleLinearDataSource`` is a **semi-random** source of data choosing one of the following equations at random {``a * x``, ``a * x * s``}. 
 
     :param query_shape: The expected shape of the queries
     :type query_shape: tuple of ints
@@ -558,13 +548,13 @@ class DoubleLinearDataSource(DataSource):
     :type result_shape: tuple of ints
     :param a: Coefficient of x
     :type a: float
-    :param slope_factor: Coefficient that is randomly in- or excluded 
-    :type slope_factor: float
+    :param s: Coefficient that is randomly in- or excluded 
+    :type s: float
     """
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     a: float = init(default=1)
-    slope_factor: float = init(default=0.5)
+    s: float = init(default=0.5)
 
     def query(self, queries):
         """
@@ -580,7 +570,7 @@ class DoubleLinearDataSource(DataSource):
         slope = np.random.randint(2,size=(queries.shape[0], *self.result_shape))
 
         results_steap = np.dot(queries, np.ones((*self.query_shape,*self.result_shape))*self.a) 
-        results_flat = np.dot(queries, np.ones((*self.query_shape,*self.result_shape))*self.slope_factor*self.a)
+        results_flat = np.dot(queries, np.ones((*self.query_shape,*self.result_shape))*self.s*self.a)
 
         results = (1- slope)*results_steap + slope*results_flat
 
@@ -1179,7 +1169,7 @@ class IndependentDataSource(DataSource):
             for i in range(self.number_of_distributions):
                 loc = np.random.uniform(-10, 10,size=1)
                 scale = np.random.uniform(0.1,2,size=1)
-                shape: np.ndarray[Any, np.dtype[np.signedinteger[Any]]] = np.random.uniform(0.1,5,size=1)
+                shape: np.ndarray[Any, np.dtype[np.signedinteger[Any]]] = np.random.uniform(0.1,5,size=1) # type: ignore
                 distribution = np.random.choice(self.all_distributions)
                 if distribution is np.random.normal:
                     self.distributions.append({"type": distribution, "kwargs": {"loc": loc, "scale": scale}})
@@ -1288,7 +1278,7 @@ class GaussianProcessDataSource(DataSource):
     def __call__(self, **kwargs) -> Self:
         obj: GaussianProcessDataSource = super().__call__( **kwargs)
         obj.regression = self.regression
-        return obj
+        return obj # type: ignore
     
 #TODO
 @dataclass
