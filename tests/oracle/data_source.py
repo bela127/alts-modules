@@ -2,9 +2,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from alts.core.oracle.data_source import DataSource
-import alts.modules.oracle.data_source as ds
+import alts.modules.oracle.data_source as dsm
 from alts.core.data.constrains import QueryConstrain, ResultConstrain
-from alts.core.configuration import pre_init, is_set, init, post_init
+from alts.core.configuration import pre_init, is_set, init, post_init, Configurable
 
 import numpy as np
 import GPy
@@ -22,11 +22,8 @@ Specific Value Ranges
 General Edgecases
 Specific Edgecases
 """
-class DataSourceTest():
-    ds : DataSource
-
-    def __init__(self, pmodule : DataSource):
-        self.ds = pmodule
+class DataSourceTest(Configurable):
+    ds : DataSource = init(default_factory=dsm.RandomUniformDataSource)
 
     def assign_module(self, pmodule : DataSource):
         self.ds = pmodule
@@ -52,5 +49,5 @@ class DataSourceTest():
         return True
 
 if __name__ == '__main__':
-    t = DataSourceTest(ds.LineDataSource(query_shape= (1,), result_shape= (1,), a= 1, b= 2)())
-    print(t.test())
+    dst = DataSourceTest()()
+    print(dst.ds.default_factory.__annotations__)
