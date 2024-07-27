@@ -41,5 +41,5 @@ class NoiseAugmentation(Augmentation):
         :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
         """
         queries, results = self.data_source.query(queries)
-        augmented = self.rng.normal(results, self.noise_ratio)
+        augmented = self.rng.normal(results, self.noise_ratio) # type: ignore
         return queries, augmented
