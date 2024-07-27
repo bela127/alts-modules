@@ -38,7 +38,7 @@ class NoQueryOptimizer(QueryOptimizer):
 
 @dataclass
 class GAQueryOptimizer(QueryOptimizer):
-    #QUESTION what does it do
+    #Genetic Algorithm
     def select(self):
 
         def opt_func(x):
@@ -54,6 +54,7 @@ class GAQueryOptimizer(QueryOptimizer):
 
 @dataclass
 class MCQueryOptimizer(QueryOptimizer):
+    #MontyCarlo
     query_sampler: QuerySampler  = init()
     num_tries: int = init(default=100)
 

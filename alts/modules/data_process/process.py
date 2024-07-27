@@ -88,7 +88,6 @@ class DataSourceProcess(Process, ProcessOracleSubscriber):
 
 @dataclass
 class DelayedProcess(Process, DelayedConstrained):
-    #QUESTION why would it be delayed?
     data_source: DataSource = init()
 
     has_new_data: bool = pre_init(default=False)
