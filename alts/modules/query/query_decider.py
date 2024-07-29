@@ -62,8 +62,11 @@ class TopKQueryDecider(QueryDecider):
         :return: ``True``, ``query_candidates``
         :rtype: boolean, Iterable over `NDArrays <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_ 
         """
-        ind = np.argpartition(scores, -self.k)[-self.k:]
-        queries = query_candidates[ind]
+        if query_candidates.size > self.k:
+            ind = np.argpartition(scores, -self.k)[-self.k:]
+            queries = query_candidates[ind]
+        else:
+            queries = query_candidates
         return True, queries
 
 @dataclass
