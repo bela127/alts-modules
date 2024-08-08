@@ -29,9 +29,9 @@ jobs:
       run: |
         curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
         echo '#Adding Pyenv to path' >> ~/.bashrc
-        echo 'export PATH="/home/user/.pyenv/bin:$PATH"' >> ~/.bashrc
+        echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
+        echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
         echo 'eval "$(pyenv init -)"' >> ~/.bashrc
-        echo 'eval "$(pyenv virtualenv-init -)"' >> ~/.bashrc
         source ~/.bashrc
     - name: Setup pyenv
       run: |
