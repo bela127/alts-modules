@@ -1,5 +1,5 @@
 # This workflow will install Python dependencies and run tests with a single version of Python
-name: Unit Tests
+name: Unit Tests on version 3.9.6
 
 on:
   push:
@@ -14,25 +14,30 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    container:
-      image: chicken
-      options: --user root
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v3
-      with:
-        python-version: "3.9"
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pytest
-        pip install poetry
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install pytest
+        sudo apt install -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev python-openssl git
+        curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
+        echo "#Adding Pyenv to path" >> ~/.bashrc
+        echo "export PATH='/home/user/.pyenv/bin:$PATH'" >> ~/.bashrc
+        echo "eval '$(pyenv init -)'" >> ~/.bashrc
+        echo "eval '$(pyenv virtualenv-init -)'" >> ~/.bashrc
+        bash
+        pyenv install 3.9.6
+        curl -sSL https://install.python-poetry.org | python3 -
+        echo "#Adding Poetry to path" >> ~/.bashrc
+        echo "export PATH='home/user/.local/bin:$PATH'" >> ~/.bashrc
+        bash
+        poetry config virtualenvs.prefer-active-python true
+        poetry config virtualenvs.in-project true
     - name: Setup virtual environment
       run: |
-        
-
+        poetry install
     - name: Test with pytest
       run: |
         pytest
