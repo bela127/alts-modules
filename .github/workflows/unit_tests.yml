@@ -31,7 +31,7 @@ jobs:
         echo '#Adding Pyenv to path' >> ~/.bashrc
         echo 'export PATH="/home/user/.pyenv/bin:$PATH"' >> ~/.bashrc
         echo 'eval "$(pyenv init -)"' >> ~/.bashrc
-        echo 'eval '$(pyenv virtualenv-init -)"' >> ~/.bashrc
+        echo 'eval "$(pyenv virtualenv-init -)"' >> ~/.bashrc
         source ~/.bashrc
     - name: Setup pyenv
       run: |
