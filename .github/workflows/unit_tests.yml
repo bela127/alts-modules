@@ -25,12 +25,15 @@ jobs:
         sudo apt install -y make build-essential libssl-dev zlib1g-dev libbz2-dev \
         libreadline-dev libsqlite3-dev wget curl llvm \
         libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev python3-openssl git
+    - name: Install pyenv
+      run: |
         curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
         echo "#Adding Pyenv to path" >> ~/.bashrc
         echo "export PATH='/home/user/.pyenv/bin:$PATH'" >> ~/.bashrc
         echo "eval '$(pyenv init -)'" >> ~/.bashrc
         echo "eval '$(pyenv virtualenv-init -)'" >> ~/.bashrc
         source ~/.bashrc
+    - name: Setup pyenv
         pyenv install 3.9.6
         curl -sSL https://install.python-poetry.org | python3 -
         echo "#Adding Poetry to path" >> ~/.bashrc
@@ -38,7 +41,7 @@ jobs:
         source ~/.bashrc
         poetry config virtualenvs.prefer-active-python true
         poetry config virtualenvs.in-project true
-    - name: Setup virtual environment
+    - name: Setup virtual environment with poetry
       run: |
         poetry install
     - name: Test with pytest
