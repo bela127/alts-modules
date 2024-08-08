@@ -34,6 +34,7 @@ jobs:
         echo "eval '$(pyenv virtualenv-init -)'" >> ~/.bashrc
         source ~/.bashrc
     - name: Setup pyenv
+      run: |
         pyenv install 3.9.6
         curl -sSL https://install.python-poetry.org | python3 -
         echo "#Adding Poetry to path" >> ~/.bashrc
