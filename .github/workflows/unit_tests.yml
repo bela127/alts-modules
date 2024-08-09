@@ -29,19 +29,17 @@ jobs:
       run: |
         curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
         echo '#Adding Pyenv to path' >> ~/.bashrc
-        echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
-        echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
+        echo 'export PYENV_ROOT="~/.pyenv"' >> ~/.bashrc
+        echo 'export PATH="~/.pyenv/bin:$PATH"' >> ~/.bashrc
         echo 'eval "$(pyenv init -)"' >> ~/.bashrc
-        echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.profile
-        echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.profile
-        echo 'eval "$(pyenv init -)"' >> ~/.profile
-        source ~/.bashrc
+        echo 'eval "$(pyenv virtualenv-init -)"' >> ~/.bashrc
     - name: Setup pyenv
       run: |
+        source ~/.bashrc
         pyenv install 3.9.6
         curl -sSL https://install.python-poetry.org | python3 -
         echo '#Adding Poetry to path' >> ~/.bashrc
-        echo 'export PATH="home/user/.local/bin:$PATH"' >> ~/.bashrc
+        echo 'export PATH="~/.local/bin:$PATH"' >> ~/.bashrc
         source ~/.bashrc
         poetry config virtualenvs.prefer-active-python true
         poetry config virtualenvs.in-project true
