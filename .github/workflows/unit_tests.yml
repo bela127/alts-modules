@@ -33,8 +33,8 @@ jobs:
         echo '#Adding Pyenv to path' >> ~/.bashrc
         echo 'export PYENV_ROOT="~/.pyenv"' >> ~/.bashrc
         echo 'export PATH="~/.pyenv/bin:$PATH"' >> ~/.bashrc
-        echo 'eval "$(pyenv init -)"' >> ~/.bashrc
-        echo 'eval "$(pyenv virtualenv-init -)"' >> ~/.bashrc
+        echo 'eval "$(~/.pyenv/bin/pyenv init -)"' >> ~/.bashrc
+        echo 'eval "$(~/.pyenv/bin/pyenv virtualenv-init -)"' >> ~/.bashrc
         source ~/.bashrc
         pyenv install 3.9.6
         pyenv local 3.9.6
