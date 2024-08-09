@@ -28,8 +28,6 @@ jobs:
     - name: Install pyenv
       run: |
         curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
-        cd ~
-        ls -a
         echo '#Adding Pyenv to path' >> ~/.bashrc
         echo 'export PYENV_ROOT="~/.pyenv"' >> ~/.bashrc
         echo 'export PATH="~/.pyenv/bin:$PATH"' >> ~/.bashrc
@@ -38,7 +36,7 @@ jobs:
     - name: Setup pyenv
       run: |
         source ~/.bashrc
-        pyenv install 3.9.6
+        ~/.pyenv/bin/pyenv install 3.9.6
         curl -sSL https://install.python-poetry.org | python3 -
         echo '#Adding Poetry to path' >> ~/.bashrc
         echo 'export PATH="~/.local/bin:$PATH"' >> ~/.bashrc
