@@ -14,6 +14,10 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python:
+          - 3.9.6
     steps:
     - uses: actions/checkout@v4
     - name: Install dependencies
@@ -25,19 +29,13 @@ jobs:
         sudo apt install -y make build-essential libssl-dev zlib1g-dev libbz2-dev \
         libreadline-dev libsqlite3-dev wget curl llvm \
         libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev python3-openssl git
-    - name: Install pyenv
+    - name: Install python version via pyenv
+      uses: gabrielfalcao/pyenv-action@v17
+      with:
+        default: "${{ matrix.python }}"
+        command: pip install -U pip  # upgrade pip after installing python
+    - name: Install poetry
       run: |
-        curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
-    - name: Setup pyenv and poetry
-      run: |
-        echo '#Adding Pyenv to path' >> ~/.bashrc
-        echo 'export PYENV_ROOT="~/.pyenv"' >> ~/.bashrc
-        echo 'export PATH="~/.pyenv/bin:$PATH"' >> ~/.bashrc
-        echo 'eval "$(~/.pyenv/bin/pyenv init -)"' >> ~/.bashrc
-        echo 'eval "$(~/.pyenv/bin/pyenv virtualenv-init -)"' >> ~/.bashrc
-        source ~/.bashrc
-        pyenv install 3.9.6
-        pyenv local 3.9.6
         curl -sSL https://install.python-poetry.org | python3 -
         echo '#Adding Poetry to path' >> ~/.bashrc
         echo 'export PATH="~/.local/bin:$PATH"' >> ~/.bashrc
@@ -47,6 +45,7 @@ jobs:
         poetry env use 3.9.6
     - name: Setup virtual environment with poetry
       run: |
+        cd alts-modules
         poetry install
         source ./.venv/bin/activate
     - name: Test with pytest
