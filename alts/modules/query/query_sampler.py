@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 @dataclass
 class OptimalQuerySampler(QuerySampler):
-    optimal_queries: Tuple[NDArray[Shape["query_nr, ... query_dims"], Number], ...] = init()
+    optimal_queries: Tuple[NDArray[Shape["query_nr, ... query_dims"], Number], ...] = init() # type: ignore
 
     def post_init(self):
         super().post_init()
@@ -40,7 +40,7 @@ class OptimalQuerySampler(QuerySampler):
 
 @dataclass
 class FixedQuerySampler(QuerySampler):
-    fixed_query: NDArray[Shape["... query_dims"], Number] = init()
+    fixed_query: NDArray[Shape["... query_dims"], Number] = init() # type: ignore
 
     def post_init(self):
         super().post_init()
