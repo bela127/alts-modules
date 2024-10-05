@@ -1,4 +1,4 @@
-#Fully documented as of 20.07.2024
+#Version 1.1 conform as of 05.10.2024
 """
 :doc:`Core Module </core/oracle/augmentation>`
 """
@@ -20,11 +20,12 @@ if TYPE_CHECKING:
 @dataclass
 class NoiseAugmentation(Augmentation):
     """
+    NoiseAugmentation(noise_ratio)
     | **Description**
-    |   Adds noise to the results of the augmented :doc:`Data Source </core/oracle/data_source>`.
+    |   Adds noise to the results of the augmented :doc:`DataSource </core/oracle/data_source>`.
 
-    :param noise_ratio: Standard deviation from actual result
-    :type noise_ratio: ``float``
+    :param noise_ratio: Standard deviation from actual result (default = 0.01)
+    :type noise_ratio: float
     """
     noise_ratio: float = init(default=0.01) 
 
@@ -32,6 +33,7 @@ class NoiseAugmentation(Augmentation):
 
     def query(self, queries: NDArray[ Shape["query_nr, ... query_dim"], Number]) -> Tuple[NDArray[Shape["query_nr, ... query_dim"], Number], NDArray[Shape["query_nr, ... result_dim"], Number]]: # type: ignore
         """
+        query(self, queries) -> data_points
         | **Description**
         |   Applies random noise with the given standard deviation ``noise_ratio`` to the result.
 

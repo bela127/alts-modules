@@ -25,12 +25,23 @@ if TYPE_CHECKING:
 
 @dataclass
 class StreamProcess(Process, TimeSubscriber):
+    """
+    StreamProcess(stop_time, time_behaviour, data_pools)
+    | **Description**
+    |   StreamProcess is a simple stream based :doc:`Process <core/data_process/process>`.
+
+    """
     stop_time: float = init(default=1000)
     time_behavior: TimeDataSource = init()
 
     data_pools: StreamDataPools = post_init()
 
     def post_init(self):
+        """
+        post_init(self) -> None
+        | **Description**
+        |   Initializes its :doc:`TimeDataSource </core/oracle/data_source>` and :doc:`StreamDataPools </core/data/data_pools>`. 
+        """
         if self.time_behavior is NOTSET:
             self.time_behavior = TimeBehaviorDataSource(behavior=RandomTimeUniformBehavior(stop_time=self.stop_time))
         super().post_init()

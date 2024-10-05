@@ -1,17 +1,24 @@
-#Fully documented as of 20.07.2024
+#Version 1.1 conform as of 05.10.2024
 """
 :doc:`Core Module </core/query/selection_criteria>`
 """
 from alts.core.query.selection_criteria import SelectionCriteria
 import numpy as np
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import Tuple, Optional
+    from nptyping import NDArray, Number, Shape
 
 class NoSelectionCriteria(SelectionCriteria):
     """
+    NoSelectionCriteria()
     | **Description**
     |   Gives all queries a score of 0.
     """
-    def query(self, queries):
+    def query(self, queries) -> Tuple[NDArray[Shape["query_nr, ... query_dims"], Number], NDArray[Shape["query_nr, [query_score]"], Number]]: # type: ignore
         """
+        query(self, queries) -> (queries, scores)
         | **Description**
         |   Gives all queries a score of 0.
 
@@ -25,11 +32,13 @@ class NoSelectionCriteria(SelectionCriteria):
 
 class AllSelectionCriteria(SelectionCriteria):
     """
+    AllSelectionCriteria()
     | **Description**
     |   Gives all queries a score of 1.
     """
-    def query(self, queries):
+    def query(self, queries) -> Tuple[NDArray[Shape["query_nr, ... query_dims"], Number], NDArray[Shape["query_nr, [query_score]"], Number]]: # type: ignore
         """
+        query(self, queries) -> (queries, scores)
         | **Description**
         |   Gives all queries a score of 1.
 
@@ -43,11 +52,13 @@ class AllSelectionCriteria(SelectionCriteria):
 
 class RandomSelectionCriteria(SelectionCriteria):
     """
+    RandomSelectionCriteria()
     | **Description**
     |   Gives each query a random score.
     """
-    def query(self, queries):
+    def query(self, queries) -> Tuple[NDArray[Shape["query_nr, ... query_dims"], Number], NDArray[Shape["query_nr, [query_score]"], Number]]: # type: ignore
         """
+        query(self, queries) -> (queries, scores)
         | **Description**
         |   Gives each query a random score from 0 to 1.
 
@@ -58,5 +69,3 @@ class RandomSelectionCriteria(SelectionCriteria):
         """
         scores = np.random.uniform(0,1,size=(queries.shape[0],1))
         return queries, scores
-    
-    #TODO Selection by distance from most similar query

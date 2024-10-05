@@ -1,3 +1,7 @@
+#Version 1.1 conform as of 05.10.2024
+""" 
+:doc:`Core Module </core/data_process/time_source>`
+"""
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
@@ -6,7 +10,7 @@ from dataclasses import dataclass,field
 import numpy as np
 
 from alts.core.data_process.time_source import TimeSource
-from alts.core.configuration import ConfAttr, pre_init
+from alts.core.configuration import ConfAttr, pre_init, init
 
 if TYPE_CHECKING:
     from nptyping import NDArray, Shape, Number
@@ -14,14 +18,21 @@ if TYPE_CHECKING:
 @dataclass
 class IterationTimeSource(TimeSource):
     """
+    IterationTimeSource(start_time, time_step)
     | **Description**
     |   This ``TimeSource`` iterates through time starting at 0 in steps of 1. Time here can be positively offset.
+    
+    :param start_time: Initial time (default = 0)
+    :type start_time: float
+    :param time_step: Steps of increment of time (default = 1)
+    :type time_step: float
     """
-    start_time: float = 0
-    time_step: float = 1
+    start_time: float = init(default=0)
+    time_step: float = init(default=1)
     
     def post_init(self):
         """
+        post_init(self) -> None
         | **Description**
         |   Sets all counters to 0.
         """
@@ -31,6 +42,7 @@ class IterationTimeSource(TimeSource):
 
     def step(self, iteration: int) -> NDArray[Shape["time_step_nr, [time]"], Number]: # type: ignore
         """
+        step(self, iteration) -> time
         | **Description**
         |   Sets time to the given ``iteration``.
         |   Example: step(1) -> self.time == 1 + offset, step(3) -> self.time == 3 + offset
@@ -45,8 +57,9 @@ class IterationTimeSource(TimeSource):
         return np.asarray([[self.time]])
     
     @property
-    def time(self)-> float:
+    def time(self) -> float:
         """
+        time(self) -> float
         | **Description**
         |   Returns the current time of the ``TimeSource``
         |   Time is set to be the current iteration times the size of the step each iteration increments by plus a given time offset.
@@ -60,6 +73,7 @@ class IterationTimeSource(TimeSource):
     @time.setter
     def time(self, delta_time):
         """
+        time(self, delta_time) -> None
         | **Description**
         |   While time itself is not possible to be set to a certain value at will, this ``TimeSource`` allows a time offset to be set here.
         |   The given positive ``delta_time`` is added to ``time_offset``. 
