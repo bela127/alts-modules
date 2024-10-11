@@ -15,7 +15,7 @@ from alts.core.query.query_decider import QueryDecider
 
 if TYPE_CHECKING:
     from typing import Tuple, Optional
-    from nptyping import NDArray, Number, Shape
+    from nptyping import NDArray, Shape
 
 @dataclass    
 class AllQueryDecider(QueryDecider):
@@ -24,7 +24,7 @@ class AllQueryDecider(QueryDecider):
     | **Description**
     |   Always picks all query candidates.
     """
-    def decide(self, query_candidates: NDArray[Shape["query_nr, ... query_dims"], Number], scores: NDArray[Shape["query_nr, [query_score]"], Number]) -> Tuple[bool, NDArray[Shape["query_nr, ... query_dims"], Number]]: # type: ignore
+    def decide(self, query_candidates: NDArray[Shape["query_nr, ... query_dims"], np.dtype[np.number]], scores: NDArray[Shape["query_nr, [query_score]"], np.dtype[np.number]]) -> Tuple[bool, NDArray[Shape["query_nr, ... query_dims"], np.dtype[np.number]]]:
         """
         decide(self, query_candidates, scores) -> (bool, queries)
         | **Description**
@@ -52,7 +52,7 @@ class TopKQueryDecider(QueryDecider):
     """
     k: int = init(default= 4)
 
-    def decide(self, query_candidates: NDArray[Shape["query_nr, ... query_dims"], Number], scores: NDArray[Shape["query_nr, [query_score]"], Number]) -> Tuple[bool, NDArray[Shape["query_nr, ... query_dims"], Number]]: # type: ignore
+    def decide(self, query_candidates: NDArray[Shape["query_nr, ... query_dims"], np.dtype[np.number]], scores: NDArray[Shape["query_nr, [query_score]"], np.dtype[np.number]]) -> Tuple[bool, NDArray[Shape["query_nr, ... query_dims"], np.dtype[np.number]]]: 
         """
         decide(self, query_candidates, scores) -> (bool, queries)
         | **Description**
@@ -80,7 +80,7 @@ class NoQueryDecider(QueryDecider):
     | **Description**
     |   Never picks any query candidates.
     """
-    def decide(self, query_candidates: NDArray[Shape["query_nr, ... query_dims"], Number], scores: NDArray[Shape["query_nr, [query_score]"], Number]) -> Tuple[bool, NDArray[Shape["query_nr, ... query_dims"], Number]]: # type: ignore
+    def decide(self, query_candidates: NDArray[Shape["query_nr, ... query_dims"], np.dtype[np.number]], scores: NDArray[Shape["query_nr, [query_score]"], np.dtype[np.number]]) -> Tuple[bool, NDArray[Shape["query_nr, ... query_dims"], np.dtype[np.number]]]: 
         """
         decide(self, query_candidates, scores) -> (bool, queries)
         | **Description**
@@ -109,7 +109,7 @@ class ThresholdQueryDecider(QueryDecider):
     """
     threshold: float = init(default= 0.5)
 
-    def decide(self, query_candidates: NDArray[Shape["query_nr, ... query_dims"], Number], scores: NDArray[Shape["query_nr, [query_score]"], Number]) -> Tuple[bool, NDArray[Shape["query_nr, ... query_dims"], Number]]: # type: ignore
+    def decide(self, query_candidates: NDArray[Shape["query_nr, ... query_dims"], np.dtype[np.number]], scores: NDArray[Shape["query_nr, [query_score]"], np.dtype[np.number]]) -> Tuple[bool, NDArray[Shape["query_nr, ... query_dims"], np.dtype[np.number]]]: 
         """
         decide(self, query_candidates, scores) -> (bool, queries)
         | **Description**
