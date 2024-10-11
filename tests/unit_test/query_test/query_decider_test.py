@@ -21,13 +21,13 @@ def test_positive_decisiveness(qd: QueryDecider):
     |   Certain Deciders may automatically pass this test, such as ``NoQueryDecider``.
     """
     qd = qd()
-    if type(qd) == qdm.AllQueryDecider:   
+    if isinstance(qd, qdm.AllQueryDecider):   
         assert qd.decide(np.array([0]), np.array([[0]]))[0] == True
-    elif type(qd) == qdm.NoQueryDecider:
+    elif isinstance(qd, qdm.NoQueryDecider):
         assert True
-    elif type(qd) == qdm.ThresholdQueryDecider:
+    elif isinstance(qd, qdm.ThresholdQueryDecider):
         assert qd.decide(np.array([0]), np.array([[qd.threshold + 0.01]]))[0] == True
-    elif type(qd) == qdm.TopKQueryDecider:
+    elif isinstance(qd, qdm.TopKQueryDecider):
         assert qd.decide(np.array([0]), np.array([[0]]))[0] == True
     else:
         raise ValueError("QueryDecider not found: {}".format(qd))
@@ -41,13 +41,13 @@ def test_negative_decisiveness(qd: QueryDecider):
     |   Certain Deciders may automatically pass this test, such as ``AllQueryDecider``.
     """
     qd = qd()
-    if type(qd) == qdm.AllQueryDecider:
+    if isinstance(qd, qdm.AllQueryDecider):
         assert True
-    elif type(qd) == qdm.NoQueryDecider:
+    elif isinstance(qd, qdm.NoQueryDecider):
         assert qd.decide(np.array([0]), np.array([[0]]))[0] == False
-    elif type(qd) == qdm.ThresholdQueryDecider:
+    elif isinstance(qd, qdm.ThresholdQueryDecider):
         assert qd.decide(np.array([0]), np.array([[qd.threshold]]))[0] == False
-    elif type(qd) == qdm.TopKQueryDecider:
+    elif isinstance(qd, qdm.TopKQueryDecider):
         assert True
     else:
         raise ValueError("QueryDecider not found: {}".format(qd))
@@ -60,7 +60,7 @@ def test_normal_values(qd: QueryDecider):
     |   To pass, the Decider has to make the right decision on chosen inputs.
     """
     qd = qd()
-    if type(qd) == qdm.AllQueryDecider:
+    if isinstance(qd, qdm.AllQueryDecider):
         #Normal Queries
         x,y = qd.decide(np.array([0, 1, 2]), np.array([[-1], [0], [0.5]]))
         assert x == True and np.array_equal(np.sort(y.flat), np.sort(np.array([0, 1, 2]).flat))
@@ -73,7 +73,7 @@ def test_normal_values(qd: QueryDecider):
         #Single Candidate
         x,y = qd.decide(np.array([0]), np.array([[0]]))
         assert x == True and np.array_equal(np.sort(y.flat), np.sort(np.array([0]).flat))
-    elif type(qd) == qdm.NoQueryDecider:
+    elif isinstance(qd, qdm.NoQueryDecider):
         #Normal Query
         x,y = qd.decide(np.array([0, 1, 2]), np.array([[-1], [0], [0.5]]))
         assert x == False and np.array_equal(np.sort(y.flat), np.sort(np.array([]).flat))
@@ -86,14 +86,14 @@ def test_normal_values(qd: QueryDecider):
         #Single Candidate
         x,y = qd.decide(np.array([0]), np.array([[0]]))
         assert x == False and np.array_equal(np.sort(y.flat), np.sort(np.array([]).flat))
-    elif type(qd) == qdm.ThresholdQueryDecider:
+    elif isinstance(qd, qdm.ThresholdQueryDecider):
         #Normal Query
         x,y = qd.decide(np.array([0, 1, 2]), np.array([[qd.threshold], [qd.threshold - 0.1], [qd.threshold + 0.1]]))
         assert x == True and np.array_equal(np.sort(y.flat), np.sort(np.array([2]).flat))
         #Consistent returns
         x,y = qd.decide(np.array([0, 1, 2]), np.array([[qd.threshold], [qd.threshold - 0.1], [qd.threshold + 0.1]]))
         assert x == True and np.array_equal(np.sort(y.flat), np.sort(np.array([2]).flat))
-    elif type(qd) == qdm.TopKQueryDecider:
+    elif isinstance(qd, qdm.TopKQueryDecider):
         #Normal Query
         x,y = qd.decide(np.array([i for i in range(qd.k + 2)]), np.array([[i/2 - 1] for i in range(qd.k + 2)]))
         assert x == True and np.array_equal(np.sort(y.flat), np.sort(np.array([i for i in range(2, qd.k + 2)]).flat))
@@ -116,11 +116,11 @@ def test_normal_values(qd: QueryDecider):
 
 #Returns the associated pass function
 def passer_generator(qd: QueryDecider):
-    if type(qd) == qdm.AllQueryDecider:
+    if isinstance(qd, qdm.AllQueryDecider):
         return lambda candidates, scores, output: True if (output[0], set(output[1])) == (True, set(candidates)) else False
-    elif type(qd) == qdm.NoQueryDecider:
+    elif isinstance(qd, qdm.NoQueryDecider):
         return lambda candidates, scores, output: True if (output[0], set(output[1])) == (False, set([])) else False
-    elif type(qd) == qdm.ThresholdQueryDecider:
+    elif isinstance(qd, qdm.ThresholdQueryDecider):
         def f(candidates, scores, output):  # type: ignore
             sol = set()
             for i in range(len(candidates)):
@@ -131,7 +131,7 @@ def passer_generator(qd: QueryDecider):
             else:
                 return False
         return f
-    elif type(qd) == qdm.TopKQueryDecider:
+    elif isinstance(qd, qdm.TopKQueryDecider):
         def f(candidates, scores, output): #type:ignore
             least_score = min([scores[candidates.tolist().index(x)][0] for x in output[1]])
             if len(output[1]) < qd.k and len(output[1]) != len(candidates) or len(output[1]) > qd.k or output[0] == False:

@@ -15,13 +15,13 @@ selection_criterias = [
 @pytest.mark.parametrize("sc", selection_criterias)
 def test_single_value(sc: SelectionCriteria):
     sc = sc()
-    if type(sc) == scm.AllSelectionCriteria:
+    if isinstance(sc, scm.AllSelectionCriteria):
         x,y = sc.query(np.array([1]))
         assert x == np.array([1]) and y == np.ones((1,1))
-    elif type(sc) == scm.NoSelectionCriteria:
+    elif isinstance(sc, scm.NoSelectionCriteria):
         x,y = sc.query(np.array([1]))
         assert x == np.array([1]) and y == np.zeros((1,1))
-    elif type(sc) == scm.RandomSelectionCriteria:
+    elif isinstance(sc, scm.RandomSelectionCriteria):
         x,y = sc.query(np.array([1]))
         assert x == np.array([1]) and y.shape == (1,1) and type(y[0][0]) == float 
 
