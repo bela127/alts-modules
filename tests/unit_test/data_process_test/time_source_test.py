@@ -21,7 +21,7 @@ def test_time_setting(ts: TimeSource):
     | **Description**
     |   To pass, the TimeSource has has to correctly set and then display the time when modified.
     """
-    ts = ts()
+    ts = ts()()
     #IterationTimeSource
     if isinstance(ts, tsm.IterationTimeSource):  
         #Two simple tests for time setting/adding
