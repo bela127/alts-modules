@@ -23,8 +23,7 @@ def test_single_value(sc: SelectionCriteria):
         assert x == np.array([1]) and y == np.zeros((1,1))
     elif isinstance(sc, scm.RandomSelectionCriteria):
         x,y = sc.query(np.array([1]))
-        assert np.array_equal(x, np.array([1])) and y.shape == (1,1) and type(y[0][0]) == float 
-        
+        assert np.array_equal(x, np.array([1])) and y.shape == (1,1) and isinstance(y.flat[0], float) 
 
 #TODO Test random distribution
 #TODO Test multidimensional queries
