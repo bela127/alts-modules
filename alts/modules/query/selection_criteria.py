@@ -36,7 +36,7 @@ class AllSelectionCriteria(SelectionCriteria):
     | **Description**
     |   Gives all queries a score of 1.
     """
-    def query(self, queries) -> Tuple[NDArray[Shape["query_nr, ... query_dims"], Number], NDArray[Shape["query_nr, [query_score]"], Number]]: # type: ignore
+    def query(self, queries) -> 'Tuple[NDArray[Shape["query_nr, ... query_dims"], Number], NDArray[Shape["query_nr, [query_score]"], Number]]': # type: ignore
         """
         query(self, queries) -> (queries, scores)
         | **Description**
@@ -56,7 +56,7 @@ class RandomSelectionCriteria(SelectionCriteria):
     | **Description**
     |   Gives each query a random score.
     """
-    def query(self, queries) -> Tuple[NDArray[Shape["query_nr, ... query_dims"], Number], NDArray[Shape["query_nr, [query_score]"], Number]]: # type: ignore
+    def query(self, queries) -> 'Tuple[NDArray[Shape["query_nr, ... query_dims"], Number], NDArray[Shape["query_nr, [query_score]"], Number]]': # type: ignore
         """
         query(self, queries) -> (queries, scores)
         | **Description**
