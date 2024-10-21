@@ -4,10 +4,10 @@
 """
 from alts.core.query.selection_criteria import SelectionCriteria
 import numpy as np
-from typing import TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from typing import Optional
+    from typing import Optional, Tuple
     from nptyping import NDArray, Number, Shape
 
 class NoSelectionCriteria(SelectionCriteria):
@@ -16,7 +16,7 @@ class NoSelectionCriteria(SelectionCriteria):
     | **Description**
     |   Gives all queries a score of 0.
     """
-    def query(self, queries) -> Tuple[NDArray[Shape["query_nr, ... query_dims"], Number], NDArray[Shape["query_nr, [query_score]"], Number]]: # type: ignore
+    def query(self, queries) -> 'Tuple[NDArray[Shape["query_nr, ... query_dims"], Number], NDArray[Shape["query_nr, [query_score]"], Number]]': # type: ignore
         """
         query(self, queries) -> (queries, scores)
         | **Description**
