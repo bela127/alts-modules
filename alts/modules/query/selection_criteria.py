@@ -4,10 +4,10 @@
 """
 from alts.core.query.selection_criteria import SelectionCriteria
 import numpy as np
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Tuple
 
 if TYPE_CHECKING:
-    from typing import Tuple, Optional
+    from typing import Optional
     from nptyping import NDArray, Number, Shape
 
 class NoSelectionCriteria(SelectionCriteria):
