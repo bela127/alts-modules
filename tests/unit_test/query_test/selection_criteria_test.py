@@ -31,7 +31,7 @@ def test_multiple_values(sc: SelectionCriteria):
     sc = sc()
     if isinstance(sc, scm.AllSelectionCriteria):
         x,y = sc.query(np.array([[0,-1],[2,0],[1,1],[3,2.6],[27,3]]))
-        assert np.array_equal(x, np.array([[0,-1],[2,0],[1,1],[3,2.6],[27,3]])) and y == np.ones((5,1))
+        assert np.array_equal(x, np.array([[0,-1],[2,0],[1,1],[3,2.6],[27,3]])) and np.array_equal(y, np.ones((5,1)))
     elif isinstance(sc, scm.NoSelectionCriteria):
         x,y = sc.query(np.array([[0,-1],[2,0],[1,1],[3,2.6],[27,3]]))
         assert np.array_equal(x, np.array([[0,-1],[2,0],[1,1],[3,2.6],[27,3]])) and y == np.zeros((5,1))
