@@ -1,4 +1,7 @@
-#Version 1.1 conform as of 05.10.2024
+#Version 1.1.1 conform as of 29.11.2024
+"""
+*alts.modules.oracle.augmentation*
+"""
 """
 :doc:`Core Module </core/oracle/augmentation>`
 """

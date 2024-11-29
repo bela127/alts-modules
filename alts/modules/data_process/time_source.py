@@ -1,5 +1,6 @@
-#Version 1.1 conform as of 05.10.2024
-""" 
+#Version 1.1.1 conform as of 29.11.2024
+"""
+*alts.modules.data_process.time_Source*
 :doc:`Core Module </core/data_process/time_source>`
 """
 from __future__ import annotations
