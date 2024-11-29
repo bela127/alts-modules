@@ -112,7 +112,7 @@ class RandomTimeBrownBehavior(DataBehavior):
     :type stop_time: float
 
     .. [#] The effect of the parameter is too complex to be simply described, 
-        |  see :method:`behavior` for the exact effect of the parameter. 
+        |  see `behavior` for the exact effect of the parameter. 
     """
     def behavior(self) -> Tuple[NDArray[Shape["change_times"], np.dtype[np.number]], NDArray[Shape["kps"], np.dtype[np.number]]]:
         """
