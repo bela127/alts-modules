@@ -1,7 +1,7 @@
 #Version 1.1.1 conform as of 29.11.2024
 """
-*alts.modules.query.selection_criteria*
-:doc:`Core Module </core/query/selection_criteria>`
+| *alts.modules.query.selection_criteria*
+| :doc:`Core Module </core/query/selection_criteria>`
 """
 from alts.core.query.selection_criteria import SelectionCriteria
 import numpy as np

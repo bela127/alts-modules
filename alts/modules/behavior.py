@@ -1,7 +1,7 @@
 #Version 1.1.1 conform as of 29.11.2024
 """
-*alts.modules.behavior*
-:doc:`Core Module </core/oracle/data_behaviour>`
+| *alts.modules.behavior*
+| :doc:`Core Module </core/oracle/data_behaviour>`
 """
 from __future__ import annotations
 from typing import TYPE_CHECKING

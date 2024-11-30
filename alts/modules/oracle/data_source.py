@@ -1,7 +1,7 @@
 
 """
-*alts.modules.oracle.data_source*
-:doc:`Core Module </core/oracle/data_source>`
+| *alts.modules.oracle.data_source*
+| :doc:`Core Module </core/oracle/data_source>`
 """
 #TODO Add Defaults
 from __future__ import annotations
