@@ -42,13 +42,13 @@ class EquidistantTimeUniformBehavior(DataBehavior):
         behavior(self) -> change_times, change_values
         | **Description**
         |   First calculates how many times the data changes ``=n``.
-        |   Then draws ``n+1``[#]_ many uniformly random values in [lower_value, upper_value) ``=change_values``.
+        |   Then draws ``n+1`` [#]_ many uniformly random values in [lower_value, upper_value) ``=change_values``.
         |   Finally calculates the equidistant change times based on ``n+1`` ``=change_times``
 
         :return: change_times, change_values
         :rtype: `NDArray[float] <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_, `NDArray[float] <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
         
-        .. [#] It is n+1 as the first behaviour change sets in at start_time
+        .. [#] It is n+1 as the first behaviour change sets in at start_time.
         """
         numberOfLoadChanges: int = int((self.stop_time-self.start_time) / self.change_interval)
         kp = np.random.uniform(self.lower_value, self.upper_value, numberOfLoadChanges + 1)
@@ -79,13 +79,13 @@ class RandomTimeUniformBehavior(DataBehavior):
         behavior(self) -> change_times, change_values
         | **Description**
         |   First calculates how many times the data changes ``=n``.
-        |   Then draws ``n+1``[#]_ many uniformly random values in [lower_value, upper_value) ``=change_values``.
+        |   Then draws ``n+1`` [#]_ many uniformly random values in [lower_value, upper_value) ``=change_values``.
         |   Finally draws the ``n+1`` random times in [start_time, stop_time) ``=change_times``
 
         :return: change_times, change_values
         :rtype: `NDArray[float] <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_, `NDArray[float] <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
         
-        .. [#] It is n+1 as the first behaviour change sets in at start_time
+        .. [#] It is n+1 as the first behaviour change sets in at start_time.
         """
         numberOfLoadChanges: int = int((self.stop_time-self.start_time) / self.change_interval)
         var = np.random.uniform(self.lower_value, self.upper_value, (numberOfLoadChanges + 1))
@@ -100,7 +100,7 @@ class RandomTimeBrownBehavior(DataBehavior):
     | **Description**
     |   Changes data behaviour in random intervals by a uniformly random value between lower_value and upper_value
 
-    :param change_interval: Indicator[#]_ of time steps between behaviour changes (default=5.0)
+    :param change_interval: Indicator [#]_ of time steps between behaviour changes (default=5.0)
     :type change_interval: float
     :param lower_value: Indicator of lower extent of data value changes, inclusive (default=-1.0)
     :type lower_value: float
