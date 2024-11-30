@@ -28,7 +28,7 @@ class StreamProcess(Process, TimeSubscriber):
     """
     StreamProcess(stop_time, time_behaviour, data_pools)
     | **Description**
-    |   StreamProcess is a simple stream based :doc:`Process <core/data_process/process>`.
+    |   StreamProcess is a simple stream based :doc:`Process </core/data_process/process>`.
 
     """
     stop_time: float = init(default=1000)

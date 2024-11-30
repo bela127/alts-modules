@@ -161,6 +161,7 @@ class LineDataSource(DataSource):
         | **Current Constrains**
         |   *Shape:* ``result_shape``
         |   *Value Range:*
+
         +-----+-------+--------+-----+--------+-------+
         | MIN | a < 0 | a >= 0 | MAX | a <= 0 | a > 0 |
         +=====+=======+========+=====+========+=======+
@@ -238,6 +239,7 @@ class SquareDataSource(DataSource):
         | **Current Constrains**
         |   *Shape:* ``result_shape``
         |   *Value Range:*
+
         +---+---------+------+-------------+-------------+-------------+
         |MIN|s < 0    |s >= 0|MAX          |s < 0        |s >= 0       |
         +===+=========+======+=============+=============+=============+
@@ -318,6 +320,7 @@ class PowDataSource(DataSource):
         | **Current Constrains**
         |   *Shape:* ``result_shape``
         |   *Value Range:*
+
         +------+-----+-----+-----+------+-----+-----+-----+
         |MIN   |p < 0|p = 0|p > 0|MAX   |p < 0|p = 0|p > 0|  
         +======+=====+=====+=====+======+=====+=====+=====+
@@ -394,6 +397,7 @@ class ExpDataSource(DataSource):
         | **Current Constrains**
         |   *Shape:* ``result_shape``
         |   *Value Range:* 
+
         +------+-----+-----+----------+-----+-----+------+-----+-----+----------+-----+-----+
         |MIN   |b < 0|b = 0|0 <= b < 1|b = 1|b > 1|MAX   |b < 0|b = 0|0 <= b < 1|b = 1|b > 1|
         +======+=====+=====+==========+=====+=====+======+=====+=====+==========+=====+=====+
@@ -417,7 +421,7 @@ class ExpDataSource(DataSource):
 class InterpolatingDataSource(DataSource):
     """
     | **Description**
-    |   An ``InterpolatingDataSource`` is an **ambivalent** source of data depending on the :doc:`DataSource <core/oracle/data_source>` it interpolates within. 
+    |   An ``InterpolatingDataSource`` is an **ambivalent** source of data depending on the :doc:`DataSource </core/oracle/data_source>` it interpolates within. 
 
     :param data_sampler: The data sample to interpolate within
     :type data_sampler: tuple of
@@ -523,6 +527,7 @@ class CrossDataSource(DataSource):
         | **Current Constrains**
         |   *Shape:* ``result_shape``
         |   *Value Range:*
+
         +-----+-----+-----+------+-----+------+-----+-----+
         |MIN  |a < 0|a = 0|a > 0 |MAX  |a < 0 |a = 0|a > 0|
         +=====+=====+=====+======+=====+======+=====+=====+
@@ -603,6 +608,7 @@ class DoubleLinearDataSource(DataSource):
         | **Current Constrains**
         |   *Shape:* ``result_shape``
         |   *Value Range:* 
+
         +------------+--------+--------+------------+--------+--------+
         |MIN         |a < 0   |a >= 0  |MAX         |a < 0   |a >= 0  |
         +============+========+========+============+========+========+
@@ -689,6 +695,7 @@ class HourglassDataSource(DataSource):
         | **Current Constrains**
         |   *Shape:* ``result_shape``
         |   *Value Range:*
+
         +---+-----+------+---+------+------+
         |MIN|a < 0|a >= 0|MAX|a < 0 |a >= 0|
         +===+=====+======+===+======+======+
@@ -769,6 +776,7 @@ class ZDataSource(DataSource):
             | **Current Constrains**
             |   *Shape:* ``result_shape``
             |   *Value Range:*
+
             +---+-----+------+---+------+------+
             |MIN|a < 0|a >= 0|MAX|a < 0 |a >= 0|
             +===+=====+======+===+======+======+
@@ -848,6 +856,7 @@ class ZInvDataSource(DataSource):
         | **Current Constrains**
         |   *Shape:* ``result_shape``
         |   *Value Range:*
+
         +---+-----+------+---+------+------+
         |MIN|a < 0|a >= 0|MAX|a < 0 |a >= 0|
         +===+=====+======+===+======+======+
@@ -912,6 +921,7 @@ class LinearPeriodicDataSource(DataSource):
         | **Current Constrains**
         |   *Shape:* ``result_shape``
         |   *Value Range:*
+
         +-----+-----+-----+-----+-----+-----+-----+-----+
         |MIN  |a < 0|a = 0|a > 0|MAX  |a < 0|a = 0|a > 0|
         +=====+=====+=====+=====+=====+=====+=====+=====+
@@ -981,7 +991,7 @@ class LinearStepDataSource(DataSource):
         | **Current Constrains**
         |   *Shape:* ``result_shape``
         |   *Value Range:*
-        #TODO REDO
+
         +-----+------------+-----+------------+-----+------------+-----+------------+
         |MIN  |a < 0       |a = 0|a > 0       |MAX  |a < 0       |a = 0|a > 0       |
         +=====+============+=====+============+=====+============+=====+============+
