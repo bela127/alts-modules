@@ -72,11 +72,11 @@ class RandomUniformDataSource(DataSource):
         | **Description**
         |   See :func:`DataSource.query_constrain()` 
 
-        | **Current Constraints**
+        | **Current Constrains**
         |   *Shape:* ``query_shape``
         |   *Value Range:* [0, 1)
 
-        :return: Constraints around queries
+        :return: Constrains around queries
         :rtype: QueryConstrain
         """
         x_min = 0
@@ -89,11 +89,11 @@ class RandomUniformDataSource(DataSource):
         | **Description**
         |   See :func:`DataSource.result_constrain()` 
 
-        | **Current Constraints**
+        | **Current Constrains**
         |   *Shape:* ``result_shape``
         |   *Value Range:* [l, u)
 
-        :return: Constraints around results
+        :return: Constrains around results
         :rtype: ResultConstrain
         """
         y_min = 0
@@ -141,11 +141,11 @@ class LineDataSource(DataSource):
         | **Description**
         |   See :func:`DataSource.query_constrain()` 
 
-        | **Current Constraints**
+        | **Current Constrains**
         |   *Shape:* ``query_shape``
         |   *Value Range:* [0, 1)
 
-        :return: Constraints around queries
+        :return: Constrains around queries
         :rtype: QueryConstrain
         """
         x_min = 0
@@ -158,7 +158,7 @@ class LineDataSource(DataSource):
         | **Description**
         |   See :func:`DataSource.result_constrain()` 
 
-        | **Current Constraints**
+        | **Current Constrains**
         |   *Shape:* ``result_shape``
         |   *Value Range:*
         +-----+-------+--------+-----+--------+-------+
@@ -167,7 +167,7 @@ class LineDataSource(DataSource):
         |     | a + b | b      |     | b      | a + b |
         +-----+-------+--------+-----+--------+-------+
 
-        :return: Constraints around results
+        :return: Constrains around results
         :rtype: ResultConstrain
         """
         y_min = self.a + self.b if self.a < 0 else self.b
@@ -218,11 +218,11 @@ class SquareDataSource(DataSource):
         | **Description**
         |   See :func:`DataSource.query_constrain()` 
 
-        | **Current Constraints**
+        | **Current Constrains**
         |   *Shape:* ``query_shape``
         |   *Value Range:* [0, 1)
 
-        :return: Constraints around queries
+        :return: Constrains around queries
         :rtype: QueryConstrain
         """
         x_min = 0
@@ -235,7 +235,7 @@ class SquareDataSource(DataSource):
         | **Description**
         |   See :func:`DataSource.result_constrain()` 
 
-        | **Current Constraints**
+        | **Current Constrains**
         |   *Shape:* ``result_shape``
         |   *Value Range:*
         +---+---------+------+-------------+-------------+-------------+
@@ -250,7 +250,7 @@ class SquareDataSource(DataSource):
         |   |         |      |1 <= x0      |s*(1-x0)^2+y0|s*x0^2+y0    |
         +---+---------+------+-------------+-------------+-------------+
 
-        :return: Constraints around results
+        :return: Constrains around results
         :rtype: ResultConstrain
         """
         y_min = self.s*self.x0**2+self.y0 if self.s<0 else self.y0
@@ -298,11 +298,11 @@ class PowDataSource(DataSource):
         | **Description**
         |   See :func:`DataSource.query_constrain()` 
 
-        | **Current Constraints**
+        | **Current Constrains**
         |   *Shape:* ``query_shape``
         |   *Value Range:* [0, 1)
 
-        :return: Constraints around queries
+        :return: Constrains around queries
         :rtype: QueryConstrain
         """
         x_min = 0
@@ -315,7 +315,7 @@ class PowDataSource(DataSource):
         | **Description**
         |   See :func:`DataSource.result_constrain()` 
 
-        | **Current Constraints**
+        | **Current Constrains**
         |   *Shape:* ``result_shape``
         |   *Value Range:*
         +------+-----+-----+-----+------+-----+-----+-----+
@@ -326,7 +326,7 @@ class PowDataSource(DataSource):
         |s >= 0|s    |s    |0    |s >= 0|inf  |s    |s    |  
         +------+-----+-----+-----+------+-----+-----+-----+
 
-        :return: Constraints around results
+        :return: Constrains around results
         :rtype: ResultConstrain
         """
         y_min = self.s if (self.s<0 and self.p>=0 or self.s>=0 and self.p<=0) else 0 if (self.p>0 and self.s>=0) else np.NINF
@@ -374,11 +374,11 @@ class ExpDataSource(DataSource):
         | **Description**
         |   See :func:`DataSource.query_constrain()` 
 
-        | **Current Constraints**
+        | **Current Constrains**
         |   *Shape:* ``query_shape``
         |   *Value Range:* [0, 1)
 
-        :return: Constraints around queries
+        :return: Constrains around queries
         :rtype: QueryConstrain
         """
         x_min = 0
@@ -391,7 +391,7 @@ class ExpDataSource(DataSource):
         | **Description**
         |   See :func:`DataSource.result_constrain()` 
 
-        | **Current Constraints**
+        | **Current Constrains**
         |   *Shape:* ``result_shape``
         |   *Value Range:* 
         +------+-----+-----+----------+-----+-----+------+-----+-----+----------+-----+-----+
@@ -404,7 +404,7 @@ class ExpDataSource(DataSource):
         |s >= 0|N/A  |0    |s * b     |s    |s    |s >= 0|N/A  |s    |s         |s    |s * b|
         +------+-----+-----+----------+-----+-----+------+-----+-----+----------+-----+-----+
 
-        :return: Constraints around results
+        :return: Constrains around results
         :rtype: ResultConstrain
         """
         y_min = self.s if (self.s<0 and self.b>=0 and self.b<1 or self.s>0 and self.b>=1) else self.s*self.b if (self.s==0 or self.s>=0 and self.b<1 or self.s<0 and self.b>=1) else -self.s*self.b
@@ -455,7 +455,7 @@ class InterpolatingDataSource(DataSource):
         | **Description**
         |   See :func:`DataSource.query_constrain()` 
 
-        :return: Constraints around queries
+        :return: Constrains around queries
         :rtype: QueryConstrain
         """
         return self.interpolation_strategy.query_constrain()
@@ -503,11 +503,11 @@ class CrossDataSource(DataSource):
         | **Description**
         |   See :func:`DataSource.query_constrain()` 
 
-        | **Current Constraints**
+        | **Current Constrains**
         |   *Shape:* ``query_shape``
         |   *Value Range:* [-0.5, 0.5)
 
-        :return: Constraints around queries
+        :return: Constrains around queries
         :rtype: QueryConstrain
         """
         x_min = -0.5
@@ -520,7 +520,7 @@ class CrossDataSource(DataSource):
         | **Description**
         |   See :func:`DataSource.result_constrain()` 
 
-        | **Current Constraints**
+        | **Current Constrains**
         |   *Shape:* ``result_shape``
         |   *Value Range:*
         +-----+-----+-----+------+-----+------+-----+-----+
@@ -529,7 +529,7 @@ class CrossDataSource(DataSource):
         |     |1/4*a|0    |-1/4*a|     |-1/4*a|0    |1/4*a|
         +-----+-----+-----+------+-----+------+-----+-----+
 
-        :return: Constraints around results
+        :return: Constrains around results
         :rtype: ResultConstrain
         """
         y_min = -self.a/4 if self.a>=0 else self.a/4
@@ -583,11 +583,11 @@ class DoubleLinearDataSource(DataSource):
         | **Description**
         |   See :func:`DataSource.query_constrain()` 
 
-        | **Current Constraints**
+        | **Current Constrains**
         |   *Shape:* ``query_shape``
         |   *Value Range:* [-0.5, 0.5)
 
-        :return: Constraints around queries
+        :return: Constrains around queries
         :rtype: QueryConstrain
         """
         x_min = -0.5
@@ -600,7 +600,7 @@ class DoubleLinearDataSource(DataSource):
         | **Description**
         |   See :func:`DataSource.result_constrain()` 
 
-        | **Current Constraints**
+        | **Current Constrains**
         |   *Shape:* ``result_shape``
         |   *Value Range:* 
         +------------+--------+--------+------------+--------+--------+
@@ -613,7 +613,7 @@ class DoubleLinearDataSource(DataSource):
         |1 <= s      |1/2*a*s |-1/2*a*s|1 <= s      |-1/2*a*s|1/2*a*s |
         +------------+--------+--------+------------+--------+--------+
 
-        :return: Constraints around results
+        :return: Constrains around results
         :rtype: ResultConstrain
         """
         y_min = self.s*self.a/2 if (self.a<0 and self.s>1 or self.a>=0 and self.s<-1) else -self.a*self.s/2 if (self.a>=0 and self.s>1 or self.a<0 and self.s<-1) else self.a/2 if (self.a<0 and self.s>=-1 and self.s<=1) else -self.a/2
@@ -669,11 +669,11 @@ class HourglassDataSource(DataSource):
         | **Description**
         |   See :func:`DataSource.query_constrain()` 
 
-        | **Current Constraints**
+        | **Current Constrains**
         |   *Shape:* ``query_shape``
         |   *Value Range:* [0, 1)
 
-        :return: Constraints around queries
+        :return: Constrains around queries
         :rtype: QueryConstrain
         """
         x_min = -0.5
@@ -686,7 +686,7 @@ class HourglassDataSource(DataSource):
         | **Description**
         |   See :func:`DataSource.result_constrain()` 
 
-        | **Current Constraints**
+        | **Current Constrains**
         |   *Shape:* ``result_shape``
         |   *Value Range:*
         +---+-----+------+---+------+------+
@@ -695,7 +695,7 @@ class HourglassDataSource(DataSource):
         |   |1/2*a|-1/2*a|   |-1/2*a|1/2*a |
         +---+-----+------+---+------+------+
 
-        :return: Constraints around results
+        :return: Constrains around results
         :rtype: ResultConstrain
         """
         y_min = self.a/2 if self.a<0 else -self.a/2
@@ -749,11 +749,11 @@ class ZDataSource(DataSource):
         | **Description**
         |   See :func:`DataSource.query_constrain()` 
 
-        | **Current Constraints**
+        | **Current Constrains**
         |   *Shape:* ``query_shape``
         |   *Value Range:* [0, 1)
 
-        :return: Constraints around queries
+        :return: Constrains around queries
         :rtype: QueryConstrain
         """
         x_min = -0.5
@@ -766,7 +766,7 @@ class ZDataSource(DataSource):
             | **Description**
             |   See :func:`DataSource.result_constrain()` 
 
-            | **Current Constraints**
+            | **Current Constrains**
             |   *Shape:* ``result_shape``
             |   *Value Range:*
             +---+-----+------+---+------+------+
@@ -775,7 +775,7 @@ class ZDataSource(DataSource):
             |   |1/2*a|-1/2*a|   |-1/2*a|1/2*a |
             +---+-----+------+---+------+------+
 
-            :return: Constraints around results
+            :return: Constrains around results
             :rtype: ResultConstrain
             """
             y_min = self.a/2 if self.a<0 else -self.a/2
@@ -828,11 +828,11 @@ class ZInvDataSource(DataSource):
         | **Description**
         |   See :func:`DataSource.query_constrain()` 
 
-        | **Current Constraints**
+        | **Current Constrains**
         |   *Shape:* ``query_shape``
         |   *Value Range:* [0, 1)
 
-        :return: Constraints around queries
+        :return: Constrains around queries
         :rtype: QueryConstrain
         """
         x_min = -0.5
@@ -845,7 +845,7 @@ class ZInvDataSource(DataSource):
         | **Description**
         |   See :func:`DataSource.result_constrain()` 
 
-        | **Current Constraints**
+        | **Current Constrains**
         |   *Shape:* ``result_shape``
         |   *Value Range:*
         +---+-----+------+---+------+------+
@@ -854,7 +854,7 @@ class ZInvDataSource(DataSource):
         |   |1/2*a|-1/2*a|   |-1/2*a|1/2*a |
         +---+-----+------+---+------+------+
 
-        :return: Constraints around results
+        :return: Constrains around results
         :rtype: ResultConstrain
         """
         y_min = self.a/2 if self.a<0 else -self.a/2
@@ -909,7 +909,7 @@ class LinearPeriodicDataSource(DataSource):
         | **Description**
         |   See :func:`DataSource.result_constrain()` 
 
-        | **Current Constraints**
+        | **Current Constrains**
         |   *Shape:* ``result_shape``
         |   *Value Range:*
         +-----+-----+-----+-----+-----+-----+-----+-----+
@@ -922,7 +922,7 @@ class LinearPeriodicDataSource(DataSource):
         |p > 0|0    |0    |0    |p > 0|p    |0    |p    |
         +-----+-----+-----+-----+-----+-----+-----+-----+
 
-        :return: Constraints around results
+        :return: Constrains around results
         :rtype: ResultConstrain
         """
         y_min = 0 if self.p>0 or self.p<0 and self.a==0 else self.p if self.p<0 and self.a!=0 else np.nan
@@ -978,7 +978,7 @@ class LinearStepDataSource(DataSource):
         | **Description**
         |   See :func:`DataSource.result_constrain()` 
 
-        | **Current Constraints**
+        | **Current Constrains**
         |   *Shape:* ``result_shape``
         |   *Value Range:*
         #TODO REDO
@@ -992,7 +992,7 @@ class LinearStepDataSource(DataSource):
         |p > 0|a*floor(1/p)|0    |0           |p > 0|0           |0    |a*floor(1/p)|
         +-----+------------+-----+------------+-----+------------+-----+------------+
 
-        :return: Constraints around results
+        :return: Constrains around results
         :rtype: ResultConstrain
         """
         y_min = 0 if self.p>0 and self.a<=0 or self.p<0 and self.a>=0 else self.a*floor(1/self.p) if self.p<0 and self.a>0 or self.p>0 and self.a<0 else np.nan
