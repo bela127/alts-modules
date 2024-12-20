@@ -40,7 +40,7 @@ class StreamProcess(Process, TimeSubscriber):
         """
         post_init(self) -> None
         | **Description**
-        |   Initializes its :doc:`TimeDataSource </core/oracle/data_source>` and :doc:`StreamDataPools </core/data/data_pools>`. 
+        |   Initializes its :doc:`TimeDataSource </core/data_process/time_source>` and :doc:`StreamDataPools </core/data/data_pools>`. 
         """
         if self.time_behavior is NOTSET:
             self.time_behavior = TimeBehaviorDataSource(behavior=RandomTimeUniformBehavior(stop_time=self.stop_time))
