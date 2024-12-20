@@ -10,6 +10,8 @@ from dataclasses import dataclass
 from alts.core.stopping_criteria import StoppingCriteria
 from alts.core.configuration import init
 
+from alts.modules.data_process.process import DataSourceProcess
+
 if TYPE_CHECKING:
     from typing import Tuple, List
 
@@ -49,6 +51,19 @@ class DataExhaustedStoppingCriteria(StoppingCriteria):
     :param exp: The experiment to monitor
     :type exp: Experiment
     """
+
+    def post_init(self):
+        """
+        post_init(self) -> None
+        | **Description**
+        |   Checks for compatability between this StoppingCriteria and the configured Process in the experiment.
+
+        :raises TypeError: If the experiment's process is not a DataSourceProcess
+        """
+        super().post_init()
+        if not isinstance(self.exp.process, DataSourceProcess):
+            raise TypeError(f"DataExhaustedStoppingCriteria requires DataSourceProcess")
+
     @property
     def next(self) -> bool:
         """
@@ -59,4 +74,4 @@ class DataExhaustedStoppingCriteria(StoppingCriteria):
         :return: True if the experiment's DataSource has been exhausted (else False)
         :rtype: bool
         """
-        return False #TODO
+        return self.exp.process.data_source.exhausted # type: ignore
