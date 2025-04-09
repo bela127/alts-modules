@@ -35,6 +35,7 @@ if TYPE_CHECKING:
 @dataclass
 class RandomUniformDataSource(DataSource):
     """
+    RandomUniformDataSource(query_shape, result_shape, u, l)
     | **Description**
     |   A ``RandomUniformDataSource`` is a **random** source of data.
     |   For more details see `numpy.random.uniorm <https://numpy.org/doc/stable/reference/random/generated/numpy.random.uniform.html>`_.
@@ -43,10 +44,10 @@ class RandomUniformDataSource(DataSource):
     :type query_shape: tuple of ints
     :param result_shape: The expected shape of the results
     :type result_shape: tuple of ints
-    :param u: The upper bound of query values (exclusive), defaults to 1
-    :type u: float (optional)
-    :param l: The lower bound of query values (inclusive), defaults to 0
-    :type l: float (optional)
+    :param u: The upper bound of query values (exclusive) (default= 1)
+    :type u: float
+    :param l: The lower bound of query values (inclusive), (default= 0)
+    :type l: float
     """
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
@@ -55,20 +56,21 @@ class RandomUniformDataSource(DataSource):
 
     def query(self, queries):
         """
+        query(self, queries) -> queries, results
         | **Description**
-        |   See :func:`alts.core.oracle.data_source.DataSource.query()`
+        |   Each query receives a uniformly random result in [l, u).
 
         :param queries: Requested Query
         :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
         :return: Processed Query, Result 
         :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
         """
-         #TODO Ambition interactive view of graphs
         results = np.random.uniform(low=self.l, high=self.u, size=(queries.shape[0], * self.result_shape))
         return queries, results
 
     def query_constrain(self) -> QueryConstrain:
         """
+        query_constrain(self) -> QueryConstrain
         | **Description**
         |   See :func:`DataSource.query_constrain()` 
 
@@ -86,6 +88,7 @@ class RandomUniformDataSource(DataSource):
     
     def result_constrain(self) -> ResultConstrain:
         """
+        result_constrain(self) -> ResultConstrain
         | **Description**
         |   See :func:`DataSource.result_constrain()` 
 
@@ -138,6 +141,7 @@ class LineDataSource(DataSource):
 
     def query_constrain(self) -> QueryConstrain:
         """
+        query_constrain(self) -> QueryConstrain
         | **Description**
         |   See :func:`DataSource.query_constrain()` 
 
@@ -216,6 +220,7 @@ class SquareDataSource(DataSource):
 
     def query_constrain(self) -> QueryConstrain:
         """
+        query_constrain(self) -> QueryConstrain
         | **Description**
         |   See :func:`DataSource.query_constrain()` 
 
@@ -297,6 +302,7 @@ class PowDataSource(DataSource):
 
     def query_constrain(self) -> QueryConstrain:
         """
+        query_constrain(self) -> QueryConstrain
         | **Description**
         |   See :func:`DataSource.query_constrain()` 
 
@@ -374,6 +380,7 @@ class ExpDataSource(DataSource):
 
     def query_constrain(self) -> QueryConstrain:
         """
+        query_constrain(self) -> QueryConstrain
         | **Description**
         |   See :func:`DataSource.query_constrain()` 
 
@@ -433,8 +440,9 @@ class InterpolatingDataSource(DataSource):
 
     def post_init(self):
         """
+        post_init(self) -> None
         | **Description**
-        |   Post-initialisation of the instance
+        |   Initializes its DataSampler and InterpolationStrategy.
         """
         super().post_init()
         self.data_sampler = self.data_sampler()
@@ -456,6 +464,7 @@ class InterpolatingDataSource(DataSource):
     
     def query_constrain(self) -> QueryConstrain:
         """
+        query_constrain(self) -> QueryConstrain
         | **Description**
         |   See :func:`DataSource.query_constrain()` 
 
@@ -504,6 +513,7 @@ class CrossDataSource(DataSource):
 
     def query_constrain(self) -> QueryConstrain:
         """
+        query_constrain(self) -> QueryConstrain
         | **Description**
         |   See :func:`DataSource.query_constrain()` 
 
@@ -585,6 +595,7 @@ class DoubleLinearDataSource(DataSource):
 
     def query_constrain(self) -> QueryConstrain:
         """
+        query_constrain(self) -> QueryConstrain
         | **Description**
         |   See :func:`DataSource.query_constrain()` 
 
@@ -672,6 +683,7 @@ class HourglassDataSource(DataSource):
 
     def query_constrain(self) -> QueryConstrain:
         """
+        query_constrain(self) -> QueryConstrain
         | **Description**
         |   See :func:`DataSource.query_constrain()` 
 
@@ -753,6 +765,7 @@ class ZDataSource(DataSource):
 
     def query_constrain(self) -> QueryConstrain:
         """
+        query_constrain(self) -> QueryConstrain
         | **Description**
         |   See :func:`DataSource.query_constrain()` 
 
@@ -833,6 +846,7 @@ class ZInvDataSource(DataSource):
 
     def query_constrain(self) -> QueryConstrain:
         """
+        query_constrain(self) -> QueryConstrain
         | **Description**
         |   See :func:`DataSource.query_constrain()` 
 
@@ -908,6 +922,18 @@ class LinearPeriodicDataSource(DataSource):
         return queries, results
 
     def query_constrain(self) -> QueryConstrain:
+        """
+        query_constrain(self) -> QueryConstrain
+        | **Description**
+        |   See :func:`DataSource.query_constrain()` 
+
+        | **Current Constrains**
+        |   *Shape:* ``query_shape``
+        |   *Value Range:* [0, 1)
+
+        :return: Constrains around queries
+        :rtype: QueryConstrain
+        """
         x_min = 0
         x_max = 1
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
@@ -978,6 +1004,18 @@ class LinearStepDataSource(DataSource):
         return queries, results
 
     def query_constrain(self) -> QueryConstrain:
+        """
+        query_constrain(self) -> QueryConstrain
+        | **Description**
+        |   See :func:`DataSource.query_constrain()` 
+
+        | **Current Constrains**
+        |   *Shape:* ``query_shape``
+        |   *Value Range:* [0, 1)
+
+        :return: Constrains around queries
+        :rtype: QueryConstrain
+        """
         x_min = 0
         x_max = 1
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
@@ -1037,6 +1075,18 @@ class SineDataSource(DataSource):
         return queries, results
 
     def query_constrain(self) -> QueryConstrain:
+        """
+        query_constrain(self) -> QueryConstrain
+        | **Description**
+        |   See :func:`DataSource.query_constrain()` 
+
+        | **Current Constrains**
+        |   *Shape:* ``query_shape``
+        |   *Value Range:* [0, 1)
+
+        :return: Constrains around queries
+        :rtype: QueryConstrain
+        """
         x_min = 0
         x_max = 1
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
@@ -1075,6 +1125,18 @@ class HypercubeDataSource(DataSource):
 
 
     def query_constrain(self) -> QueryConstrain:
+        """
+        query_constrain(self) -> QueryConstrain
+        | **Description**
+        |   See :func:`DataSource.query_constrain()` 
+
+        | **Current Constrains**
+        |   *Shape:* ``query_shape``
+        |   *Value Range:* [-0.5, 0.5)
+
+        :return: Constrains around queries
+        :rtype: QueryConstrain
+        """
         x_min = -0.5
         x_max = 0.5
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
@@ -1119,6 +1181,18 @@ class StarDataSource(DataSource):
         return queries, results
 
     def query_constrain(self) -> QueryConstrain:
+        """
+        query_constrain(self) -> QueryConstrain
+        | **Description**
+        |   See :func:`DataSource.query_constrain()` 
+
+        | **Current Constrains**
+        |   *Shape:* ``query_shape``
+        |   *Value Range:* [-0.5, 0.5)
+
+        :return: Constrains around queries
+        :rtype: QueryConstrain
+        """
         x_min = -0.5
         x_max = 0.5
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
@@ -1152,6 +1226,18 @@ class HyperSphereDataSource(DataSource):
 
 
     def query_constrain(self) -> QueryConstrain:
+        """
+        query_constrain(self) -> QueryConstrain
+        | **Description**
+        |   See :func:`DataSource.query_constrain()` 
+
+        | **Current Constrains**
+        |   *Shape:* ``query_shape``
+        |   *Value Range:* [-1, 1)
+
+        :return: Constrains around queries
+        :rtype: QueryConstrain
+        """
         x_min = -1
         x_max = 1
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
@@ -1172,6 +1258,12 @@ class IndependentDataSource(DataSource):
     coefficients: NDArray[Shape['D'], Number] = pre_init(default=None) # type: ignore
 
     def post_init(self):
+        """
+        post_init(self) -> None
+        | **Description**
+        |   Initializes its Singleton.
+        |   See :func:`init_singleton` for more.
+        """
         super().post_init()
         self.init_singleton()
 
@@ -1215,12 +1307,32 @@ class IndependentDataSource(DataSource):
         return queries, results
 
     def query_constrain(self) -> QueryConstrain:
+        """
+        query_constrain(self) -> QueryConstrain
+        | **Description**
+        |   See :func:`DataSource.query_constrain()` 
+
+        | **Current Constrains**
+        |   *Shape:* ``query_shape``
+        |   *Value Range:* [0, 1)
+
+        :return: Constrains around queries
+        :rtype: QueryConstrain
+        """
         x_min = 0
         x_max = 1
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
     
     def __call__(self, **kwargs) -> Self:
+        """
+        __call__(self, **kwargs) -> IndependentDataSource
+        | **Description**
+        |   Returns a configured copy of itself.
+
+        :return: A configured copy of itself
+        :rtype: IndependentDataSource
+        """
         obj = super().__call__( **kwargs)
         obj.distributions = self.distributions
         obj.coefficients = self.coefficients
@@ -1242,6 +1354,13 @@ class GaussianProcessDataSource(DataSource):
     regression: GPy.models.GPRegression = pre_init(default=None)
 
     def post_init(self):
+        """
+        post_init(self) -> None
+        | **Description**
+        |   Assigns a RBF Kernel to itself if it has not been assigned one already.
+        |   Initializes its Singleton.
+        |   See :func:`init_singleton` for more.
+        """
         if self.kern is None:
             self.kern = GPy.kern.RBF(input_dim=np.prod(self.query_shape), lengthscale=0.1)
         super().post_init()
@@ -1289,6 +1408,14 @@ class GaussianProcessDataSource(DataSource):
 
 
     def __call__(self, **kwargs) -> Self:
+        """
+        __call__(self, **kwargs) -> GaussianProcessDataSource
+        | **Description**
+        |   Returns a configured copy of itself.
+
+        :return: A configured copy of itself
+        :rtype: GaussianProcessDataSource
+        """
         obj: GaussianProcessDataSource = super().__call__( **kwargs)
         obj.regression = self.regression
         return obj # type: ignore
