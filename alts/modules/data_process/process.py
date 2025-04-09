@@ -26,10 +26,22 @@ if TYPE_CHECKING:
 @dataclass
 class StreamProcess(Process, TimeSubscriber):
     """
-    StreamProcess(stop_time, time_behaviour, data_pools)
+    StreamProcess(time_source, data_pools, oracles, stop_time, time_behaviour, data_pools)
     | **Description**
-    |   StreamProcess is a simple stream based :doc:`Process </core/data_process/process>`.
+    |   StreamProcess is a simple stream process.
 
+    :param time_source: Source of time
+    :type time_source: :doc:`TimeSource </core/data_process/process>`
+    :param data_pools: A data structure which saves all processed queries and results
+    :type data_pools: :doc:`DataPools </core/data/data_pools>`
+    :param oracles: The interaction point between the Process and the data source.
+    :type oracles: :doc:`Oracles </core/oracle/oracles>`
+    :param stop_time: The stopping time of the experiment
+    :type stop_time: float
+    :param time_behaviour: A DataSource with time-dependent data
+    :type time_behaviour: TimeDataSource
+    :param data_pools: The DataPools to collect all queries and results
+    :type data_pools: StreamDataPools
     """
     stop_time: float = init(default=1000)
     time_behavior: TimeDataSource = init()
@@ -41,6 +53,8 @@ class StreamProcess(Process, TimeSubscriber):
         post_init(self) -> None
         | **Description**
         |   Initializes its :doc:`TimeDataSource </core/data_process/time_source>` and :doc:`StreamDataPools </core/data/data_pools>`. 
+        
+        :raises TypError: If the DataPools is not a StreamDataPools
         """
         if self.time_behavior is NOTSET:
             self.time_behavior = TimeBehaviorDataSource(behavior=RandomTimeUniformBehavior(stop_time=self.stop_time))
