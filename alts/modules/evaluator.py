@@ -23,22 +23,64 @@ if TYPE_CHECKING:
 
 
 class PrintNewDataPointsEvaluator(Evaluator):
+    """
+    PrintNewDataPointsEvaluator(experiment)
+    | **Description**
+    |   This evaluator keeps track of the experiment's results.
 
+    :param experiment: The experiment to be evaluated
+    :type experiment: Experiment
+    """
     def register(self, experiment: Experiment):
+        """
+        register(self, experiment) -> None
+        | **Description**
+        |   Modifies the experiment to print new data points before adding them to the experiment's result data pool.
+        |   Requires the experiment's data pool to be a ResultDataPool.
+
+        :param experiment: The experiment to be evaluated
+        :type experiment: Experiment
+        :raises: TypeError if self.experiment.data_pools is not a ResultDataPools
+        """
         super().register(experiment)
 
         if isinstance(self.experiment.data_pools, ResultDataPools):
             self.experiment.data_pools.result.add = Evaluate(self.experiment.data_pools.result.add)
-            self.experiment.data_pools.result.add.pre(self.print_new_data_points)
+            self.experiment.data_pools.result.add.pre(self._print_new_data_points)
         else:
             raise TypeError(f"PrintNewDataPointsEvaluator requires ResultDataPools")
 
-    def print_new_data_points(self, data_points):
+    def _print_new_data_points(self, data_points):
+        """
+        _print_new_data_points(self, data_points) -> None
+        | **Description**
+        |   Prints the given data points.
+
+        :param data_points: The data points to be printed
+        :type data_points: Tuple[NDArray[Shape["query_nr, ... query_dim"], Number], NDArray[Shape["query_nr, ... result_dim"], Number]]
+        """
         print(data_points)
 
 class PrintQueryEvaluator(Evaluator):
+    """
+    PrintQueryEvaluator(experiment)
+    | **Description**
+    |   This evaluator keeps track of the experiment's queries.
 
+    :param experiment: The experiment to be evaluated
+    :type experiment: Experiment
+    """
     def register(self, experiment: Experiment):
+        """
+        register(self, experiment) -> None
+        | **Description**
+        |   Modifies the experiment to print new queries before adding them to the experiment's query queue.
+        |   Requires the experiment's oracle to be a POracles.
+
+        :param experiment: The experiment to be evaluated
+        :type experiment: Experiment
+        :raises: TypeError if self.experiment.oracles is not a POracles
+        """
         super().register(experiment)
 
         if isinstance(self.experiment.oracles, POracles):
@@ -47,11 +89,34 @@ class PrintQueryEvaluator(Evaluator):
         else:
             raise TypeError(f"PrintQueryEvaluator requires POracles")
 
-    def print_query(self, query):
-        print("Queried: \n",query)
-class PrintExpTimeEvaluator(Evaluator):
+    def print_query(self, queries):
+        """
+        print_query(self, queries) -> None
+        | **Description**
+        |   Prints the given queries.
 
+        :param queries: New queries going to the query queue
+        :type queries: Tuple[NDArray[Shape["query_nr, ... query_dim"], Number]
+        """
+        print("Queried: \n",queries)
+class PrintExpTimeEvaluator(Evaluator):
+    """
+    PrintExpTimeEvaluator(experiment)
+    | **Description**
+    |   This evaluator measures how long the experiment takes to run.
+
+    :param experiment: The experiment to be evaluated
+    :type experiment: Experiment
+    """
     def register(self, experiment: Experiment):
+        """
+        register(self, experiment) -> None
+        | **Description**
+        |   Modifies the experiment to print how long it took to run.
+
+        :param experiment: The experiment to be evaluated
+        :type experiment: Experiment
+        """
         super().register(experiment)
 
         self.experiment.run = Evaluate(self.experiment.run)
@@ -59,35 +124,86 @@ class PrintExpTimeEvaluator(Evaluator):
         self.experiment.run.post(self.end_time)
 
     def start_time(self):
+        """
+        start_time(self) -> None
+        | **Description**
+        |   Prints an anouncement of time measurement. Saves the current time as the start time.
+        """
         print(f"Start timing for {self.experiment.exp_name} {self.experiment.exp_nr}")
         self.start = time.time()
     
-    def end_time(self, exp_nr):
+    def end_time(self):
+        """
+        end_time(self) -> None
+        | **Description**
+        |   Substracts the start time from the current time and prints the resulting time.
+        """
         end = time.time()
         print(f"Time for {self.experiment.exp_name} {self.experiment.exp_nr}: ",end - self.start)
 
 class PrintTimeSourceEvaluator(Evaluator):
+    """
+    PrintTimeSourceEvaluator(experiment)
+    | **Description**
+    |   This Evaluator keeps track of the experiment's internal time.
 
+    :param experiment: The experiment to be evaluated
+    :type experiment: Experiment
+    """
     def register(self, experiment: Experiment):
+        """
+        register(self, experiment) -> None
+        | **Description**
+        |   Modifies the experiment's time source to print the current internal time at each time step.
+
+        :param experiment: The experiment to be evaluated
+        :type experiment: Experiment
+        """
         super().register(experiment)
 
         self.experiment.time_source.step = Evaluate(self.experiment.time_source.step)
         self.experiment.time_source.step.post(self.end_time)
     
     def end_time(self, time):
+        """
+        end_time(self, time) -> None
+        | **Description**
+        |   Prints the given time.
+
+        :param time: The experiment's current internal time
+        :type time: int
+        """
         print("Sim Unit Time: ", time)
 
 
 @dataclass
 class PlotNewDataPointsEvaluator(LogingEvaluator):
+    """
+    PlotNewDataPointsEvaluator(experiment)
+    | **Description**
+    |   This evaluator plots all of the experiment's new data points continuously as they arrive.
+
+    :param experiment: The experiment to be evaluated
+    :type experiment: Experiment
+    """
     interactive: bool = False
     folder: str = "fig"
     fig_name:str = "Data"
 
-    queries: NDArray[Shape["query_nr, ... query_dim"], Number] = pre_init(None)
-    results: NDArray[Shape["query_nr, ... result_dim"], Number] = pre_init(None)
+    queries: NDArray[Shape["query_nr, ... query_dim"], Number] = pre_init(None) # type: ignore
+    results: NDArray[Shape["query_nr, ... result_dim"], Number] = pre_init(None) # type: ignore
 
     def register(self, experiment: Experiment):
+        """
+        register(self, experiment) -> None
+        | **Description**
+        |   Modifies the experiment to plot new data points before adding them to the experiment's result data pool.
+        |   Requires the experiment's data pool to be a ResultDataPool.
+
+        :param experiment: The experiment to be evaluated
+        :type experiment: Experiment
+        :raises: TypeError if self.experiment.data_pools is not a ResultDataPools
+        """
         super().register(experiment)
 
         os.makedirs(self.path, exist_ok=True)
@@ -98,10 +214,18 @@ class PlotNewDataPointsEvaluator(LogingEvaluator):
         else:
             raise TypeError(f"PlotNewDataPointsEvaluator requires ResultDataPools")
 
-        self.queries: NDArray[Shape["query_nr, ... query_dim"], Number] = None
-        self.results: NDArray[Shape["query_nr, ... result_dim"], Number] = None
+        self.queries: NDArray[Shape["query_nr, ... query_dim"], Number] = None # type: ignore
+        self.results: NDArray[Shape["query_nr, ... result_dim"], Number] = None # type: ignore
 
     def plot_new_data_points(self, data_points):
+        """
+        plot_new_data_points(self, data_points) -> None
+        | **Description**
+        |   Adds the given data points to the saved ones and updates the plot.
+
+        :param data_points: New data points to be plotted
+        :type data_points: Tuple[NDArray[Shape["query_nr, ... query_dim"], Number], NDArray[Shape["query_nr, ... result_dim"], Number]]
+        """
         self.experiment.iteration
         queries, results = data_points
 
@@ -122,6 +246,14 @@ class PlotNewDataPointsEvaluator(LogingEvaluator):
 
 @dataclass
 class PlotAllDataPointsEvaluator(LogingEvaluator):
+    """
+    PlotALlDataPointsEvaluator(experiment)
+    | **Description**
+    |   This evaluator plots all of the experiment's data points after the experiment has concluded.
+
+    :param experiment: The experiment to be evaluated
+    :type experiment: Experiment
+    """
     interactive: bool = False
     folder: str = "fig"
     fig_name:str = "AllData"
@@ -129,6 +261,16 @@ class PlotAllDataPointsEvaluator(LogingEvaluator):
     data_pools: ResultDataPools = post_init()
 
     def register(self, experiment: Experiment):
+        """
+        register(self, experiment) -> None
+        | **Description**
+        |   Modifies the experiment to plot all data points after running the experiment.
+        |   Requires the experiment's data pool to be a ResultDataPool.
+
+        :param experiment: The experiment to be evaluated
+        :type experiment: Experiment
+        :raises: TypeError if self.experiment.data_pools is not a ResultDataPools
+        """
         super().register(experiment)
 
         os.makedirs(self.path, exist_ok=True)
@@ -141,7 +283,12 @@ class PlotAllDataPointsEvaluator(LogingEvaluator):
         self.experiment.run = Evaluate(self.experiment.run)
         self.experiment.run.post(self.log_data)
     
-    def log_data(self, exp_nr):
+    def log_data(self):
+        """
+        log_data(self) -> None
+        | **Description**
+        |   Plots all of the experiment's data points.
+        """
         queries = self.data_pools.result.queries
         results = self.data_pools.result.results
 
@@ -154,13 +301,31 @@ class PlotAllDataPointsEvaluator(LogingEvaluator):
             plot.clf()
 @dataclass
 class PlotQueryDistEvaluator(LogingEvaluator):
+    """
+    PlotQueryDistEvaluator(experiment)
+    | **Description**
+    |   This evaluator plots all of the experiment's new queries continuously as they are made as a histogram.
+
+    :param experiment: The experiment to be evaluated
+    :type experiment: Experiment
+    """
     interactive: bool = False
     folder: str = "fig"
     fig_name:str = "Query distribution"
 
-    queries: NDArray[Shape["query_nr, ... query_dim"], Number] = field(init = False, default = None)
+    queries: NDArray[Shape["query_nr, ... query_dim"], Number] = field(init = False, default = None) # type: ignore
 
     def register(self, experiment: Experiment):
+        """
+        register(self, experiment) -> None
+        | **Description**
+        |   Modifies the experiment to plot the new queries as new frames of the histogram.
+        |   Requires the experiment's oracles to be a POracles.
+
+        :param experiment: The experiment to be evaluated
+        :type experiment: Experiment
+        :raises: TypeError if self.experiment.oracles is not a POracles
+        """
         super().register(experiment)
 
         if isinstance(self.experiment.oracles, POracles):
@@ -169,14 +334,21 @@ class PlotQueryDistEvaluator(LogingEvaluator):
         else:
             raise TypeError(f"PlotQueryDistEvaluator requires POracles")
 
-        self.queries: NDArray[Shape["query_nr, ... query_dim"], Number] = None
+        self.queries: NDArray[Shape["query_nr, ... query_dim"], Number] = None # type: ignore
 
-    def plot_query_dist(self, query_candidate):
+    def plot_query_dist(self, queries):
+        """
+        plot_query_dist(self, queries) -> None
+        | **Description**
+        |   Plots the given queries on a new frame of the histogram.
 
+        :param queries: New queries going to the query queue
+        :type queries: Tuple[NDArray[Shape["query_nr, ... query_dim"], Number]
+        """
         if self.queries is None:
-            self.queries = query_candidate
+            self.queries = queries
         else:
-            self.queries = np.concatenate((self.queries, query_candidate))
+            self.queries = np.concatenate((self.queries, queries))
 
         fig = plot.figure(self.fig_name)
         plot.hist(self.queries)
@@ -187,18 +359,41 @@ class PlotQueryDistEvaluator(LogingEvaluator):
             plot.clf()
 
 class PlotSampledQueriesEvaluator(LogingEvaluator):
+    """
+    PlotSampledQueriesEvaluator(experiment)
+    | **Description**
+    |   This evaluator plots the experiment's selected queries.
+
+    :param experiment: The experiment to be evaluated
+    :type experiment: Experiment
+    """
     interactive: bool = True
     folder: str = "fig"
     fig_name:str = "Sampled queries"
 
     def register(self, experiment: Experiment):
+        """
+        register(self, experiment) -> None
+        | **Description**
+        |   Modifies the experiment to plot the queries passing its selection criteria.
+
+        :param experiment: The experiment to be evaluated
+        :type experiment: Experiments
+        """
         super().register(experiment)
 
         self.experiment.experiment_modules.query_selector.query_optimizer.selection_criteria.query = Evaluate(self.experiment.experiment_modules.query_selector.query_optimizer.selection_criteria.query)
         self.experiment.experiment_modules.query_selector.query_optimizer.selection_criteria.query.pre(self.plot_queries)
 
     def plot_queries(self, queries):
+        """
+        plot_queries(self, queries) -> None
+        | **Description**
+        |   Plots the given queries.
 
+        :param queries: New queries going to the query queue
+        :type queries: Tuple[NDArray[Shape["query_nr, ... query_dim"], Number]
+        """
         fig = plot.figure(self.fig_name)
         plot.scatter(queries, [0 for i in range(queries.shape[0])])
         plot.title(self.fig_name)
@@ -210,10 +405,28 @@ class PlotSampledQueriesEvaluator(LogingEvaluator):
 
 @dataclass
 class LogOracleEvaluator(LogingEvaluator):
+    """
+    LogOracleEvaluator(experiment)
+    | **Description**
+    |   This evaluator logs all queries processed by the oracle.
+
+    :param experiment: The experiment to be evaluated
+    :type experiment: Experiment
+    """
     folder: str = "log"
     file_name:str = "oracle_data"
 
     def register(self, experiment: Experiment):
+        """
+        register(self, experiment) -> None
+        | **Description**
+        |   Modifies the experiment to log all queries added to the oracle process.
+        |   Requires the experiment's oracles to be a POracles.
+
+        :param experiment: The experiment to be evaluated
+        :type experiment: Experiments
+        :raises: TypeError if self.experiment.oracles is not a POracles
+        """
         super().register(experiment)
 
         if isinstance(self.experiment.oracles, POracles):
@@ -228,21 +441,52 @@ class LogOracleEvaluator(LogingEvaluator):
         self.queries = None
 
     def save_query(self, queries):
+        """
+        save_query(self, queries) -> None
+        | **Description**
+        |   Saves the given query with the previously saved queries.
+
+        :param queries: New queries going to the oracle process
+        :type queries: Tuple[NDArray[Shape["query_nr, ... query_dim"], Number]
+        """
         if self.queries is None:
             self.queries = queries
         else:
             self.queries = np.concatenate((self.queries, queries))
     
-    def log_data(self, exp_nr):
-
-        np.save(f'{self.path}/{self.file_name}.npy', self.queries)
+    def log_data(self):
+        """
+        log_data(self) -> None
+        | **Description**
+        |   Logs all saved queries to an ```.npy``` file.
+        """
+        if not self.queries is None:
+            np.save(f'{self.path}/{self.file_name}.npy', self.queries) 
 
 @dataclass
 class LogStreamEvaluator(LogingEvaluator):
+    """
+    LogStreamEvaluator(experiment)
+    | **Description**
+    |   This evaluator logs all data points added to the experiment's data pools stream.
+
+    :param experiment: The experiment to be evaluated
+    :type experiment: Experiment
+    """
     folder: str = "log"
     file_name:str = "stream"
 
     def register(self, experiment: Experiment):
+        """
+        register(self, experiment) -> None
+        | **Description**
+        |   Modifies the experiment to log all data points added to the data pools stream.
+        |   Requires the experiment's data pools to be a StreamDataPools.
+
+        :param experiment: The experiment to be evaluated
+        :type experiment: Experiments
+        :raises: TypeError if self.experiment.data_pools is not a StreamDataPools
+        """
         super().register(experiment)
 
         if isinstance(self.experiment.data_pools, StreamDataPools):
@@ -257,6 +501,14 @@ class LogStreamEvaluator(LogingEvaluator):
         self.stream = None
 
     def save_stream(self, data):
+        """
+        save_stream(self, data) -> None
+        | **Description**
+        |   Saves the given data point with the previously saved data points.
+
+        :param queries: New data points going to the data pools stream
+        :type queries: Tuple[Tuple[NDArray[Shape["query_nr, ... query_dim"], Number], Tuple[NDArray[Shape["result_nr, ... result_dim"], Number]]
+        """
         combined_data = np.concatenate((data[0], data[1]), axis=1)
         if self.stream is None:
             self.stream = combined_data
@@ -264,16 +516,40 @@ class LogStreamEvaluator(LogingEvaluator):
             self.stream = np.concatenate((self.stream, combined_data))
 
     
-    def log_data(self, exp_nr):
-        np.save(f'{self.path}/{self.file_name}.npy', self.stream)
+    def log_data(self):
+        """
+        log_data(self) -> None
+        | **Description**
+        |   Logs all saved data points to an ```.npy``` file if there is at least one data point.
+        """
+        if not self.stream is None:
+            np.save(f'{self.path}/{self.file_name}.npy', self.stream)
 
 
 @dataclass
 class LogProcessEvaluator(LogingEvaluator):
+    """
+    LogProcessEvaluator(experiment)
+    | **Description**
+    |   This evaluator logs all data points added to the experiment's data pools process.
+
+    :param experiment: The experiment to be evaluated
+    :type experiment: Experiment
+    """
     folder: str = "log"
     file_name:str = "process"
 
     def register(self, experiment: Experiment):
+        """
+        register(self, experiment) -> None
+        | **Description**
+        |   Modifies the experiment to log all data points added to the data pools process.
+        |   Requires the experiment's data pools to be a ProcessDataPools.
+
+        :param experiment: The experiment to be evaluated
+        :type experiment: Experiments
+        :raises: TypeError if self.experiment.data_pools is not a ProcessDataPools
+        """
         super().register(experiment)
 
         if isinstance(self.experiment.data_pools, ProcessDataPools):
@@ -288,21 +564,53 @@ class LogProcessEvaluator(LogingEvaluator):
         self.process = None
 
     def save_process(self, data):
+        """
+        save_process(self, data) -> None
+        | **Description**
+        |   Saves the given data point with the previously saved data points.
+
+        :param queries: New data points going to the data pools process
+        :type queries: Tuple[Tuple[NDArray[Shape["query_nr, ... query_dim"], Number], Tuple[NDArray[Shape["result_nr, ... result_dim"], Number]]
+        """
         combined_data = np.concatenate((data[0], data[1]), axis=1)
         if self.process is None:
             self.process = combined_data
         else:
             self.process = np.concatenate((self.process, combined_data))
     
-    def log_data(self, exp_nr):
-        np.save(f'{self.path}/{self.file_name}.npy', self.process)
+    def log_data(self):
+        """
+        log_data(self) -> None
+        | **Description**
+        |   Logs all saved data points to an ```.npy``` file if there is at least one data point.
+        """
+        if not self.process is None:
+            np.save(f'{self.path}/{self.file_name}.npy', self.process)
 
 @dataclass
 class LogResultEvaluator(LogingEvaluator):
+    """
+    LogProcessEvaluator(experiment)
+    | **Description**
+    |   This evaluator logs all results added to the experiment's data pools results.
+
+    :param experiment: The experiment to be evaluated
+    :type experiment: Experiment
+    """
     folder: str = "log"
     file_name:str = "result"
 
     def register(self, experiment: Experiment):
+        """
+        register(self, experiment) -> None
+        | **Description**
+        |   Modifies the experiment to log all results added to the data pools results.
+        |   Requires the experiment's data pools to be a ResultDataPools.
+
+        :param experiment: The experiment to be evaluated
+        :type experiment: Experiments
+        :raises: TypeError if self.experiment.data_pools is not a ResultDataPools
+        """
         super().register(experiment)
 
         if isinstance(self.experiment.data_pools, ResultDataPools):
@@ -318,17 +626,39 @@ class LogResultEvaluator(LogingEvaluator):
 
     
     def save_result(self, data):
+        """
+        save_result(self, data) -> None
+        | **Description**
+        |   Saves the given result with the previously saved results.
+
+        :param queries: New results going to the data pools results
+        :type queries: Tuple[Tuple[NDArray[Shape["query_nr, ... query_dim"], Number], Tuple[NDArray[Shape["result_nr, ... result_dim"], Number]]
+        """
         combined_data = np.concatenate((data[0], data[1]), axis=1)
         if self.results is None:
             self.results = combined_data
         else:
             self.results = np.concatenate((self.results, combined_data))
     
-    def log_data(self, exp_nr):
-        np.save(f'{self.path}/{self.file_name}.npy', self.results)
+    def log_data(self):
+        """
+        log_data(self) -> None
+        | **Description**
+        |   Logs all saved results to an ```.npy``` file if there is at least one result.
+        """
+        if not self.results is None:
+            np.save(f'{self.path}/{self.file_name}.npy', self.results)
 
 @dataclass
 class LogAllEvaluator(LogingEvaluator):
+    """
+    LogAllEvaluator(experiment)
+    | **Description**
+    |   This evaluator logs combines the LogStreamEvaluator, LogProcessEvaluator and LogResultEvaluator.
+
+    :param experiment: The experiment to be evaluated
+    :type experiment: Experiment
+    """
     folder: str = "log"
     file_name:str = "all_data"
 
@@ -337,12 +667,22 @@ class LogAllEvaluator(LogingEvaluator):
     lrev: LogResultEvaluator = post_init()
 
     def post_init(self):
+        """
+        post_init(self) -> None
+        | **Description**
+        |   Initializes the LogStream-, LogProcess- and LogResult- evaluators
+        """
         super().post_init()
         self.lsev = LogStreamEvaluator(folder=self.folder, file_name=f"{self.file_name}_stream")()
         self.lpev = LogProcessEvaluator(folder=self.folder, file_name=f"{self.file_name}_process")()
         self.lrev = LogResultEvaluator(folder=self.folder, file_name=f"{self.file_name}_result")()
 
     def register(self, experiment: Experiment):
+        """
+        register(self, experiment) -> None
+        | **Description**
+        |   Registers the experiment with all 3 above listed evaluators.
+        """
         super().register(experiment)
         self.lsev.register(experiment = experiment)
         self.lpev.register(experiment = experiment)
@@ -377,6 +717,6 @@ class LogTVPGTEvaluator(LogingEvaluator):
         else:
            self.gt = np.concatenate((self.gt, combined_data))
     
-    def log_data(self, exp_nr):
+    def log_data(self):
         np.save(f'{self.path}/{self.file_name}.npy', self.gt)
 
