@@ -18,7 +18,7 @@ scikit-learn = "^1.2.0"
 paramz = {git = "https://github.com/bela127/paramz.git"}#@fix-numpy-types
 GPy = {git = "https://github.com/SheffieldML/GPy.git"}#, version = "1.13.0"
 
-[tool.poetry.dev-dependencies]
+[poetry.group.dev.dependencies]
 pytest = "^6.2.5"
 mypy = "^0.910"
 black = "^21.6b0"
