@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 @dataclass
 class StreamProcess(Process, TimeSubscriber):
     """
-    StreamProcess(time_source, data_pools, oracles, stop_time, time_behaviour, data_pools)
+    StreamProcess(time_source, data_pools, oracles, stop_time, time_behaviour)
     | **Description**
     |   StreamProcess is a simple stream process.
 
@@ -40,8 +40,6 @@ class StreamProcess(Process, TimeSubscriber):
     :type stop_time: float
     :param time_behaviour: A DataSource with time-dependent data
     :type time_behaviour: TimeDataSource
-    :param data_pools: The DataPools to collect all queries and results
-    :type data_pools: StreamDataPools
     """
     stop_time: float = init(default=1000)
     time_behavior: TimeDataSource = init()
