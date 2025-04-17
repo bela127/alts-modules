@@ -1,3 +1,4 @@
+#TODO correct all 
 from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 
@@ -28,7 +29,7 @@ class StreamProcess(Process, TimeSubscriber):
     """
     StreamProcess(time_source, data_pools, oracles, stop_time, time_behaviour)
     | **Description**
-    |   StreamProcess is a simple stream process.
+    |   StreamProcess is a process for data streams.
 
     :param time_source: Source of time
     :type time_source: :doc:`TimeSource </core/data_process/process>`
@@ -36,7 +37,7 @@ class StreamProcess(Process, TimeSubscriber):
     :type data_pools: :doc:`DataPools </core/data/data_pools>`
     :param oracles: The interaction point between the Process and the data source.
     :type oracles: :doc:`Oracles </core/oracle/oracles>`
-    :param stop_time: The stopping time of the experiment
+    :param stop_time: The stopping time of the experiment (default= 1000)
     :type stop_time: float
     :param time_behaviour: A DataSource with time-dependent data
     :type time_behaviour: TimeDataSource
@@ -52,7 +53,7 @@ class StreamProcess(Process, TimeSubscriber):
         | **Description**
         |   Initializes its :doc:`TimeDataSource </core/data_process/time_source>` and :doc:`StreamDataPools </core/data/data_pools>`. 
         
-        :raises TypError: If the DataPools is not a StreamDataPools
+        :raises TypeError: If the DataPools is not a StreamDataPools
         """
         if self.time_behavior is NOTSET:
             self.time_behavior = TimeBehaviorDataSource(behavior=RandomTimeUniformBehavior(stop_time=self.stop_time))
@@ -65,6 +66,16 @@ class StreamProcess(Process, TimeSubscriber):
             raise TypeError(f"StreamProcess requires StreamDataPools")
 
     def time_update(self, subscription):
+        """
+        time_update(self, subscription) -> times, vars
+        | **Description**
+        |   Returns the current time and its corresponding result.
+
+        :param subscription: Unused
+        :type subscription: Any
+        :return: Current time, Current result
+        :rtype: Tuple[`NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_, `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_]
+        """
         times = np.asarray([[self.time_source.time]])
         times, vars = self.time_behavior.query(times)
         self.data_pools.stream.add((times, vars))
@@ -72,14 +83,33 @@ class StreamProcess(Process, TimeSubscriber):
 
 @dataclass
 class DataSourceProcess(Process, ProcessOracleSubscriber):
+    """
+    DataSourceProcess(time_source, data_pools, oracles, data_source)
+    | **Description**
+    |   DataSourceProcess is a process specifically for data sources.
 
+    :param time_source: Source of time
+    :type time_source: :doc:`TimeSource </core/data_process/process>`
+    :param data_pools: A data structure which saves all processed queries and results
+    :type data_pools: :doc:`ResultDataPools </core/data/data_pools>`
+    :param oracles: The interaction point between the Process and the data source.
+    :type oracles: :doc:`Oracles </core/oracle/oracles>`
+    :param data_source: A DataSource containing all data points
+    :type data_source: DataSource
+    """
     data_source: DataSource = init()
 
     data_pools: ResultDataPools = post_init()
     oracles: POracles = post_init()
 
     def post_init(self):
+        """
+        post_init(self) -> None
+        | **Description**
+        |   Initializes its DataSource, POracles and :doc:`ResultDataPools </core/data/data_pools>`. 
         
+        :raises TypeError: If the DataPools is not a ResultDataPools or the oracles is not POracles
+        """
         self.data_source = self.data_source()
         if isinstance(self.oracles, POracles):
             self.oracles.process = self.oracles.process(query_constrain=self.query_constrain)
@@ -93,24 +123,72 @@ class DataSourceProcess(Process, ProcessOracleSubscriber):
 
     
     def process_query(self, subscription):
+        """
+        process_query(self, subscription) -> None
+        | **Description**
+        |   Pops all processed queries in the oracle and adds them to its own data pools. 
+
+        :param subscription: Does nothing
+        :type subscription: Any
+        """
         queries = self.oracles.process.pop(self.oracles.process.count)
         queries, results = self.query(queries)
         self.data_pools.result.add((queries, results))
     
 
-    def query(self, queries: NDArray[Shape["query_nr, ... query_shape"], Number]) -> Tuple[NDArray[Shape["query_nr, ... query_shape"], Number], NDArray[Shape["query_nr, ... result_shape"], Number]]:
+    def query(self, queries: NDArray[Shape["query_nr, ... query_shape"], Number]) -> Tuple[NDArray[Shape["query_nr, ... query_shape"], Number], NDArray[Shape["query_nr, ... result_shape"], Number]]: # type: ignore
+        """
+        query(self, queries) -> data_points
+        | **Description**
+        |   Returns all given queries with their associated results from the data source.
+
+        :param queries: Requested queries
+        :type queries: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
+        :return: Requested queries and their associated results.
+        :rtype: Tuple[`NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_,`NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_]
+        """
         queries, results = self.data_source.query(queries)
         return queries, results
 
     def query_constrain(self) -> QueryConstrain:
+        """
+        query_constrain(self) -> QueryConstrain
+        | **Description**
+        |   Returns its own query constraints.
+
+        :return: Data pool's query constraints
+        :rtype: QueryConstrain
+        """
         return self.data_source.query_constrain()
 
     def result_constrain(self) -> ResultConstrain:
+        """
+        result_constrain(self) -> ResultConstrain
+        | **Description**
+        |   Returns its own result constraints.
+
+        :return: Data pool's result constraints
+        :rtype: ResultConstrain
+        """
         return self.data_source.result_constrain()
 
 
 @dataclass
 class DelayedProcess(Process, DelayedConstrained):
+    """
+    DelayedProcess(time_source, data_pools, oracles, data_source)
+    | **Description**
+    |   DelayedProcess is a process specifically for data where queries have intermediate and time-delayed results.
+
+    :param time_source: Source of time
+    :type time_source: :doc:`TimeSource </core/data_process/process>`
+    :param data_pools: A data structure which saves all processed queries and results
+    :type data_pools: :doc:`ResultDataPools </core/data/data_pools>`
+    :param oracles: The interaction point between the Process and the data source.
+    :type oracles: :doc:`Oracles </core/oracle/oracles>`
+    :param data_source: A DataSource containing all data points
+    :type data_source: DataSource
+    """
     data_source: DataSource = init()
 
     has_new_data: bool = pre_init(default=False)
@@ -120,6 +198,13 @@ class DelayedProcess(Process, DelayedConstrained):
     oracles: POracles = post_init()
 
     def post_init(self):
+        """
+        post_init(self) -> None
+        | **Description**
+        |   Initializes its DataSource, POracles and :doc:`ResultDataPools </core/data/data_pools>`. 
+        
+        :raises TypeError: If the DataPools is not a ResultDataPools or the oracles is not POracles
+        """
         super().post_init()
         self.data_source = self.data_source()
 
@@ -135,7 +220,17 @@ class DelayedProcess(Process, DelayedConstrained):
             raise TypeError(f"DataSourceProcess requires POracles")
 
     
-    def step(self, iteration):
+    def step(self, iteration): #TODO
+        """
+        step(self, iteration) -> Tuple[data_points, delayed_data_points]
+        | **Description**
+        |
+
+        :param iteration:
+        :type iteration:
+        :return: 
+        :rtype:
+        """
         queries, results = self.add_intermediate_results()
 
         self.update()
@@ -144,6 +239,16 @@ class DelayedProcess(Process, DelayedConstrained):
         return queries, results, delayed_queries, delayed_results
     
     def add_intermediate_results(self):
+        """
+        add_intermediate_results(self) -> data_points
+        | **Description**
+        |
+
+        :param :
+        :type :
+        :return:
+        :rtype:
+        """
         queries = None
         results = None
         if not self.oracles.process.empty and self.ready:
@@ -163,6 +268,7 @@ class DelayedProcess(Process, DelayedConstrained):
         return delayed_queries, delayed_results
 
     def query(self, queries: NDArray[Shape["query_nr, ... query_shape"], Number]) -> Tuple[NDArray[Shape["query_nr, ... query_shape"], Number], NDArray[Shape["query_nr, ... result_shape"], Number]]:
+        #Bug? ResultDataPools has no stream attribute
         times = self.data_pools.stream.last_queries
         vars = self.data_pools.stream.last_results
         actual_queries = np.concatenate((times, vars, queries[:,2:]), axis=1)
@@ -182,20 +288,62 @@ class DelayedProcess(Process, DelayedConstrained):
         return queries, results #return GT, as if queried
     
     def added_data(self, queries, results):
+        """
+        added_data(self. queries, results) -> None
+        | **Description**
+        |   Informs this process that all new data has been added.
+
+        :param queries: Unused 
+        :type queries: Any
+        :param results: Unused
+        :type results: Any
+        """
         self.has_new_data = False
         self.ready = True
 
-    def delayed_query(self) -> Tuple[NDArray[Shape["data_nr, ... query_shape"], Number], NDArray[Shape["data_nr, ... result_shape"], Number]]:
+    def delayed_query(self) -> Tuple[NDArray[Shape["data_nr, ... query_shape"], Number], NDArray[Shape["data_nr, ... result_shape"], Number]]: # type: ignore
+        """
+        delayed_query(self) -> data_points
+        | **Description**
+        |
+
+        :return:
+        :rtype:
+        """
         queries = np.concatenate((self.last_queries[:,:1] + self.time_source.time_step ,self.last_queries[:,1:]), axis=1) 
         return queries, self.last_results
 
     def query_constrain(self) -> QueryConstrain:
+        """
+        query_constrain(self) -> QueryConstrain
+        | **Description**
+        |   Returns its own query constraints.
+
+        :return: Data pool's query constraints
+        :rtype: QueryConstrain
+        """
         return self.data_source.query_constrain()
 
     def result_constrain(self) -> ResultConstrain:
+        """
+        result_constrain(self) -> ResultConstrain
+        | **Description**
+        |   Returns its own result constraints.
+
+        :return: Data pool's result constraints
+        :rtype: ResultConstrain
+        """
         return self.data_source.result_constrain()
 
     def delayed_constrain(self) -> ResultConstrain:
+        """
+        delayed_constrain(self) -> ResultConstrain
+        | **Description**
+        |   Returns its own delayed result constraints.
+
+        :return: Data pool's delayed result constraints
+        :rtype: ResultConstrain
+        """
         return self.data_source.result_constrain()
 
 @dataclass
