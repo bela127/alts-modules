@@ -1,3 +1,8 @@
+#Version 1.1.1 conform as of 23.04.2025
+"""
+| *alts.modules.query.query_optimizer*
+| :doc:`Core Module </core/query/query_optimizer>`
+"""
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
@@ -23,12 +28,12 @@ class NoQueryOptimizer(QueryOptimizer):
     """
     NoQueryOptimizer(selection_criteria, query_sampler)
     | **Description**
-    |   Selects the first queries from the query sample 
+    |   Selects the first queries from the query sample.
 
     :param selection_criteria: Scores the queries for the optimizer
     :type selection_criteria: SelectionCriteria
     :param query_sampler: Samples queries to work with
-    :type selection_criteria: QuerySampler
+    :type query_sampler: QuerySampler
     """
     selection_criteria: SelectionCriteria = init(default_factory=NoSelectionCriteria)
     query_sampler: QuerySampler = init()
@@ -73,11 +78,10 @@ class GAQueryOptimizer(QueryOptimizer):
         |   Tries to find the score maximizing queries through heuristic methods.
 
         :return: queries, scores
-        :rtype: Iterable over `NDArrays <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_, Iterable over `NDArrays <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
+        :rtype: `NDArrays <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_, `NDArrays <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
         """
         def opt_func(x):
             """
-            #TODO Correct
             opt_func(queries's) -> scores
             | **Description**
             |   Returns the scores to all given queries
@@ -102,12 +106,12 @@ class MCQueryOptimizer(QueryOptimizer):
     """
     MCQueryOptimizer(query_sampler, num_tries=100)
     | **Description**
-    |   The Monte Carlo Query Optimizer works by sampling ``num_tries`` many times and chosing one of those.
+    |   The Monte Carlo Query Optimizer works by sampling ``num_tries`` many times and choosing one of those (asbtract class).
 
     :param query_sampler: The query sampler to use
     :type query_sampler: QuerySampler
     :param num_tries: Amount of samples to get (default=100)
-    :type query_sampler: int
+    :type num_tries: int
     """
     query_sampler: QuerySampler  = init()
     num_tries: int = init(default=100)
@@ -124,18 +128,25 @@ class MCQueryOptimizer(QueryOptimizer):
 @dataclass
 class MaxMCQueryOptimizer(MCQueryOptimizer):
     """
-    MaxMCQueryOptimizer(query_sampler, num_tries=100)
+    MaxMCQueryOptimizer(query_sampler, num_tries)
     | **Description**
-    |   The Maximizing Monte Carlo Query Optimizer samples ``num_tries`` many times and then choses the best queries.
+    |   The Maximizing Monte Carlo Query Optimizer samples ``num_tries`` many times and then chooses the best queries.
 
     :param query_sampler: The query sampler to use
     :type query_sampler: QuerySampler
-    :param num_tries: Amount of samples to get (default=100)
-    :type query_sampler: int
+    :param num_tries: Amount of samples to get (default= 100)
+    :type num_tries: int
     """
 
     def select(self):
+        """
+        select(self) -> queries, scores
+        | **Description**
+        |   Selects the ```num_queries``` queries among ```num_tries``` samples with the highest score.
 
+        :return: Queries, scores
+        :rtype: `NDArrays <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_, `NDArrays <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
+        """
         query_candidates = self.query_sampler.sample(self.num_tries)
         query_candidates, candidate_scores = self.selection_criteria.query(query_candidates)
 
@@ -150,9 +161,29 @@ class MaxMCQueryOptimizer(MCQueryOptimizer):
 
 @dataclass
 class ProbWeightedMCQueryOptimizer(MCQueryOptimizer):
+    """
+    ProbWeightedMCQueryOptimizer(query_sampler, num_tries)
+    | **Description**
+    |   The Probabilistic Weighted Monte Carlo Query Optimizer selects samples randomly with highly scored queries having a higher probability.
+
+    :param query_sampler: The query sampler to use
+    :type query_sampler: QuerySampler
+    :param num_tries: Amount of samples to get (default= 100)
+    :type num_tries: int
+    """
     _rng: Generator = pre_init(default_factory = np.random.default_rng)
 
     def select(self):
+        """
+        select(self) -> queries, scores
+        | **Description**
+        |   Gives each query a relative weight exponential to their score.
+        |   If the value of any weight is NaN, selects ```num_queries``` queries randomly with equal probability distribution.
+        |   Otherwise, selects ```num_queries``` queries randomly with a probability distribution equal to their weights.
+
+        :return: Queries, scores
+        :rtype: `NDArrays <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_, `NDArrays <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
+        """
         query_candidates = self.query_sampler.sample(self.num_tries)
         scores = self.selection_criteria.query(query_candidates)
 
@@ -167,8 +198,8 @@ class ProbWeightedMCQueryOptimizer(MCQueryOptimizer):
         indexes = np.arange(num_queries)
 
         if np.count_nonzero(np.isnan(weight)) > 0:
-            idx = self._rng.choice(a=indexes, size=num_queries, replace=False)
+            idx = self._rng.choice(a=indexes, size=num_queries, replace=False) # type: ignore
         else:
-            idx = self._rng.choice(a=indexes, size=num_queries, replace=False, p=weight)
+            idx = self._rng.choice(a=indexes, size=num_queries, replace=False, p=weight) # type: ignore
 
         return query_candidates[idx], scores[idx]
