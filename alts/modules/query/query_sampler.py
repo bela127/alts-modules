@@ -1,3 +1,8 @@
+#Version 1.1.1 conform as of 23.04.2025
+"""
+| *alts.modules.query.query_sampler*
+| :doc:`Core Module </core/query/query_sampler>`
+"""
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
@@ -24,12 +29,12 @@ class OptimalQuerySampler(QuerySampler):
     """
     OptimalQuerySampler(num_queries)
     | **Description**
-    |
+    |   Samples randomly from a given list of "optimal" queries.
 
-    :param num_queries: 
-    :type num_queries:
-    :param optimal_queries:
-    :type optimatl_queries:
+    :param num_queries: Number of queries to sample by default
+    :type num_queries: int
+    :param optimal_queries: What queries to sample from
+    :type optimal_queries: Tuple[NDArray[Shape["query_nr, ... query_dims"], Number], ...]
     """
     optimal_queries: Tuple[NDArray[Shape["query_nr, ... query_dims"], Number], ...] = init() # type: ignore
 
@@ -50,10 +55,10 @@ class OptimalQuerySampler(QuerySampler):
         """
         sample(self, num_queries) -> queries
         | **Description**
-        |   
+        |   Returns approximately ```num_queries``` queries randomly chosen among the ```optimal_queries```
 
-        :param num_queries:
-        :type num_queries:
+        :param num_queries: Number of queries to sample (default= self.num_queries)
+        :type num_queries: int
         :return: Sampled queries
         :rtype: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
         """
@@ -362,22 +367,44 @@ class AllResultPoolQuerySampler(AllDataPoolQuerySampler):
     """
     AllResultPoolQuerySampler(num_queries)
     | **Description**
-    |   
+    |   Samples the entire ResultDataPools.
 
     :param num_queries: Number of queries to sample by default (ignored in this class)
     :type num_queries: int
     """
     def post_init(self):
+        """
+        post_init(self) -> None
+        | **Description**
+        |   Raises TypeError if DataPools is not ResultDataPools
 
+        :raises TypeError: If DataPools is not ResultDataPools
+        """
         super().post_init()
         if not isinstance(self.data_pools, ResultDataPools):
             raise TypeError("ResultPoolQuerySampler requires ResultDataPools")
     
     @property
     def data_pools(self) -> ResultDataPools:
+        """
+        data_pools(self) -> ResultDataPools
+        | **Description**
+        |   Returns the sampler's DataPools.
+
+        :return: QuerySampler's DataPools
+        :rtype: ResultDataPools
+        """
         return super().data_pools # type: ignore
 
     def pool(self) -> QueriedDataPool:
+        """
+        pool(self) -> QueriedDataPool
+        | **Description**
+        |   Returns the sampler's data pools as a queryable.
+
+        :return: Sampler's queryable data pool
+        :rtype: QueriedDataPool
+        """
         return self.data_pools.result
 
 @dataclass
@@ -385,21 +412,44 @@ class AllStreamPoolQuerySampler(AllDataPoolQuerySampler):
     """
     AllStreamPoolQuerySampler(num_queries)
     | **Description**
-    |
+    |   Samples the entire StreamDataPools.
 
-    :param num_queries:
-    :type num_queries:
+    :param num_queries: Number of queries to sample by default (ignored in this class)
+    :type num_queries: int
     """
     def post_init(self):
+        """
+        post_init(self) -> None
+        | **Description**
+        |   Raises TypeError if DataPools is not StreamDataPools
+
+        :raises TypeError: If DataPools is not StreamDataPools
+        """
         super().post_init()
         if not isinstance(self.data_pools, StreamDataPools):
             raise TypeError("StreamPoolQuerySampler requires StreamDataPools")
     
     @property
     def data_pools(self) -> StreamDataPools:
-        return super().data_pools
+        """
+        data_pools(self) -> StreamDataPools
+        | **Description**
+        |   Returns the sampler's DataPools.
+
+        :return: QuerySampler's DataPools
+        :rtype: StreamDataPools
+        """
+        return super().data_pools # type: ignore
 
     def pool(self) -> QueriedDataPool:
+        """
+        pool(self) -> QueriedDataPool
+        | **Description**
+        |   Returns the sampler's data pools as a queryable.
+
+        :return: Sampler's queryable data pool
+        :rtype: QueriedDataPool
+        """
         return self.data_pools.stream
     
 @dataclass
@@ -407,21 +457,44 @@ class AllProcessPoolQuerySampler(AllDataPoolQuerySampler):
     """
     AllProcessPoolQuerySampler(num_queries)
     | **Description**
-    |
+    |   Samples the entire ProcessDataPools.
 
-    :param num_queries:
-    :type num_queries:
+    :param num_queries: Number of queries to sample by default (ignored in this class)
+    :type num_queries: int
     """
     def post_init(self):
+        """
+        post_init(self) -> None
+        | **Description**
+        |   Raises TypeError if DataPools is not ProcessDataPools
+
+        :raises TypeError: If DataPools is not ProcessDataPools
+        """
         super().post_init()
         if not isinstance(self.data_pools, ProcessDataPools):
             raise TypeError("ProcessPoolQuerySampler requires ProcessDataPools")
     
     @property
     def data_pools(self) -> ProcessDataPools:
-        return super().data_pools
+        """
+        data_pools(self) -> ProcessDataPools
+        | **Description**
+        |   Returns the sampler's DataPools.
+
+        :return: QuerySampler's DataPools
+        :rtype: ProcessDataPools
+        """
+        return super().data_pools # type: ignore
 
     def pool(self) -> QueriedDataPool:
+        """
+        pool(self) -> QueriedDataPool
+        | **Description**
+        |   Returns the sampler's data pools as a queryable.
+
+        :return: Sampler's queryable data pool
+        :rtype: QueriedDataPool
+        """
         return self.data_pools.process
     
 @dataclass
@@ -429,55 +502,158 @@ class LastDataPoolQuerySampler(DataPoolQuerySampler):
     """
     LastDataPoolQuerySampler(num_queries)
     | **Description**
-    |
+    |   Samples the DataPool's last added queries
 
-    :param num_queries:
-    :type num_queries:
+    :param num_queries: Number of queries to sample by default (ignored in this class)
+    :type num_queries: int
     """
     num_queries: int = init(default=None)
 
     def sample(self, num_queries = None):
+        """
+        sample(self, num_queries) -> queries
+        | **Description**
+        |   Returns the DataPool's last added queries.
+
+        :param num_queries: Unused
+        :type num_queries: Any
+        :return: Sampled queries
+        :rtype: `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
+        """
         if num_queries is None: num_queries = self.num_queries
         return self.pool().last_queries
 
 @dataclass
 class LastResultPoolQuerySampler(LastDataPoolQuerySampler):
+    """
+    LastResultPoolQuerySampler(num_queries)
+    | **Description**
+    |   Samples the ResultDataPool's last added queries
+
+    :param num_queries: Number of queries to sample by default (ignored in this class)
+    :type num_queries: int
+    """
     def post_init(self):
+        """
+        post_init(self) -> None
+        | **Description**
+        |   Raises TypeError if DataPools is not ResultDataPools
+
+        :raises TypeError: If DataPools is not ResultDataPools
+        """
         super().post_init()
         if not isinstance(self.data_pools, ResultDataPools):
             raise TypeError("ResultPoolQuerySampler requires ResultDataPools")
     
     @property
     def data_pools(self) -> ResultDataPools:
-        return super().data_pools
+        """
+        data_pools(self) -> ResultDataPools
+        | **Description**
+        |   Returns the sampler's DataPools.
+
+        :return: QuerySampler's DataPools
+        :rtype: ResultDataPools
+        """
+        return super().data_pools # type: ignore
 
     def pool(self) -> QueriedDataPool:
+        """
+        pool(self) -> QueriedDataPool
+        | **Description**
+        |   Returns the sampler's data pools as a queryable.
+
+        :return: Sampler's queryable data pool
+        :rtype: QueriedDataPool
+        """
         return self.data_pools.result
 
 @dataclass
 class LastStreamPoolQuerySampler(LastDataPoolQuerySampler):
+    """
+    LastStreamPoolQuerySampler(num_queries)
+    | **Description**
+    |   Samples the StreamDataPool's last added queries
+
+    :param num_queries: Number of queries to sample by default (ignored in this class)
+    :type num_queries: int
+    """
     def post_init(self):
+        """
+        post_init(self) -> None
+        | **Description**
+        |   Raises TypeError if DataPools is not StreamDataPools
+
+        :raises TypeError: If DataPools is not StreamDataPools
+        """
         super().post_init()
         if not isinstance(self.data_pools, StreamDataPools):
             raise TypeError("StreamPoolQuerySampler requires StreamDataPools")
     
     @property
     def data_pools(self) -> StreamDataPools:
-        return super().data_pools
+        """
+        data_pools(self) -> StreamDataPools
+        | **Description**
+        |   Returns the sampler's DataPools.
+
+        :return: QuerySampler's DataPools
+        :rtype: StreamDataPools
+        """
+        return super().data_pools # type: ignore
 
     def pool(self) -> QueriedDataPool:
+        """
+        pool(self) -> QueriedDataPool
+        | **Description**
+        |   Returns the sampler's data pools as a queryable.
+
+        :return: Sampler's queryable data pool
+        :rtype: QueriedDataPool
+        """
         return self.data_pools.stream
     
 @dataclass
 class LastProcessPoolQuerySampler(LastDataPoolQuerySampler):
+    """
+    LastStreamPoolQuerySampler(num_queries)
+    | **Description**
+    |   Samples the ProcessDataPool's last added queries
+
+    :param num_queries: Number of queries to sample by default (ignored in this class)
+    :type num_queries: int
+    """
     def post_init(self):
+        """
+        post_init(self) -> None
+        | **Description**
+        |   Raises TypeError if DataPools is not ProcessDataPools
+
+        :raises TypeError: If DataPools is not ProcessDataPools
+        """
         super().post_init()
         if not isinstance(self.data_pools, ProcessDataPools):
             raise TypeError("ProcessPoolQuerySampler requires ProcessDataPools")
     
     @property
     def data_pools(self) -> ProcessDataPools:
-        return super().data_pools
+        """
+        data_pools(self) -> ProcessDataPools
+        | **Description**
+        |   Returns the sampler's DataPools.
+
+        :return: QuerySampler's DataPools
+        :rtype: ProcessDataPools
+        """
+        return super().data_pools # type: ignore
 
     def pool(self) -> QueriedDataPool:
+        """
+        pool(self) -> QueriedDataPool
+        | **Description**
+        |   Returns the sampler's data pools as a queryable.
+
+        :return: Sampler's queryable data pool
+        :rtype: QueriedDataPool
+        """
         return self.data_pools.process
