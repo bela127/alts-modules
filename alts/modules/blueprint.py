@@ -1,3 +1,8 @@
+#Version 1.1.1 conform as of 23.04.2025
+"""
+| *alts.modules.blueprint*
+| :doc:`Core Module </core/blueprint>`
+"""
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
@@ -33,6 +38,24 @@ if TYPE_CHECKING:
 
 @dataclass
 class BaselineBlueprint(Blueprint):
+    """
+    BaselineBlueprint()
+    | **Configuration**
+    |   *Repeat:* 1
+    |   *Time Source:* IterationTimeSource()
+    |   *Oracles:* POracles(process= FCFSQueryQueue())
+    |   *DataPools:* ResultDataPools(result= FlatQueriedDataPool())
+    |   *Process:* DataSourceProcess(data_source= LineDataSource())
+    |   *StoppingCriteria:* TimeStoppingCriteria(stop_time= 100)
+    |   *ExperimentModules:* InitQueryExperimentModules(
+    |                           initial_query_sampler = LatinHypercubeQuerySampler(num_queries=10),
+    |                           query_selector=ResultQuerySelector(
+    |                               query_optimizer=NoQueryOptimizer(query_sampler=UniformQuerySampler()),
+    |                               query_decider=AllQueryDecider(),
+    |                           )
+    |                       )
+    |   *Evaluators:* PlotAllDataPointsEvaluator(), PrintExpTimeEvaluator()
+    """
     repeat: int = 1
 
     time_source: TimeSource = IterationTimeSource()

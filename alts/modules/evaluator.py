@@ -1,3 +1,8 @@
+#Version 1.1.1 conform as of 23.04.2025
+"""
+| *alts.modules.evaluator*
+| :doc:`Core Module </core/evaluator>`
+"""
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
@@ -690,10 +695,28 @@ class LogAllEvaluator(LogingEvaluator):
 
 @dataclass
 class LogTVPGTEvaluator(LogingEvaluator):
+    """
+    LogTVPGTEvaluator(experiment)
+    | **Description**
+    |   The Log Time Varying Process Ground Truth Evaluator ---
+
+    :param experiment: The experiment to be evaluated
+    :type experiment: Experiment
+    """
     folder: str = "log"
     file_name:str = "gt_data"
 
     def register(self, experiment: Experiment):
+        """
+        register(self, experiment) -> None
+        | **Description**
+        |   Modifies the experiment to log all results coming form the process' update.
+        |   Requires the experiment's process to be a DelayedProcess.
+
+        :param experiment: The experiment to be evaluated
+        :type experiment: Experiments
+        :raises: TypeError if self.experiment.process is not a DelayedProcess
+        """
         super().register(experiment)
 
         if isinstance(self.experiment.process, DelayedProcess):
@@ -708,6 +731,14 @@ class LogTVPGTEvaluator(LogingEvaluator):
         self.gt = None
 
     def save_gt(self, data):
+        """
+        save_gt(self, data) -> None
+        | **Description**
+        |   Saves the given data (ground truths) points with the previously saved data points.
+
+        :param queries: New results going to the data pools results
+        :type queries: Tuple[Tuple[NDArray[Shape["query_nr, ... query_dim"], Number], Tuple[NDArray[Shape["result_nr, ... result_dim"], Number]]
+        """
         gt_queries, gt_results = data
 
         combined_data = np.concatenate((gt_queries, gt_results), axis=1)
@@ -718,5 +749,11 @@ class LogTVPGTEvaluator(LogingEvaluator):
            self.gt = np.concatenate((self.gt, combined_data))
     
     def log_data(self):
-        np.save(f'{self.path}/{self.file_name}.npy', self.gt)
+        """
+        log_data(self) -> None
+        | **Description**
+        |   Logs all saved data points (ground truths) to an ```.npy``` file if there is at least one data point.
+        """
+        if not self.gt is None:
+            np.save(f'{self.path}/{self.file_name}.npy', self.gt)
 
