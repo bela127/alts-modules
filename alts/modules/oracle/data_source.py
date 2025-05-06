@@ -1,9 +1,8 @@
-
+#Version 1.1.1 conform as of 06.05.2025
 """
 | *alts.modules.oracle.data_source*
 | :doc:`Core Module </core/oracle/data_source>`
 """
-#TODO Add Defaults
 from __future__ import annotations
 from math import floor
 from typing import TYPE_CHECKING, Optional
@@ -31,7 +30,6 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
 
-#Finished 2
 @dataclass
 class RandomUniformDataSource(DataSource):
     """
@@ -40,9 +38,9 @@ class RandomUniformDataSource(DataSource):
     |   A ``RandomUniformDataSource`` is a **random** source of data.
     |   For more details see `numpy.random.uniorm <https://numpy.org/doc/stable/reference/random/generated/numpy.random.uniform.html>`_.
 
-    :param query_shape: The expected shape of the queries
+    :param query_shape: The expected shape of the queries (default= (1,))
     :type query_shape: tuple of ints
-    :param result_shape: The expected shape of the results
+    :param result_shape: The expected shape of the results (default= (1,))
     :type result_shape: tuple of ints
     :param u: The upper bound of query values (exclusive) (default= 1)
     :type u: float
@@ -56,7 +54,7 @@ class RandomUniformDataSource(DataSource):
 
     def query(self, queries):
         """
-        query(self, queries) -> queries, results
+        query(self, queries) -> data_points
         | **Description**
         |   Each query receives a uniformly random result in [l, u).
 
@@ -104,20 +102,20 @@ class RandomUniformDataSource(DataSource):
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
         return ResultConstrain(shape=self.result_shape, ranges=result_ranges)
 
-#Finished 2
 @dataclass
 class LineDataSource(DataSource):
     """
+    LineDataSource(query_shape, result_shape, a, b)
     | **Description**
     |   A ``LineDataSource`` is a **deterministic** source of data representing a linear equation ``y = ax + b``.
 
-    :param query_shape: The expected shape of the queries
+    :param query_shape: The expected shape of the queries (default= (1,))
     :type query_shape: tuple of ints
-    :param result_shape: The expected shape of the results
+    :param result_shape: The expected shape of the results (default= (1,))
     :type result_shape: tuple of ints
-    :param a: Coefficient of degree 1, defaults to 1
+    :param a: Coefficient of degree 1, (default= 1)
     :type a: float (optional)
-    :param b: Coefficient of degree 0, defaults to 0
+    :param b: Coefficient of degree 0, (default= 0)
     :type b: float (optional)
     """
     query_shape: Tuple[int,...] = init(default=(1,))
@@ -127,6 +125,7 @@ class LineDataSource(DataSource):
 
     def query(self, queries):
         """
+        query(self, queries) -> data_points
         | **Description**
         |   See :func:`DataSource.query()`
 
@@ -135,7 +134,7 @@ class LineDataSource(DataSource):
         :return: Processed Query, Result 
         :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
         """
-         #TODO Ambition interactive view of graphs
+         
         results = np.dot(queries, np.ones((*self.query_shape,*self.result_shape))*self.a) + np.ones(self.result_shape)*self.b
         return queries, results
 
@@ -159,6 +158,7 @@ class LineDataSource(DataSource):
     
     def result_constrain(self) -> ResultConstrain:
         """
+        result_constrain(self) -> ResultConstrain
         | **Description**
         |   See :func:`DataSource.result_constrain()` 
 
@@ -180,22 +180,22 @@ class LineDataSource(DataSource):
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
         return ResultConstrain(shape=self.result_shape, ranges=result_ranges)
 
-#Finished 2
 @dataclass
 class SquareDataSource(DataSource):
     """
+    SquareDataSource(query_shape, result_shape, x0, y0, s)
     | **Description**
     |   A ``SquareDataSource`` is a **deterministic** source of data representing a square parabola ``s * (x - x0)^2 + y0``. 
 
-    :param query_shape: The expected shape of the queries
+    :param query_shape: The expected shape of the queries (default= (1,))
     :type query_shape: tuple of ints
-    :param result_shape: The expected shape of the results
+    :param result_shape: The expected shape of the results (default= (1,))
     :type result_shape: tuple of ints
-    :param x0: Offset of the parabola in x-direction, defaults to 0.5
+    :param x0: Offset of the parabola in x-direction, (default= 0.5)
     :type x0: float (optional)
-    :param y0: Offset of the parabola in y-direction, defaults to 0
+    :param y0: Offset of the parabola in y-direction, (default= 0)
     :type y0: float (optional)
-    :param s: Coefficient of degree 2, defaults to 5
+    :param s: Coefficient of degree 2, (default= 5)
     :type s: float (optional)
     """
     query_shape: Tuple[int,...] = init(default=(1,))
@@ -206,6 +206,7 @@ class SquareDataSource(DataSource):
 
     def query(self, queries):
         """
+        query(self, queries) -> data_points
         | **Description**
         |   See :func:`DataSource.query()`
 
@@ -214,7 +215,7 @@ class SquareDataSource(DataSource):
         :return: Processed Query, Result 
         :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
         """
-         #TODO Ambition interactive view of graphs
+         
         results = np.dot((queries - self.x0)**2, np.ones((*self.query_shape,*self.result_shape))*self.s) + np.ones(self.result_shape)*self.y0
         return queries, results
 
@@ -238,6 +239,7 @@ class SquareDataSource(DataSource):
     
     def result_constrain(self) -> ResultConstrain:
         """
+        result_constrain(self) -> ResultConstrain
         | **Description**
         |   See :func:`DataSource.result_constrain()` 
 
@@ -265,20 +267,20 @@ class SquareDataSource(DataSource):
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
         return ResultConstrain(shape=self.result_shape, ranges=result_ranges)
 
-#Finished 2
 @dataclass
 class PowDataSource(DataSource):
     """
+    PowDataSource(query_shape, result_shape, p, s)
     | **Description**
     |   A ``PowDataSource`` is a **deterministic** source of data representing an exponential equation ``s * x^p``. 
 
-    :param query_shape: The expected shape of the queries
+    :param query_shape: The expected shape of the queries (default= (1,))
     :type query_shape: tuple of ints
-    :param result_shape: The expected shape of the results
+    :param result_shape: The expected shape of the results (default= (1,))
     :type result_shape: tuple of ints
-    :param p: Power of x
+    :param p: Power of x (default= 3)
     :type p: float
-    :param s: Coefficient of x^power
+    :param s: Coefficient of x^power (default= 1)
     :type s: float
     """
     query_shape: Tuple[int,...] = init(default=(1,))
@@ -288,6 +290,7 @@ class PowDataSource(DataSource):
 
     def query(self, queries):
         """
+        query(self, queries) -> data_points
         | **Description**
         |   See :func:`DataSource.query()`
 
@@ -296,7 +299,7 @@ class PowDataSource(DataSource):
         :return: Processed Query, Result 
         :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
         """
-         #TODO Ambition interactive view of graphs
+         
         results = np.dot(np.power(queries, self.p), np.ones((*self.query_shape,*self.result_shape))*self.s)
         return queries, results
 
@@ -320,6 +323,7 @@ class PowDataSource(DataSource):
     
     def result_constrain(self) -> ResultConstrain:
         """
+        result_constrain(self) -> ResultConstrain
         | **Description**
         |   See :func:`DataSource.result_constrain()` 
 
@@ -343,20 +347,20 @@ class PowDataSource(DataSource):
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
         return ResultConstrain(shape=self.result_shape, ranges=result_ranges)
 
-#Finished 2
 @dataclass
 class ExpDataSource(DataSource):
     """
+    ExpDataSource(query_shape, result_shape, b, s)
     | **Description**
     |   An ``ExpDataSource`` is a **deterministic** source of data representing an exponential equation ``s * b^x``. 
 
-    :param query_shape: The expected shape of the queries
+    :param query_shape: The expected shape of the queries (default= (1,))
     :type query_shape: tuple of ints
-    :param result_shape: The expected shape of the results
+    :param result_shape: The expected shape of the results (default= (1,))
     :type result_shape: tuple of ints
-    :param b: Basis to the exponent x
+    :param b: Basis to the exponent x (default= 2)
     :type b: float
-    :param s: Coefficient of base^x
+    :param s: Coefficient of base^x (default= 1)
     :type s: float
     """
     query_shape: Tuple[int,...] = init(default=(1,))
@@ -366,6 +370,7 @@ class ExpDataSource(DataSource):
 
     def query(self, queries):
         """
+        query(self, queries) -> data_points
         | **Description**
         |   See :func:`DataSource.query()`
 
@@ -374,7 +379,7 @@ class ExpDataSource(DataSource):
         :return: Processed Query, Result 
         :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
         """
-         #TODO Ambition interactive view of graphs
+         
         results = np.dot(np.power(self.b, queries*self.s), np.ones((*self.query_shape,*self.result_shape)))
         return queries, results
 
@@ -398,6 +403,7 @@ class ExpDataSource(DataSource):
     
     def result_constrain(self) -> ResultConstrain:
         """
+        result_constrain(self) -> ResultConstrain
         | **Description**
         |   See :func:`DataSource.result_constrain()` 
 
@@ -408,11 +414,11 @@ class ExpDataSource(DataSource):
         +------+-----+-----+----------+-----+-----+------+-----+-----+----------+-----+-----+
         |MIN   |b < 0|b = 0|0 <= b < 1|b = 1|b > 1|MAX   |b < 0|b = 0|0 <= b < 1|b = 1|b > 1|
         +======+=====+=====+==========+=====+=====+======+=====+=====+==========+=====+=====+
-        |s < 0 |N/A  |s    |s         |s    |s * b|s < 0 |N/A  |s    |s * b     |s    |s    |
+        |s < 0 |NaN  |s    |s         |s    |s * b|s < 0 |NaN  |s    |s * b     |s    |s    |
         +------+-----+-----+----------+-----+-----+------+-----+-----+----------+-----+-----+
-        |s = 0 |N/A  |0    |0         |0    |0    |s = 0 |N/A  |0    |0         |0    |0    |
+        |s = 0 |NaN  |0    |0         |0    |0    |s = 0 |NaN  |0    |0         |0    |0    |
         +------+-----+-----+----------+-----+-----+------+-----+-----+----------+-----+-----+
-        |s >= 0|N/A  |0    |s * b     |s    |s    |s >= 0|N/A  |s    |s         |s    |s * b|
+        |s >= 0|NaN  |0    |s * b     |s    |s    |s >= 0|NaN  |s    |s         |s    |s * b|
         +------+-----+-----+----------+-----+-----+------+-----+-----+----------+-----+-----+
 
         :return: Constrains around results
@@ -423,17 +429,17 @@ class ExpDataSource(DataSource):
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
         return ResultConstrain(shape=self.result_shape, ranges=result_ranges)
 
-#Finished 2
 @dataclass
 class InterpolatingDataSource(DataSource):
     """
+    InterpolatingDataSource(data_sampler, interpolation_strategy)
     | **Description**
     |   An ``InterpolatingDataSource`` is an **ambivalent** source of data depending on the :doc:`DataSource </core/oracle/data_source>` it interpolates within. 
 
-    :param data_sampler: The data sample to interpolate within
-    :type data_sampler: tuple of
-    :param interpolation_strategy: The expected shape of the results
-    :type interpolation_strategy: tuple of ints
+    :param data_sampler: The data sampler to sample data for interpolation
+    :type data_sampler: DataSampler
+    :param interpolation_strategy: The interpolation strategy for the data points
+    :type interpolation_strategy: InterpolationStrategy
     """
     data_sampler: DataSampler = init()
     interpolation_strategy: InterpolationStrategy = init()
@@ -450,6 +456,7 @@ class InterpolatingDataSource(DataSource):
 
     def query(self, queries):
         """
+        query(self, queries) -> data_points
         | **Description**
         |   See :func:`DataSource.query()`
 
@@ -473,18 +480,18 @@ class InterpolatingDataSource(DataSource):
         """
         return self.interpolation_strategy.query_constrain()
 
-#Finished 2
 @dataclass
 class CrossDataSource(DataSource):
     """
+    CrossDataSource(query_shape, result_shape, a)
     | **Description**
     |   A ``CrossDataSource`` is a **semi-random** source of data choosing one of the following equations at random {``-a * x``, ``a * x``}. 
 
-    :param query_shape: The expected shape of the queries
+    :param query_shape: The expected shape of the queries (default= (1,))
     :type query_shape: tuple of ints
-    :param result_shape: The expected shape of the results
+    :param result_shape: The expected shape of the results (default= (1,))
     :type result_shape: tuple of ints
-    :param a: Coefficient of x
+    :param a: Coefficient of x (default= 1)
     :type a: float
     """
     query_shape: Tuple[int,...] = init(default=(1,))
@@ -493,6 +500,7 @@ class CrossDataSource(DataSource):
 
     def query(self, queries):
         """
+        query(self, queries) -> data_points
         | **Description**
         |   See :func:`DataSource.query()`
 
@@ -501,7 +509,7 @@ class CrossDataSource(DataSource):
         :return: Processed Query, Result 
         :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
         """
-         #TODO Ambition interactive view of graphs
+         
         direction = np.random.randint(2,size=(queries.shape[0], *self.result_shape))
 
         results_up = np.dot(queries, np.ones((*self.query_shape,*self.result_shape))*self.a) 
@@ -531,6 +539,7 @@ class CrossDataSource(DataSource):
     
     def result_constrain(self) -> ResultConstrain:
         """
+        result_constrain(self) -> ResultConstrain
         | **Description**
         |   See :func:`DataSource.result_constrain()` 
 
@@ -552,20 +561,20 @@ class CrossDataSource(DataSource):
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
         return ResultConstrain(shape=self.result_shape, ranges=result_ranges)
 
-#Finished 2
 @dataclass
 class DoubleLinearDataSource(DataSource):
     """
+    DoubleLinearDataSource(query_shape, result_shape, a, s)
     | **Description**
     |   A ``DoubleLinearDataSource`` is a **semi-random** source of data choosing one of the following equations at random {``a * x``, ``a * x * s``}. 
 
-    :param query_shape: The expected shape of the queries
+    :param query_shape: The expected shape of the queries  (default= (1,))
     :type query_shape: tuple of ints
-    :param result_shape: The expected shape of the results
+    :param result_shape: The expected shape of the results (default= (1,))
     :type result_shape: tuple of ints
-    :param a: Coefficient of x
+    :param a: Coefficient of x (default= 1)
     :type a: float
-    :param s: Coefficient that is randomly in- or excluded 
+    :param s: Coefficient that is randomly in- or excluded  (default= 0.5)
     :type s: float
     """
     query_shape: Tuple[int,...] = init(default=(1,))
@@ -575,6 +584,7 @@ class DoubleLinearDataSource(DataSource):
 
     def query(self, queries):
         """
+        query(self, queries) -> data_points
         | **Description**
         |   See :func:`DataSource.query()`
 
@@ -583,7 +593,7 @@ class DoubleLinearDataSource(DataSource):
         :return: Processed Query, Result 
         :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
         """
-         #TODO Ambition interactive view of graphs
+         
         slope = np.random.randint(2,size=(queries.shape[0], *self.result_shape))
 
         results_steap = np.dot(queries, np.ones((*self.query_shape,*self.result_shape))*self.a) 
@@ -613,6 +623,7 @@ class DoubleLinearDataSource(DataSource):
     
     def result_constrain(self) -> ResultConstrain:
         """
+        result_constrain(self) -> ResultConstrain
         | **Description**
         |   See :func:`DataSource.result_constrain()` 
 
@@ -638,18 +649,18 @@ class DoubleLinearDataSource(DataSource):
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
         return ResultConstrain(shape=self.result_shape, ranges=result_ranges)
 
-#Finished 2
 @dataclass
 class HourglassDataSource(DataSource):
     """
+    HourglassDataSource(query_shape, result_shape, a)
     | **Description**
     |   A ``HourglassDataSource`` is a **semi-random** source of data choosing one of the following equations at random {``a * x``, ``-a * x`` , ``-a/2``, ``a/2``}. 
 
-    :param query_shape: The expected shape of the queries
+    :param query_shape: The expected shape of the queries (default= (1,))
     :type query_shape: tuple of ints
-    :param result_shape: The expected shape of the results
+    :param result_shape: The expected shape of the results (default= (1,))
     :type result_shape: tuple of ints
-    :param a: Coefficient of x
+    :param a: Coefficient of x (default= 1)
     :type a: float
     """
     query_shape: Tuple[int,...] = init(default=(1,))
@@ -658,6 +669,7 @@ class HourglassDataSource(DataSource):
 
     def query(self, queries):
         """
+        query(self, queries) -> data_points
         | **Description**
         |   See :func:`DataSource.query()`
 
@@ -666,7 +678,7 @@ class HourglassDataSource(DataSource):
         :return: Processed Query, Result 
         :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
         """
-         #TODO Ambition interactive view of graphs
+         
         kind = np.random.randint(2,size=(queries.shape[0], *self.result_shape))
 
         results_up = np.dot(queries, np.ones((*self.query_shape,*self.result_shape))*self.a) 
@@ -701,6 +713,7 @@ class HourglassDataSource(DataSource):
     
     def result_constrain(self) -> ResultConstrain:
         """
+        result_constrain(self) -> ResultConstrain
         | **Description**
         |   See :func:`DataSource.result_constrain()` 
 
@@ -722,18 +735,18 @@ class HourglassDataSource(DataSource):
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
         return ResultConstrain(shape=self.result_shape, ranges=result_ranges)
 
-#Finished 2
 @dataclass
 class ZDataSource(DataSource):
     """
+    ZDataSource(query_shape, result_shape, a)
     | **Description**
     |   A ``ZDataSource`` is a **semi-random** source of data choosing one of the following equations at random {``a * x`` , ``-a/2``, ``a/2``}. 
 
-    :param query_shape: The expected shape of the queries
+    :param query_shape: The expected shape of the queries (default= (1,))
     :type query_shape: tuple of ints
-    :param result_shape: The expected shape of the results
+    :param result_shape: The expected shape of the results (default= (1,))
     :type result_shape: tuple of ints
-    :param a: Coefficient of x
+    :param a: Coefficient of x (default= 1)
     :type a: float
     """
     query_shape: Tuple[int,...] = init(default=(1,))
@@ -742,6 +755,7 @@ class ZDataSource(DataSource):
 
     def query(self, queries):
         """
+        query(self, queries) -> data_points
         | **Description**
         |   See :func:`DataSource.query()`
 
@@ -750,7 +764,7 @@ class ZDataSource(DataSource):
         :return: Processed Query, Result 
         :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
         """
-         #TODO Ambition interactive view of graphs
+         
         kind = np.random.randint(2,size=(queries.shape[0], *self.result_shape))
 
         results_const = (1- kind)*0.5 + kind*-0.5
@@ -804,18 +818,18 @@ class ZDataSource(DataSource):
             result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
             return ResultConstrain(shape=self.result_shape, ranges=result_ranges)    
 
-#Finished 2
 @dataclass
 class ZInvDataSource(DataSource):
     """
+    ZInvDataSource(query_shape, result_shape, a)
     | **Description**
     |   A ``ZInvDataSource`` is a **semi-random** source of data choosing one of the following equations at random {``-a * x`` , ``-a/2``, ``a/2``}. 
 
-    :param query_shape: The expected shape of the queries
+    :param query_shape: The expected shape of the queries (default= (1,))
     :type query_shape: tuple of ints
-    :param result_shape: The expected shape of the results
+    :param result_shape: The expected shape of the results (default= (1,))
     :type result_shape: tuple of ints
-    :param a: Coefficient of x
+    :param a: Coefficient of x (default= 1)
     :type a: float
     """
     query_shape: Tuple[int,...] = init(default=(1,))
@@ -824,6 +838,7 @@ class ZInvDataSource(DataSource):
 
     def query(self, queries):
         """
+        query(self, queries) -> data_points
         | **Description**
         |   See :func:`DataSource.query()`
 
@@ -832,7 +847,7 @@ class ZInvDataSource(DataSource):
         :return: Processed Query, Result 
         :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
         """
-         #TODO Ambition interactive view of graphs
+         
         kind = np.random.randint(2,size=(queries.shape[0], *self.result_shape))
 
         results_const = (1- kind)*0.5 + kind*-0.5
@@ -864,6 +879,7 @@ class ZInvDataSource(DataSource):
     
     def result_constrain(self) -> ResultConstrain:
         """
+        result_constrain(self) -> ResultConstrain
         | **Description**
         |   See :func:`DataSource.result_constrain()` 
 
@@ -885,20 +901,20 @@ class ZInvDataSource(DataSource):
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
         return ResultConstrain(shape=self.result_shape, ranges=result_ranges)
 
-#Finished 2
 @dataclass
 class LinearPeriodicDataSource(DataSource):
     """
+    LinearPeriodicDataSource(query_shape, result_shape, a, p)
     | **Description**
     |   A ``LinearPeriodicDataSource`` is a **deterministic** source of data representing the equation ``a*x mod p``. 
 
-    :param query_shape: The expected shape of the queries
+    :param query_shape: The expected shape of the queries (default= (1,))
     :type query_shape: tuple of ints
-    :param result_shape: The expected shape of the results
+    :param result_shape: The expected shape of the results (default= (1,))
     :type result_shape: tuple of ints
-    :param a: Coefficient of x
+    :param a: Coefficient of x (default= 1)
     :type a: float
-    :param p: Modulo divisor
+    :param p: Modulo divisor (default= 0.2)
     :type p: float
     """
     query_shape: Tuple[int,...] = init(default=(1,))
@@ -909,6 +925,7 @@ class LinearPeriodicDataSource(DataSource):
 
     def query(self, queries):
         """
+        query(self, queries) -> data_points
         | **Description**
         |   See :func:`DataSource.query()`
 
@@ -917,7 +934,7 @@ class LinearPeriodicDataSource(DataSource):
         :return: Processed Query, Result 
         :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
         """
-         #TODO Ambition interactive view of graphs
+         
         results = np.dot(queries % self.p, np.ones((*self.query_shape, *self.result_shape))*self.a)
         return queries, results
 
@@ -941,6 +958,7 @@ class LinearPeriodicDataSource(DataSource):
     
     def result_constrain(self) -> ResultConstrain:
         """
+        result_constrain(self) -> ResultConstrain
         | **Description**
         |   See :func:`DataSource.result_constrain()` 
 
@@ -953,7 +971,7 @@ class LinearPeriodicDataSource(DataSource):
         +=====+=====+=====+=====+=====+=====+=====+=====+
         |p < 0|p    |0    |p    |p < 0|0    |0    |0    |
         +-----+-----+-----+-----+-----+-----+-----+-----+
-        |p = 0|N/A  |N/A  |N/A  |p = 0|N/A  |N/A  |N/A  |
+        |p = 0|NaN  |NaN  |NaN  |p = 0|NaN  |NaN  |NaN  |
         +-----+-----+-----+-----+-----+-----+-----+-----+
         |p > 0|0    |0    |0    |p > 0|p    |0    |p    |
         +-----+-----+-----+-----+-----+-----+-----+-----+
@@ -966,20 +984,20 @@ class LinearPeriodicDataSource(DataSource):
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
         return ResultConstrain(shape=self.result_shape, ranges=result_ranges)
     
-#Finished 2
 @dataclass
 class LinearStepDataSource(DataSource):
     """
+    LinearStepDataSource(query_shape, result_shape, a, p)
     | **Description**
     |   A ``LinearStepDataSource`` is a **deterministic** source of data representing the equation ``a*(x-mod(x,p))/p``. 
 
-    :param query_shape: The expected shape of the queries
+    :param query_shape: The expected shape of the queries (default= (1,))
     :type query_shape: tuple of ints
-    :param result_shape: The expected shape of the results
+    :param result_shape: The expected shape of the results (default= (1,))
     :type result_shape: tuple of ints
-    :param a: Coefficient of x
+    :param a: Coefficient of x (default= 1)
     :type a: float
-    :param p: Integer divisor
+    :param p: Integer divisor (default= 0.2)
     :type p: float
     """
     query_shape: Tuple[int,...] = init(default=(1,))
@@ -989,6 +1007,7 @@ class LinearStepDataSource(DataSource):
 
     def query(self, queries):
         """
+        query(self, queries) -> data_points
         | **Description**
         |   See :func:`DataSource.query()`
 
@@ -997,7 +1016,7 @@ class LinearStepDataSource(DataSource):
         :return: Processed Query, Result 
         :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
         """
-         #TODO Ambition interactive view of graphs
+         
         remainder = queries % self.p
         offset = (queries - remainder) / self.p
         results = np.dot(offset, np.ones((*self.query_shape, *self.result_shape))*self.a)
@@ -1023,6 +1042,7 @@ class LinearStepDataSource(DataSource):
     
     def result_constrain(self) -> ResultConstrain:
         """
+        result_constrain(self) -> ResultConstrain
         | **Description**
         |   See :func:`DataSource.result_constrain()` 
 
@@ -1035,7 +1055,7 @@ class LinearStepDataSource(DataSource):
         +=====+============+=====+============+=====+============+=====+============+
         |p < 0|0           |0    |a*floor(1/p)|p < 0|a*floor(1/p)|0    |0           |
         +-----+------------+-----+------------+-----+------------+-----+------------+
-        |p = 0|N/A         |N/A  |N/A         |p = 0|N/A         |N/A  |N/A         |
+        |p = 0|NaN         |NaN  |NaN         |p = 0|NaN         |NaN  |NaN         |
         +-----+------------+-----+------------+-----+------------+-----+------------+
         |p > 0|a*floor(1/p)|0    |0           |p > 0|0           |0    |a*floor(1/p)|
         +-----+------------+-----+------------+-----+------------+-----+------------+
@@ -1048,10 +1068,22 @@ class LinearStepDataSource(DataSource):
         result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
         return ResultConstrain(shape=self.result_shape, ranges=result_ranges)
 
-#TODO
 @dataclass
 class SineDataSource(DataSource):
-    #sin((x-x0)*2pi*p) + y0
+    """
+    SineDataSource(query_shape, result_shape, a, p)
+    | **Description**
+    |   A ``SineDataSource`` is a **deterministic** source of data representing the equation ``sin((x-x0)*2pi*p) + y0``. 
+
+    :param query_shape: The expected shape of the queries (default= (1,))
+    :type query_shape: tuple of ints
+    :param result_shape: The expected shape of the results (default= (1,))
+    :type result_shape: tuple of ints
+    :param a: Coefficient of x (default= 1)
+    :type a: float
+    :param p: Integer divisor (default= 0.2)
+    :type p: float
+    """
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     a: float = init(default=1)
@@ -1062,6 +1094,7 @@ class SineDataSource(DataSource):
 
     def query(self, queries):
         """
+        query(self, queries) -> data_points
         | **Description**
         |   See :func:`DataSource.query()`
 
@@ -1070,7 +1103,7 @@ class SineDataSource(DataSource):
         :return: Processed Query, Result 
         :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
         """
-         #TODO Ambition interactive view of graphs
+         
         results = np.dot(np.sin((queries-self.x0) * 2 * np.pi * self.p), np.ones((*self.query_shape,*self.result_shape))*self.a) + np.ones(self.result_shape)*self.y0
         return queries, results
 
@@ -1092,16 +1125,27 @@ class SineDataSource(DataSource):
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
-#TODO
 @dataclass
 class HypercubeDataSource(DataSource):
-    #TODO HYPER
+    """
+    HypercubeDataSource(query_shape, result_shape, w)
+    | **Description**
+    |   A ``HypercubeDataSource`` is a **semi-random** source of data choosing for x in [-w,w) one of the following values at random {``-0.5`` , ``0.5``} and else a random value in [-0.5 , 0.5). 
+
+    :param query_shape: The expected shape of the queries (default= (1,))
+    :type query_shape: tuple of ints
+    :param result_shape: The expected shape of the results (default= (1,))
+    :type result_shape: tuple of ints
+    :param w: Outside what range [-w, w) to break down into randomness (default= 0.4)
+    :type w: float
+    """
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     w: float = init(default=0.4)
 
     def query(self, queries):
         """
+        query(self, queries) -> data_points
         | **Description**
         |   See :func:`DataSource.query()`
 
@@ -1110,7 +1154,7 @@ class HypercubeDataSource(DataSource):
         :return: Processed Query, Result 
         :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
         """
-         #TODO Ambition interactive view of graphs
+         
         kind = np.random.randint(2,size=(queries.shape[0], *self.result_shape))
 
         random = np.random.uniform(-0.5,0.5, size=(queries.shape[0], *self.result_shape))
@@ -1142,16 +1186,27 @@ class HypercubeDataSource(DataSource):
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
-#TODO
 @dataclass
 class StarDataSource(DataSource):
-    #TODO HYPER
+    """
+    StarDataSource(query_shape, result_shape, w)
+    | **Description**
+    |   A ``StarDataSource`` is a **semi-random** source of data choosing for x in [-w,w) a random value in [-0.5 , 0.5) and else one of the following equations at random {``-x`` , ``0``, ``x``}. 
+
+    :param query_shape: The expected shape of the queries (default= (1,))
+    :type query_shape: tuple of ints
+    :param result_shape: The expected shape of the results (default= (1,))
+    :type result_shape: tuple of ints
+    :param w: Inside what range [-w, w) to break down into randomness (default= 0.0.05)
+    :type w: float
+    """
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     w: float = init(default=0.05)
 
     def query(self, queries):
         """
+        query(self, queries) -> data_points
         | **Description**
         |   See :func:`DataSource.query()`
 
@@ -1160,7 +1215,7 @@ class StarDataSource(DataSource):
         :return: Processed Query, Result 
         :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
         """
-         #TODO Ambition interactive view of graphs
+         
         direction = np.random.randint(2,size=(queries.shape[0], *self.result_shape))
 
         results_up = np.dot(queries, np.ones((*self.query_shape,*self.result_shape))) 
@@ -1198,15 +1253,24 @@ class StarDataSource(DataSource):
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
-#TODO
 @dataclass
 class HyperSphereDataSource(DataSource):
-    #TODO HYPER
+    """
+    HypersphereDataSource(query_shape, result_shape)
+    | **Description**
+    |   A ``HypersphereDataSource`` is a **semi-random** source of data choosing one of the following equations at random {``-sqrt(abs(1-x²))``, ``sqrt(abs(1-x²))``}. 
+
+    :param query_shape: The expected shape of the queries (default= (1,))
+    :type query_shape: tuple of ints
+    :param result_shape: The expected shape of the results (default= (1,))
+    :type result_shape: tuple of ints
+    """
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
 
     def query(self, queries):
         """
+        query(self, queries) -> data_points
         | **Description**
         |   See :func:`DataSource.query()`
 
@@ -1215,7 +1279,7 @@ class HyperSphereDataSource(DataSource):
         :return: Processed Query, Result 
         :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
         """
-         #TODO Ambition interactive view of graphs
+         
         x = np.dot(-1*np.square(queries), np.ones((*self.query_shape,*self.result_shape)))
         y = x + np.ones(self.result_shape)
         top_half = np.sqrt(np.abs(y))
@@ -1243,11 +1307,28 @@ class HyperSphereDataSource(DataSource):
         query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
-#TODO
 @dataclass
 class IndependentDataSource(DataSource):
-    #wtf is this
-    #TODO INDEPENDENT
+    """
+    IndependentDataSource(reinit, query_shape, result_shape, number_of_distributions, all_distributions, distributions, coefficients)
+    | **Description**
+    |   An ``IndependentDataSource`` is a **random** source of data randomly choosing between multiple random distributions to randomly choose from.
+
+    :param reinit: If the DataSource should re-initiate its singleton (default= False)
+    :type reinit: bool
+    :param query_shape: The expected shape of the queries (default= (1,))
+    :type query_shape: tuple of ints
+    :param result_shape: The expected shape of the results (default= (1,))
+    :type result_shape: tuple of ints
+    :param number_of_distributions: The amount of data distributions to choose from (default= 20)
+    :type number_of_distributions: int
+    :param all_distributions: A tuple of all differen distributions to choose from (default= (np.random.normal,np.random.uniform,np.random.gamma))
+    :type all_distributions: Tuple
+    :param distributions: A list of all number_of_distributions many distributions (default= random)
+    :type distributions: list
+    :param coefficients: The likelihood for each distribution to be chosen (default= random)
+    :type coefficients: NDArray[Shape['D'], Number]
+    """
     reinit: bool = init(default=False)
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
@@ -1269,6 +1350,11 @@ class IndependentDataSource(DataSource):
 
 
     def init_singleton(self):
+        """
+        init_singleton(self) -> None
+        | **Description**
+        |   Initializes the distributions with random values within the given restrictions.
+        """
         if self.distributions is None or self.reinit == True:
             self.distributions = []
             for i in range(self.number_of_distributions):
@@ -1288,6 +1374,7 @@ class IndependentDataSource(DataSource):
 
     def query(self, queries):
         """
+        query(self, queries) -> data_points
         | **Description**
         |   See :func:`DataSource.query()`
 
@@ -1296,7 +1383,7 @@ class IndependentDataSource(DataSource):
         :return: Processed Query, Result 
         :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
         """
-         #TODO Ambition interactive view of graphs
+         
         sample_size = queries.shape[0]
         distrs = np.random.choice(a=self.distributions, size=(sample_size, *self.result_shape), p=self.coefficients)
         distrs_flat = distrs.flat
@@ -1338,11 +1425,28 @@ class IndependentDataSource(DataSource):
         obj.coefficients = self.coefficients
         return obj
 
-#TODO
 @dataclass
 class GaussianProcessDataSource(DataSource):
-    #pls explain
-    #TODO GAUSSIAN
+    """
+    GaussianProcessDataSource(reinit, query_shape, result_shape, kern, support_points, min_support, max_support)
+    | **Description**
+    |   A ``GaussianProcessDataSource`` is a **semi-random** source of data interpolating between random data points using Gaussian Process Regression.
+
+    :param reinit: If the DataSource should re-initiate its singleton (default= False)
+    :type reinit: bool
+    :param query_shape: The expected shape of the queries (default= (1,))
+    :type query_shape: tuple of ints
+    :param result_shape: The expected shape of the results (default= (1,))
+    :type result_shape: tuple of ints
+    :param kern: The `kernel <https://gpy.readthedocs.io/en/devel/GPy.kern.html>`_   to use for the gaussian process (default=GPy.Kern.RBF "Radial Basis Function")
+    :type kern: GPy.kern.Kern
+    :param support_points: The amount of data points to interpolate between in the gaussian process. (default= 2000)
+    :type support_points: int
+    :param min_support: The lowest permitted query value for each support (default= (-1,))
+    :type min_support: tuple of floats
+    :param max_support: The highest permitted query value for each support (default= (1,))
+    :type max_support: tuple of floats
+    """
     reinit: bool = init(default=False)
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
@@ -1367,6 +1471,11 @@ class GaussianProcessDataSource(DataSource):
         self.init_singleton()
     
     def init_singleton(self):
+        """
+        init_singleton(self) -> None
+        | **Description**
+        |   Initializes the Gaussian Process Regression with random values within the given restrictions.
+        """
         if self.regression is None or self.reinit == True:
             rng = np.random.RandomState(None)
             support = rng.uniform(self.min_support, self.max_support, (self.support_points, *self.query_shape))
@@ -1393,7 +1502,7 @@ class GaussianProcessDataSource(DataSource):
         :return: Processed Query, Result 
         :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
         """
-         #TODO Ambition interactive view of graphs
+         
         flat_queries = queries.reshape((queries.shape[0], -1))
         
         flat_results, pred_cov = self.regression.predict_noiseless(flat_queries)
@@ -1402,6 +1511,18 @@ class GaussianProcessDataSource(DataSource):
         return queries, results
 
     def query_constrain(self) -> QueryConstrain:
+        """
+        query_constrain(self) -> QueryConstrain
+        | **Description**
+        |   See :func:`DataSource.query_constrain()` 
+
+        | **Current Constrains**
+        |   *Shape:* ``query_shape``
+        |   *Value Range:* [min_support, max_support)
+
+        :return: Constrains around queries
+        :rtype: QueryConstrain
+        """
         x_min_max = zip(self.min_support, self.max_support)
         query_ranges = np.asarray(tuple((x_min, x_max) for x_min, x_max in x_min_max))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
@@ -1420,10 +1541,30 @@ class GaussianProcessDataSource(DataSource):
         obj.regression = self.regression
         return obj # type: ignore
     
-#TODO
 @dataclass
 class BrownianProcessDataSource(GaussianProcessDataSource):
-    #TODO DRIFT
+    """
+    BrownianProcessDataSource(reinit, query_shape, result_shape, kern, support_points, min_support, max_support, brown_var)
+    | **Description**
+    |   A ``BrownianProcessDataSource`` is a **semi-random** source of data interpolating between random data points using Brownian Motion.
+
+    :param reinit: If the DataSource should re-initiate its singleton (default= False)
+    :type reinit: bool
+    :param query_shape: The expected shape of the queries (default= (1,))
+    :type query_shape: tuple of ints
+    :param result_shape: The expected shape of the results (default= (1,))
+    :type result_shape: tuple of ints
+    :param kern: The `kernel <https://gpy.readthedocs.io/en/devel/GPy.kern.html>`_   to use for the gaussian process (invariably set to GPy.Kern.Brownian)
+    :type kern: GPy.kern.Kern
+    :param support_points: The amount of data points to interpolate between in the gaussian process. (default= 2000)
+    :type support_points: int
+    :param min_support: The lowest permitted query value for each support (default= (0,))
+    :type min_support: tuple of floats
+    :param max_support: The highest permitted query value for each support (default= (100,))
+    :type max_support: tuple of floats
+    :param brown_var: The variance of the brownian motion (default= 0.01)
+    :type brown_var: float
+    """
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     min_support: Tuple[float,...] = init(default=(0,))
@@ -1431,13 +1572,44 @@ class BrownianProcessDataSource(GaussianProcessDataSource):
     brown_var: float = init(default=0.01)
 
     def post_init(self):
+        """
+        post_init(self) -> None
+        | **Description**
+        |   Assigns a Brownian Kernel to itself.
+        |   Initializes its Singleton.
+        |   See :func:`init_singleton` for more.
+        """
         self.kern = GPy.kern.Brownian(variance=self.brown_var)
         super().post_init()
     
-#TODO
 @dataclass
 class BrownianDriftDataSource(GaussianProcessDataSource):
-    #TODO DRIFT
+    """
+    BrownianDriftDataSource(reinit, query_shape, result_shape, kern, support_points, brown_var, rbf_var, rbf_leng, min_support, max_support)
+    | **Description**
+    |   A ``BrownianDriftDataSource`` is a **semi-random** source of data interpolating between random data points using a linear function y=ab+a where a is a RBF Kernel and b is a Brownian Kernel.
+
+    :param reinit: If the DataSource should re-initiate its singleton (default= False)
+    :type reinit: bool
+    :param query_shape: The expected shape of the queries (default= (2,))
+    :type query_shape: tuple of ints
+    :param result_shape: The expected shape of the results (default= (1,))
+    :type result_shape: tuple of ints
+    :param kern: The `kernel <https://gpy.readthedocs.io/en/devel/GPy.kern.html>`_   to use for the gaussian process (invariably set to GPy.Kern.Brownian)
+    :type kern: GPy.kern.Kern
+    :param support_points: The amount of data points to interpolate between in the gaussian process. (default= 2000)
+    :type support_points: int
+    :param brown_var: The variance of the brownian motion (default= 0.01)
+    :type brown_var: float
+    :param rbf_var: The variance of the Radial Basis Function (default= 0.25)
+    :type rbf_var: float
+    :param rbf_leng: The smoothness of the function, where higher values correspond to higher smoothness (default= 0.1)
+    :type rbf_leng: float
+    :param min_support: The lowest permitted query value for each support (default= (0,))
+    :type min_support: tuple of floats
+    :param max_support: The highest permitted query value for each support (default= (100,))
+    :type max_support: tuple of floats
+    """
     query_shape: Tuple[int,...] = init(default=(2,))
     result_shape: Tuple[int,...] = init(default=(1,))
     brown_var: float = init(default=0.01) #0.005
@@ -1447,14 +1619,44 @@ class BrownianDriftDataSource(GaussianProcessDataSource):
     max_support: Tuple[float,...] = init(default=(2000,1))
 
     def post_init(self):
+        """
+        post_init(self) -> None
+        | **Description**
+        |   Assigns a Brownian_Kernel*RBF_Kernel+RBF_Kernel to itself.
+        |   Initializes its Singleton.
+        |   See :func:`init_singleton` for more.
+        """
         self.kern = GPy.kern.Brownian(active_dims=[0],variance=self.brown_var)*GPy.kern.RBF(input_dim=1, lengthscale=self.rbf_leng, variance=self.rbf_var, active_dims=[1])+GPy.kern.RBF(input_dim=1, lengthscale=self.rbf_leng, variance=self.rbf_var, active_dims=[1])
         super().post_init()
 
-#TODO
 @dataclass
 class RBFDriftDataSource(GaussianProcessDataSource):
-    #Radial basis function
-    #TODO DRIFT
+    """
+    RBFDriftDataSource(reinit, query_shape, result_shape, kern, support_points, brown_var, rbf_var, rbf_leng, min_support, max_support)
+    | **Description**
+    |   A ``RBFDriftDataSource`` is a **semi-random** source of data interpolating with a RBF kernel with RBF drift.
+
+    :param reinit: If the DataSource should re-initiate its singleton (default= False)
+    :type reinit: bool
+    :param query_shape: The expected shape of the queries (default= (2,))
+    :type query_shape: tuple of ints
+    :param result_shape: The expected shape of the results (default= (1,))
+    :type result_shape: tuple of ints
+    :param kern: The `kernel <https://gpy.readthedocs.io/en/devel/GPy.kern.html>`_   to use for the gaussian process (invariably set to GPy.Kern.Brownian)
+    :type kern: GPy.kern.Kern
+    :param support_points: The amount of data points to interpolate between in the gaussian process. (default= 2000)
+    :type support_points: int
+    :param brown_var: The variance of the brownian motion (default= 0.01)
+    :type brown_var: float
+    :param rbf_var: The variance of the Radial Basis Function (default= 0.25)
+    :type rbf_var: float
+    :param rbf_leng: The smoothness of the function, where higher values correspond to higher smoothness (default= 0.1)
+    :type rbf_leng: float
+    :param min_support: The lowest permitted query value for each support (default= (0, -1))
+    :type min_support: tuple of floats
+    :param max_support: The highest permitted query value for each support (default= (2000, 1))
+    :type max_support: tuple of floats
+    """
     query_shape: Tuple[int,...] = init(default=(2,))
     result_shape: Tuple[int,...] = init(default=(1,))
     brown_var: float = init(default=0.01) #0.005
@@ -1464,13 +1666,44 @@ class RBFDriftDataSource(GaussianProcessDataSource):
     max_support: Tuple[float,...] = init(default=(2000,1))
 
     def post_init(self):
+        """
+        post_init(self) -> None
+        | **Description**
+        |   Initializes its Kernel.
+        |   Initializes its Singleton.
+        |   See :func:`init_singleton` for more.
+        """
         self.kern = GPy.kern.RBF(input_dim=1, active_dims=[0],variance=self.rbf_var*2, lengthscale=self.brown_var*2000)*GPy.kern.RBF(input_dim=1, lengthscale=self.rbf_leng, variance=self.rbf_var, active_dims=[1])+GPy.kern.RBF(input_dim=1, lengthscale=self.rbf_leng, variance=self.rbf_var, active_dims=[1])
         super().post_init()
 
-#TODO
 @dataclass
 class SinDriftDataSource(GaussianProcessDataSource):
-    #TODO DRIFT
+    """
+    SinDriftDataSource(reinit, query_shape, result_shape, kern, support_points, brown_var, rbf_var, rbf_leng, min_support, max_support)
+    | **Description**
+    |   A ``SinDriftDataSource`` is a **semi-random** source of data interpolating data points with a cosine kernel with rbf drift.
+
+    :param reinit: If the DataSource should re-initiate its singleton (default= False)
+    :type reinit: bool
+    :param query_shape: The expected shape of the queries (default= (2,))
+    :type query_shape: tuple of ints
+    :param result_shape: The expected shape of the results (default= (1,))
+    :type result_shape: tuple of ints
+    :param kern: The `kernel <https://gpy.readthedocs.io/en/devel/GPy.kern.html>`_   to use for the gaussian process (invariably set to GPy.Kern.Brownian)
+    :type kern: GPy.kern.Kern
+    :param support_points: The amount of data points to interpolate between in the gaussian process. (default= 2000)
+    :type support_points: int
+    :param brown_var: The variance of the brownian motion (default= 0.01)
+    :type brown_var: float
+    :param rbf_var: The variance of the Radial Basis Function (default= 0.25)
+    :type rbf_var: float
+    :param rbf_leng: The smoothness of the function, where higher values correspond to higher smoothness (default= 0.1)
+    :type rbf_leng: float
+    :param min_support: The lowest permitted query value for each support (default= (0, -1))
+    :type min_support: tuple of floats
+    :param max_support: The highest permitted query value for each support (default= (2000, 1))
+    :type max_support: tuple of floats
+    """
     query_shape: Tuple[int,...] = init(default=(2,))
     result_shape: Tuple[int,...] = init(default=(1,))
     brown_var: float = init(default=0.005) #0.005
@@ -1481,13 +1714,42 @@ class SinDriftDataSource(GaussianProcessDataSource):
 
 
     def post_init(self):
+        """
+        post_init(self) -> None
+        | **Description**
+        |   Initializes its Kernel.
+        |   Initializes its Singleton.
+        |   See :func:`init_singleton` for more.
+        """
         self.kern = GPy.kern.Cosine(input_dim=1, active_dims=[0],variance=self.rbf_var*2, lengthscale=self.brown_var*2000)*GPy.kern.RBF(input_dim=1, lengthscale=self.rbf_leng, variance=self.rbf_var, active_dims=[1])+GPy.kern.RBF(input_dim=1, lengthscale=self.rbf_leng, variance=self.rbf_var, active_dims=[1])
         super().post_init()
 
-#TODO
 @dataclass
 class MixedDriftDataSource(GaussianProcessDataSource):
-    #TODO DRIFT
+    """
+    MixedDriftDataSource(support_points, reinit, query_shape, result_shape, brown_var, rbf_var, rbf_leng, min_support, max_support)
+    | **Description**
+    |   A ``MixedDriftDataSource`` is a **semi-random** source of data interpolating data points with a linear combination of RBF, Brownian and Cosine kernels and RBF drift.
+
+    :param support_points: The amount of data points to interpolate between in the gaussian process. (default= 2000)
+    :type support_points: int
+    :param reinit: If the DataSource should re-initiate its singleton (default= False)
+    :type reinit: bool
+    :param query_shape: The expected shape of the queries (default= (2,))
+    :type query_shape: tuple of ints
+    :param result_shape: The expected shape of the results (default= (1,))
+    :type result_shape: tuple of ints
+    :param brown_var: The variance of the brownian motion (default= 0.01)
+    :type brown_var: float
+    :param rbf_var: The variance of the Radial Basis Function (default= 0.25)
+    :type rbf_var: float
+    :param rbf_leng: The smoothness of the function, where higher values correspond to higher smoothness (default= 0.1)
+    :type rbf_leng: float
+    :param min_support: The lowest permitted query value for each support (default= (0, -1))
+    :type min_support: tuple of floats
+    :param max_support: The highest permitted query value for each support (default= (2000, 1))
+    :type max_support: tuple of floats
+    """
     support_points: int= init(default=2000)
     reinit: bool = init(default=False)
     query_shape: Tuple[int,...] = init(default=(2,))
@@ -1499,6 +1761,13 @@ class MixedDriftDataSource(GaussianProcessDataSource):
     max_support: Tuple[float,...] = init(default=(2000,1))
 
     def post_init(self):
+        """
+        post_init(self) -> None
+        | **Description**
+        |   Initializes its 7 kernels.
+        |   Initializes its Singleton.
+        |   See :func:`init_singleton` for more.
+        """
         self.gp_i = GaussianProcessDataSource(
             kern=GPy.kern.RBF(input_dim=1, lengthscale=self.rbf_leng, variance=self.rbf_var, active_dims=[0]),
             reinit=self.reinit, support_points=self.support_points, min_support=(self.min_support[1],),
@@ -1538,6 +1807,7 @@ class MixedDriftDataSource(GaussianProcessDataSource):
 
     def query(self, queries):
         """
+        query(self, queries) -> data_points
         | **Description**
         |   See :func:`DataSource.query()`
 
@@ -1546,7 +1816,7 @@ class MixedDriftDataSource(GaussianProcessDataSource):
         :return: Processed Query, Result 
         :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
         """
-         #TODO Ambition interactive view of graphs
+         
         flat_queries = queries.reshape((queries.shape[0], -1))
 
         y_i = self.gp_i.query(flat_queries[:,1:])[1]
@@ -1566,14 +1836,48 @@ class MixedDriftDataSource(GaussianProcessDataSource):
         return queries, results
 
     def query_constrain(self) -> QueryConstrain:
+        """
+        query_constrain(self) -> QueryConstrain
+        | **Description**
+        |   See :func:`DataSource.query_constrain()` 
+
+        | **Current Constrains**
+        |   *Shape:* ``query_shape``
+        |   *Value Range:* [min_support, max_support)
+
+        :return: Constrains around queries
+        :rtype: QueryConstrain
+        """
         x_min_max = zip(self.min_support, self.max_support)
         query_ranges = np.asarray(tuple((x_min, x_max) for x_min, x_max in x_min_max))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
-#TODO
 @dataclass
 class MixedBrownDriftDataSource(GaussianProcessDataSource):
-    #TODO DRIFT
+    """
+    MixedDriftDataSource(support_points, reinit, query_shape, result_shape, brown_var, rbf_var, rbf_leng, min_support, max_support)
+    | **Description**
+    |   A ``MixedDriftDataSource`` is a **semi-random** source of data interpolating data points with a linear combination of RBF, Brownian and Cosine kernels and Brownian Drift.
+
+    :param support_points: The amount of data points to interpolate between in the gaussian process. (default= 2000)
+    :type support_points: int
+    :param reinit: If the DataSource should re-initiate its singleton (default= False)
+    :type reinit: bool
+    :param query_shape: The expected shape of the queries (default= (2,))
+    :type query_shape: tuple of ints
+    :param result_shape: The expected shape of the results (default= (1,))
+    :type result_shape: tuple of ints
+    :param brown_var: The variance of the brownian motion (default= 0.01)
+    :type brown_var: float
+    :param rbf_var: The variance of the Radial Basis Function (default= 0.25)
+    :type rbf_var: float
+    :param rbf_leng: The smoothness of the function, where higher values correspond to higher smoothness (default= 0.1)
+    :type rbf_leng: float
+    :param min_support: The lowest permitted query value for each support (default= (0, -1))
+    :type min_support: tuple of floats
+    :param max_support: The highest permitted query value for each support (default= (2000, 1))
+    :type max_support: tuple of floats
+    """
     support_points: int= init(default=2000)
     reinit: bool = init(default=False)
     query_shape: Tuple[int,...] = init(default=(2,))
@@ -1585,6 +1889,13 @@ class MixedBrownDriftDataSource(GaussianProcessDataSource):
     max_support: Tuple[float,...] = init(default=(2000,1))
 
     def post_init(self):
+        """
+        post_init(self) -> None
+        | **Description**
+        |   Initializes its 7 kernels.
+        |   Initializes its Singleton.
+        |   See :func:`init_singleton` for more.
+        """
         self.gp_i = GaussianProcessDataSource(
             kern=GPy.kern.RBF(input_dim=1, lengthscale=self.rbf_leng, variance=self.rbf_var, active_dims=[0]),
             reinit=self.reinit, support_points=self.support_points, min_support=(self.min_support[1],),
@@ -1624,6 +1935,7 @@ class MixedBrownDriftDataSource(GaussianProcessDataSource):
 
     def query(self, queries):
         """
+        query(self, queries) -> data_points
         | **Description**
         |   See :func:`DataSource.query()`
 
@@ -1632,7 +1944,7 @@ class MixedBrownDriftDataSource(GaussianProcessDataSource):
         :return: Processed Query, Result 
         :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
         """
-         #TODO Ambition interactive view of graphs
+         
         flat_queries = queries.reshape((queries.shape[0], -1))
 
         y_i = self.gp_i.query(flat_queries[:,1:])[1]
@@ -1652,14 +1964,42 @@ class MixedBrownDriftDataSource(GaussianProcessDataSource):
         return queries, results
 
     def query_constrain(self) -> QueryConstrain:
+        """
+        query_constrain(self) -> QueryConstrain
+        | **Description**
+        |   See :func:`DataSource.query_constrain()` 
+
+        | **Current Constrains**
+        |   *Shape:* ``query_shape``
+        |   *Value Range:* [min_support, max_support)
+
+        :return: Constrains around queries
+        :rtype: QueryConstrain
+        """
         x_min_max = zip(self.min_support, self.max_support)
         query_ranges = np.asarray(tuple((x_min, x_max) for x_min, x_max in x_min_max))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
 
-#TODO
 @dataclass
 class TimeBehaviorDataSource(TimeDataSource):
-    #TODO TIME
+    """
+    TimeBehaviorDataSource(query_shape, result_shape, behavior, change_times, change_values, current_time)
+    | **Description**
+    |   A ``TimeBehaviorDataSource`` is an **ambivalent** source of data depending on the DataBehavior over time. 
+
+    :param query_shape: The expected shape of the queries (default= (1,))
+    :type query_shape: tuple of ints
+    :param result_shape: The expected shape of the results (default= (1,))
+    :type result_shape: tuple of ints
+    :param behavior: How the data behaves over time
+    :type behavior: DataBehavior
+    :param change_times: At what times data behavior changes
+    :type change_times: NDArray[Shape["change_times"], Number]
+    :param change_values: How the values change at the given times
+    :type change_values: NDArray[Shape["change_values"], Number]
+    :param current_time: Current (or starting) time in the experiment (default= 0)
+    :type current_time: float
+    """
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     behavior: DataBehavior = init()
@@ -1668,6 +2008,12 @@ class TimeBehaviorDataSource(TimeDataSource):
     current_time: float = pre_init(default=0)
 
     def post_init(self):
+        """
+        post_init(self) -> None
+        | **Description**
+        |   Initializes its Singleton.
+        |   See :func:`init_singleton` for more.
+        """
         super().post_init()
         self.behavior = is_set(self.behavior)()
         self.change_times, self.change_values = self.behavior.behavior()
@@ -1675,6 +2021,14 @@ class TimeBehaviorDataSource(TimeDataSource):
 
     @property
     def exhausted(self):
+        """
+        exhausted(self) -> bool
+        | **Description**
+        |   True if current time has exceeded the data source's stop time.
+
+        :return: Exhausted or not
+        :rtype: bool
+        """
         return self.current_time < self.behavior.stop_time
 
     def query(self, queries: NDArray[ Shape["query_nr, ... query_dim"], Number]) -> Tuple[NDArray[Shape["query_nr, ... query_dim"], Number], NDArray[Shape["query_nr, ... result_dim"], Number]]: # type: ignore
@@ -1687,7 +2041,7 @@ class TimeBehaviorDataSource(TimeDataSource):
         :return: Processed Query, Result 
         :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
         """
-         #TODO Ambition interactive view of graphs
+         
         times = queries
         self.current_time = times[-1,0]
 
