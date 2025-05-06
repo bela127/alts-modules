@@ -45,8 +45,8 @@ jobs:
         poetry env use 3.9.6
     - name: Setup virtual environment with poetry
       run: |
-        poetry install
-        source ./.venv/bin/activate
+        poetry install       
     - name: Test with pytest
       run: |
+        source ./.venv/bin/activate
         poetry run pytest
