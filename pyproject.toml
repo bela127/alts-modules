@@ -33,5 +33,5 @@ plugins = "numpy.typing.mypy_plugin"
 
 [tool.pytest.ini_options]
 pythonpath = [
-  "alts-core", "alts-modules"
+  "alts-core/alts-core", "alts-modules/alts-modules"
 ]
