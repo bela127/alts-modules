@@ -73,7 +73,7 @@ class OptimalQuerySampler(QuerySampler):
 @dataclass
 class FixedQuerySampler(QuerySampler):
     """
-    FixedQuerySampler(num_queries)
+    FixedQuerySampler(num_queries, fixed_query)
     | **Description**
     |   Always samples the same fixed query.
 

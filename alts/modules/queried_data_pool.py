@@ -21,11 +21,6 @@ class FlatQueriedDataPool(QueriedDataPool):
     FlatQueriedDataPool(query_constrain, result_constrain)
     | **Description**
     |   This queryable data pool returns a random result matching the query.
-
-    :param query_constrain: The data pool's query constraints
-    :type query_constrain: QueryConstrain
-    :param result_constrain: The data pool's result constraints
-    :type result_constrain: ResultConstrain
     """
 
     def __init__(self):

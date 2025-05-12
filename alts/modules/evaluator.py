@@ -29,12 +29,10 @@ if TYPE_CHECKING:
 
 class PrintNewDataPointsEvaluator(Evaluator):
     """
-    PrintNewDataPointsEvaluator(experiment)
+    PrintNewDataPointsEvaluator()
     | **Description**
     |   This evaluator keeps track of the experiment's results.
 
-    :param experiment: The experiment to be evaluated
-    :type experiment: Experiment
     """
     def register(self, experiment: Experiment):
         """
@@ -68,12 +66,10 @@ class PrintNewDataPointsEvaluator(Evaluator):
 
 class PrintQueryEvaluator(Evaluator):
     """
-    PrintQueryEvaluator(experiment)
+    PrintQueryEvaluator()
     | **Description**
     |   This evaluator keeps track of the experiment's queries.
 
-    :param experiment: The experiment to be evaluated
-    :type experiment: Experiment
     """
     def register(self, experiment: Experiment):
         """
@@ -106,12 +102,10 @@ class PrintQueryEvaluator(Evaluator):
         print("Queried: \n",queries)
 class PrintExpTimeEvaluator(Evaluator):
     """
-    PrintExpTimeEvaluator(experiment)
+    PrintExpTimeEvaluator()
     | **Description**
     |   This evaluator measures how long the experiment takes to run.
 
-    :param experiment: The experiment to be evaluated
-    :type experiment: Experiment
     """
     def register(self, experiment: Experiment):
         """
@@ -148,12 +142,10 @@ class PrintExpTimeEvaluator(Evaluator):
 
 class PrintTimeSourceEvaluator(Evaluator):
     """
-    PrintTimeSourceEvaluator(experiment)
+    PrintTimeSourceEvaluator()
     | **Description**
     |   This Evaluator keeps track of the experiment's internal time.
 
-    :param experiment: The experiment to be evaluated
-    :type experiment: Experiment
     """
     def register(self, experiment: Experiment):
         """
@@ -184,12 +176,10 @@ class PrintTimeSourceEvaluator(Evaluator):
 @dataclass
 class PlotNewDataPointsEvaluator(LogingEvaluator):
     """
-    PlotNewDataPointsEvaluator(experiment)
+    PlotNewDataPointsEvaluator()
     | **Description**
     |   This evaluator plots all of the experiment's new data points continuously as they arrive.
 
-    :param experiment: The experiment to be evaluated
-    :type experiment: Experiment
     """
     interactive: bool = False
     folder: str = "fig"
@@ -252,12 +242,10 @@ class PlotNewDataPointsEvaluator(LogingEvaluator):
 @dataclass
 class PlotAllDataPointsEvaluator(LogingEvaluator):
     """
-    PlotALlDataPointsEvaluator(experiment)
+    PlotALlDataPointsEvaluator()
     | **Description**
     |   This evaluator plots all of the experiment's data points after the experiment has concluded.
 
-    :param experiment: The experiment to be evaluated
-    :type experiment: Experiment
     """
     interactive: bool = False
     folder: str = "fig"
@@ -307,12 +295,10 @@ class PlotAllDataPointsEvaluator(LogingEvaluator):
 @dataclass
 class PlotQueryDistEvaluator(LogingEvaluator):
     """
-    PlotQueryDistEvaluator(experiment)
+    PlotQueryDistEvaluator()
     | **Description**
     |   This evaluator plots all of the experiment's new queries continuously as they are made as a histogram.
 
-    :param experiment: The experiment to be evaluated
-    :type experiment: Experiment
     """
     interactive: bool = False
     folder: str = "fig"
@@ -365,12 +351,10 @@ class PlotQueryDistEvaluator(LogingEvaluator):
 
 class PlotSampledQueriesEvaluator(LogingEvaluator):
     """
-    PlotSampledQueriesEvaluator(experiment)
+    PlotSampledQueriesEvaluator()
     | **Description**
     |   This evaluator plots the experiment's selected queries.
 
-    :param experiment: The experiment to be evaluated
-    :type experiment: Experiment
     """
     interactive: bool = True
     folder: str = "fig"
@@ -411,12 +395,10 @@ class PlotSampledQueriesEvaluator(LogingEvaluator):
 @dataclass
 class LogOracleEvaluator(LogingEvaluator):
     """
-    LogOracleEvaluator(experiment)
+    LogOracleEvaluator()
     | **Description**
     |   This evaluator logs all queries processed by the oracle.
 
-    :param experiment: The experiment to be evaluated
-    :type experiment: Experiment
     """
     folder: str = "log"
     file_name:str = "oracle_data"
@@ -471,12 +453,10 @@ class LogOracleEvaluator(LogingEvaluator):
 @dataclass
 class LogStreamEvaluator(LogingEvaluator):
     """
-    LogStreamEvaluator(experiment)
+    LogStreamEvaluator()
     | **Description**
     |   This evaluator logs all data points added to the experiment's data pools stream.
 
-    :param experiment: The experiment to be evaluated
-    :type experiment: Experiment
     """
     folder: str = "log"
     file_name:str = "stream"
@@ -534,12 +514,10 @@ class LogStreamEvaluator(LogingEvaluator):
 @dataclass
 class LogProcessEvaluator(LogingEvaluator):
     """
-    LogProcessEvaluator(experiment)
+    LogProcessEvaluator()
     | **Description**
     |   This evaluator logs all data points added to the experiment's data pools process.
 
-    :param experiment: The experiment to be evaluated
-    :type experiment: Experiment
     """
     folder: str = "log"
     file_name:str = "process"
@@ -595,12 +573,10 @@ class LogProcessEvaluator(LogingEvaluator):
 @dataclass
 class LogResultEvaluator(LogingEvaluator):
     """
-    LogProcessEvaluator(experiment)
+    LogProcessEvaluator()
     | **Description**
     |   This evaluator logs all results added to the experiment's data pools results.
 
-    :param experiment: The experiment to be evaluated
-    :type experiment: Experiment
     """
     folder: str = "log"
     file_name:str = "result"
@@ -657,12 +633,10 @@ class LogResultEvaluator(LogingEvaluator):
 @dataclass
 class LogAllEvaluator(LogingEvaluator):
     """
-    LogAllEvaluator(experiment)
+    LogAllEvaluator()
     | **Description**
     |   This evaluator logs combines the LogStreamEvaluator, LogProcessEvaluator and LogResultEvaluator.
 
-    :param experiment: The experiment to be evaluated
-    :type experiment: Experiment
     """
     folder: str = "log"
     file_name:str = "all_data"
@@ -696,12 +670,10 @@ class LogAllEvaluator(LogingEvaluator):
 @dataclass
 class LogTVPGTEvaluator(LogingEvaluator):
     """
-    LogTVPGTEvaluator(experiment)
+    LogTVPGTEvaluator()
     | **Description**
     |   The Log Time Varying Process Ground Truth Evaluator ---
 
-    :param experiment: The experiment to be evaluated
-    :type experiment: Experiment
     """
     folder: str = "log"
     file_name:str = "gt_data"

@@ -19,12 +19,10 @@ if TYPE_CHECKING:
 @dataclass
 class TimeStoppingCriteria(StoppingCriteria):
     """
-    TimeStoppingCriteria(exp, stop_time)
+    TimeStoppingCriteria(stop_time)
     | **Description**
     |   This stopping criteria is fulfilled if the internal experiment time exceeds a given ``stop_time``.
 
-    :param exp: The experiment to monitor
-    :type exp: Experiment
     :param stop_time: The stopping time
     :type stop_time: float
     """
@@ -45,12 +43,9 @@ class TimeStoppingCriteria(StoppingCriteria):
 @dataclass
 class DataExhaustedStoppingCriteria(StoppingCriteria):
     """
-    DataExhaustedStoppingCriteria(exp)
+    DataExhaustedStoppingCriteria()
     | **Description**
-    |
-
-    :param exp: The experiment to monitor
-    :type exp: Experiment
+    |   Stops the experiment if the DataSource has been exhausted.
     """
 
     def post_init(self):

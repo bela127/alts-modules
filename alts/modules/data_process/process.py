@@ -31,16 +31,10 @@ if TYPE_CHECKING:
 @dataclass
 class StreamProcess(Process, TimeSubscriber):
     """
-    StreamProcess(time_source, data_pools, oracles, stop_time, time_behaviour)
+    StreamProcess(stop_time, time_behaviour)
     | **Description**
     |   StreamProcess is a process for data streams.
 
-    :param time_source: Source of time
-    :type time_source: :doc:`TimeSource </core/data_process/process>`
-    :param data_pools: A data structure which saves all processed queries and results
-    :type data_pools: :doc:`DataPools </core/data/data_pools>`
-    :param oracles: The interaction point between the Process and the data source.
-    :type oracles: :doc:`Oracles </core/oracle/oracles>`
     :param stop_time: The stopping time of the experiment (default= 1000)
     :type stop_time: float
     :param time_behaviour: A DataSource with time-dependent data
@@ -88,16 +82,10 @@ class StreamProcess(Process, TimeSubscriber):
 @dataclass
 class DataSourceProcess(Process, ProcessOracleSubscriber):
     """
-    DataSourceProcess(time_source, data_pools, oracles, data_source)
+    DataSourceProcess(data_source)
     | **Description**
     |   DataSourceProcess is a process specifically for data sources.
 
-    :param time_source: Source of time
-    :type time_source: :doc:`TimeSource </core/data_process/process>`
-    :param data_pools: A data structure which saves all processed queries and results
-    :type data_pools: :doc:`ResultDataPools </core/data/data_pools>`
-    :param oracles: The interaction point between the Process and the data source.
-    :type oracles: :doc:`Oracles </core/oracle/oracles>`
     :param data_source: A DataSource containing all data points
     :type data_source: DataSource
     """
@@ -180,16 +168,10 @@ class DataSourceProcess(Process, ProcessOracleSubscriber):
 @dataclass
 class DelayedProcess(Process, DelayedConstrained):
     """
-    DelayedProcess(time_source, data_pools, oracles, data_source)
+    DelayedProcess(data_source)
     | **Description**
     |   DelayedProcess is a process specifically for data where queries have intermediate and time-delayed results.
 
-    :param time_source: Source of time
-    :type time_source: :doc:`TimeSource </core/data_process/process>`
-    :param data_pools: A data structure which saves all processed queries and results
-    :type data_pools: :doc:`ResultDataPools </core/data/data_pools>`
-    :param oracles: The interaction point between the Process and the data source.
-    :type oracles: :doc:`Oracles </core/oracle/oracles>`
     :param data_source: A DataSource containing all data points
     :type data_source: DataSource
     """
@@ -387,16 +369,10 @@ class DelayedProcess(Process, DelayedConstrained):
 @dataclass
 class DelayedStreamProcess(DelayedProcess, StreamProcess):
     """
-    DelayedStreamProcess(time_source, data_pools, oracles, data_source, stop_time, time_behavior)
+    DelayedStreamProcess(data_source, stop_time, time_behavior)
     | **Description**
     |   A DelayedProcess for StreamProcesses.
 
-    :param time_source: Source of time
-    :type time_source: :doc:`TimeSource </core/data_process/process>`
-    :param data_pools: A data structure which saves all processed queries and results
-    :type data_pools: :doc:`ResultDataPools </core/data/data_pools>`
-    :param oracles: The interaction point between the Process and the data source.
-    :type oracles: :doc:`Oracles </core/oracle/oracles>`
     :param data_source: A DataSource containing all data points
     :type data_source: DataSource
     :param stop_time: The stopping time of the experiment (default= 1000)
@@ -409,16 +385,10 @@ class DelayedStreamProcess(DelayedProcess, StreamProcess):
 @dataclass
 class IntegratingDSProcess(DelayedStreamProcess):
     """
-    IntegratingDSProcess(time_source, data_pools, oracles, data_source, stop_time, time_behavior)
+    IntegratingDSProcess(data_source, stop_time, time_behavior)
     | **Description**
     |   The Integrating Delayed Stream Process integrates its results over a given time period.
 
-    :param time_source: Source of time
-    :type time_source: :doc:`TimeSource </core/data_process/process>`
-    :param data_pools: A data structure which saves all processed queries and results
-    :type data_pools: :doc:`ResultDataPools </core/data/data_pools>`
-    :param oracles: The interaction point between the Process and the data source.
-    :type oracles: :doc:`Oracles </core/oracle/oracles>`
     :param data_source: A DataSource containing all data points
     :type data_source: DataSource
     :param stop_time: The stopping time of the experiment (default= 1000)
@@ -505,17 +475,11 @@ class IntegratingDSProcess(DelayedStreamProcess):
 @dataclass
 class WindowDSProcess(DelayedStreamProcess):
     """
-    WindowDSProcess(time_source, data_pools, oracles, data_source, stop_time, time_behavior)
+    WindowDSProcess(data_source, stop_time, time_behavior, window_size)
     | **Description**
     |   The Window Delayed Stream Process integrates the results over a given window size.
     |   Similar to IntegratingDSProcess, where a new window is opened and filled, except here the window slides over with each new query, thus always being filled.
 
-    :param time_source: Source of time
-    :type time_source: :doc:`TimeSource </core/data_process/process>`
-    :param data_pools: A data structure which saves all processed queries and results
-    :type data_pools: :doc:`ResultDataPools </core/data/data_pools>`
-    :param oracles: The interaction point between the Process and the data source.
-    :type oracles: :doc:`Oracles </core/oracle/oracles>`
     :param data_source: A DataSource containing all data points
     :type data_source: DataSource
     :param stop_time: The stopping time of the experiment (default= 1000)
