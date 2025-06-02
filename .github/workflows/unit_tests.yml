@@ -49,7 +49,7 @@ jobs:
         source ~/.bashrc
         poetry config virtualenvs.use-poetry-python true
         poetry config virtualenvs.in-project true
-        poetry env use 'eval $(pyenv which python)'
+        poetry env use $(pyenv which python)
         poetry env info
     - name: Setup virtual environment with poetry
       run: |
