@@ -39,7 +39,7 @@ jobs:
         echo 'eval "$(pyenv init - bash)"' >> ~/.bashrc
         source ~/.bashrc
         /home/runner/.pyenv/bin/pyenv install 3.9.6
-        pyenv local 3.9.6
+        /home/runner/.pyenv/bin/pyenv local 3.9.6
     - name: Install poetry
       run: |
         curl -sSL https://install.python-poetry.org | python3 -
