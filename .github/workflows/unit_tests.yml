@@ -34,7 +34,7 @@ jobs:
         curl -fsSL https://pyenv.run | bash
         echo '#Adding Pyenv to path' >> ~/.bashrc
         echo 'export PATH="~/.pyenv/bin:$PATH"' >> ~/.bashrc
-        echo 'eval "$(pyenv init - bash)"' >> ~/.bashrc
+        echo 'eval "$(pyenv init -)"' >> ~/.bashrc
         echo '#Load Pyenv venv automatically' >> ~/.bashrc
         echo 'eval "$(pyenv virtualenv-init -)"' >> ~/.bashrc
         source ~/.bashrc
