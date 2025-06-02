@@ -55,6 +55,6 @@ jobs:
         poetry install       
     - name: Test with pytest
       run: |
+        source ./.venv/bin/activate
         poetry env info
         poetry run pytest
-#source ./.venv/bin/activate
