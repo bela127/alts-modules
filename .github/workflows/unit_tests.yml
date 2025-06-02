@@ -57,4 +57,4 @@ jobs:
       run: |
         source ./.venv/bin/activate
         poetry env info
-        poetry run pytest
+        pytest
