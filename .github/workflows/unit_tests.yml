@@ -48,8 +48,8 @@ jobs:
         source ~/.bashrc
         poetry config virtualenvs.use-poetry-python true
         poetry config virtualenvs.in-project true
+        poetry env use $(/home/runner/.pyenv/bin/pyenv which python)
         poetry env info
-      # poetry env use $(pyenv which python)
     - name: Setup virtual environment with poetry
       run: |
         poetry install       
