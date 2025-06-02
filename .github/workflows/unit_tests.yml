@@ -32,6 +32,11 @@ jobs:
     - name: Install python version via pyenv
       run: |
         curl -fsSL https://pyenv.run | bash
+        exec bash
+        sudo apt update; sudo apt install make build-essential libssl-dev zlib1g-dev \
+        libbz2-dev libreadline-dev libsqlite3-dev curl git \
+        libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
+        pyenv install 3.9.6
       #uses: gabrielfalcao/pyenv-action@v17
       #with:
       #  default: "${{ matrix.python }}"
