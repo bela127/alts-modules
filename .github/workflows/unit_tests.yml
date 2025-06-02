@@ -49,7 +49,8 @@ jobs:
         source ~/.bashrc
         poetry config virtualenvs.use-poetry-python true
         poetry config virtualenvs.in-project true
-        poetry env use 3.9.6
+        poetry env info
+      #poetry env use 3.9.6
     - name: Setup virtual environment with poetry
       run: |
         poetry install       
