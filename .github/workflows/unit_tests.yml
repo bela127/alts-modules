@@ -33,12 +33,11 @@ jobs:
       run: |
         curl -fsSL https://pyenv.run | bash
         echo '#Adding Pyenv to path' >> ~/.bashrc
-        echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
+        echo 'export PYENV_ROOT="/home/runner/.pyenv"' >> ~/.bashrc
         source ~/.bashrc
         echo '[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
         echo 'eval "$(pyenv init - bash)"' >> ~/.bashrc
         source ~/.bashrc
-        exec "$SHELL"
         pyenv install 3.9.6
         pyenv local 3.9.6
     - name: Install poetry
@@ -49,8 +48,8 @@ jobs:
         source ~/.bashrc
         poetry config virtualenvs.use-poetry-python true
         poetry config virtualenvs.in-project true
-        poetry env use $(pyenv which python)
         poetry env info
+      # poetry env use $(pyenv which python)
     - name: Setup virtual environment with poetry
       run: |
         poetry install       
