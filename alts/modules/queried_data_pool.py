@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 class FlatQueriedDataPool(QueriedDataPool):
     """
-    FlatQueriedDataPool(query_constrain, result_constrain)
+    FlatQueriedDataPool()
     | **Description**
     |   This queryable data pool returns a random result matching the query.
     """
