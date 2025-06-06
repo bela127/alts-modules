@@ -35,7 +35,7 @@ class RandomUniformDataSource(DataSource):
     """
     RandomUniformDataSource(query_shape, result_shape, u, l)
     | **Description**
-    |   A ``RandomUniformDataSource`` is a **random** source of data.
+    |   A ``RandomUniformDataSource`` is an **independent** source of data.
     |   For more details see `numpy.random.uniorm <https://numpy.org/doc/stable/reference/random/generated/numpy.random.uniform.html>`_.
 
     :param query_shape: The expected shape of the queries (default= (1,))
@@ -434,7 +434,7 @@ class InterpolatingDataSource(DataSource):
     """
     InterpolatingDataSource(data_sampler, interpolation_strategy)
     | **Description**
-    |   An ``InterpolatingDataSource`` is an **ambivalent** source of data depending on the :doc:`DataSource </core/oracle/data_source>` it interpolates within. 
+    |   An ``InterpolatingDataSource`` is an **independent** source of data depending on the :doc:`DataSource </core/oracle/data_source>` it interpolates within. 
 
     :param data_sampler: The data sampler to sample data for interpolation
     :type data_sampler: DataSampler
@@ -485,7 +485,7 @@ class CrossDataSource(DataSource):
     """
     CrossDataSource(query_shape, result_shape, a)
     | **Description**
-    |   A ``CrossDataSource`` is a **semi-random** source of data choosing one of the following equations at random {``-a * x``, ``a * x``}. 
+    |   A ``CrossDataSource`` is a **function-prior random** source of data choosing one of the following equations at random {``-a * x``, ``a * x``}. 
 
     :param query_shape: The expected shape of the queries (default= (1,))
     :type query_shape: tuple of ints
@@ -566,7 +566,7 @@ class DoubleLinearDataSource(DataSource):
     """
     DoubleLinearDataSource(query_shape, result_shape, a, s)
     | **Description**
-    |   A ``DoubleLinearDataSource`` is a **semi-random** source of data choosing one of the following equations at random {``a * x``, ``a * x * s``}. 
+    |   A ``DoubleLinearDataSource`` is a **function-prior random** source of data choosing one of the following equations at random {``a * x``, ``a * x * s``}. 
 
     :param query_shape: The expected shape of the queries  (default= (1,))
     :type query_shape: tuple of ints
@@ -654,7 +654,7 @@ class HourglassDataSource(DataSource):
     """
     HourglassDataSource(query_shape, result_shape, a)
     | **Description**
-    |   A ``HourglassDataSource`` is a **semi-random** source of data choosing one of the following equations at random {``a * x``, ``-a * x`` , ``-a/2``, ``a/2``}. 
+    |   A ``HourglassDataSource`` is a **function-prior random** source of data choosing one of the following equations at random {``a * x``, ``-a * x`` , ``-a/2``, ``a/2``}. 
 
     :param query_shape: The expected shape of the queries (default= (1,))
     :type query_shape: tuple of ints
@@ -740,7 +740,7 @@ class ZDataSource(DataSource):
     """
     ZDataSource(query_shape, result_shape, a)
     | **Description**
-    |   A ``ZDataSource`` is a **semi-random** source of data choosing one of the following equations at random {``a * x`` , ``-a/2``, ``a/2``}. 
+    |   A ``ZDataSource`` is a **function-prior random** source of data choosing one of the following equations at random {``a * x`` , ``-a/2``, ``a/2``}. 
 
     :param query_shape: The expected shape of the queries (default= (1,))
     :type query_shape: tuple of ints
@@ -823,7 +823,7 @@ class ZInvDataSource(DataSource):
     """
     ZInvDataSource(query_shape, result_shape, a)
     | **Description**
-    |   A ``ZInvDataSource`` is a **semi-random** source of data choosing one of the following equations at random {``-a * x`` , ``-a/2``, ``a/2``}. 
+    |   A ``ZInvDataSource`` is a **function-prior random** source of data choosing one of the following equations at random {``-a * x`` , ``-a/2``, ``a/2``}. 
 
     :param query_shape: The expected shape of the queries (default= (1,))
     :type query_shape: tuple of ints
@@ -1130,7 +1130,7 @@ class HypercubeDataSource(DataSource):
     """
     HypercubeDataSource(query_shape, result_shape, w)
     | **Description**
-    |   A ``HypercubeDataSource`` is a **semi-random** source of data choosing for x in [-w,w) one of the following values at random {``-0.5`` , ``0.5``} and else a random value in [-0.5 , 0.5). 
+    |   A ``HypercubeDataSource`` is a **function-prior random** source of data choosing for x in [-w,w) one of the following values at random {``-0.5`` , ``0.5``} and else a random value in [-0.5 , 0.5). 
 
     :param query_shape: The expected shape of the queries (default= (1,))
     :type query_shape: tuple of ints
@@ -1191,7 +1191,7 @@ class StarDataSource(DataSource):
     """
     StarDataSource(query_shape, result_shape, w)
     | **Description**
-    |   A ``StarDataSource`` is a **semi-random** source of data choosing for x in [-w,w) a random value in [-0.5 , 0.5) and else one of the following equations at random {``-x`` , ``0``, ``x``}. 
+    |   A ``StarDataSource`` is a **function-prior random** source of data choosing for x in [-w,w) a random value in [-0.5 , 0.5) and else one of the following equations at random {``-x`` , ``0``, ``x``}. 
 
     :param query_shape: The expected shape of the queries (default= (1,))
     :type query_shape: tuple of ints
@@ -1258,7 +1258,7 @@ class HyperSphereDataSource(DataSource):
     """
     HypersphereDataSource(query_shape, result_shape)
     | **Description**
-    |   A ``HypersphereDataSource`` is a **semi-random** source of data choosing one of the following equations at random {``-sqrt(abs(1-x²))``, ``sqrt(abs(1-x²))``}. 
+    |   A ``HypersphereDataSource`` is a **function-prior random** source of data choosing one of the following equations at random {``-sqrt(abs(1-x²))``, ``sqrt(abs(1-x²))``}. 
 
     :param query_shape: The expected shape of the queries (default= (1,))
     :type query_shape: tuple of ints
@@ -1312,7 +1312,7 @@ class IndependentDataSource(DataSource):
     """
     IndependentDataSource(reinit, query_shape, result_shape, number_of_distributions, all_distributions, distributions, coefficients)
     | **Description**
-    |   An ``IndependentDataSource`` is a **random** source of data randomly choosing between multiple random distributions to randomly choose from.
+    |   An ``IndependentDataSource`` is an **independent** source of data randomly choosing between multiple random distributions to randomly choose from.
 
     :param reinit: If the DataSource should re-initiate its singleton (default= False)
     :type reinit: bool
@@ -1430,7 +1430,7 @@ class GaussianProcessDataSource(DataSource):
     """
     GaussianProcessDataSource(reinit, query_shape, result_shape, kern, support_points, min_support, max_support)
     | **Description**
-    |   A ``GaussianProcessDataSource`` is a **semi-random** source of data interpolating between random data points using Gaussian Process Regression.
+    |   A ``GaussianProcessDataSource`` is a **function-prior random** source of data interpolating between random data points using Gaussian Process Regression.
 
     :param reinit: If the DataSource should re-initiate its singleton (default= False)
     :type reinit: bool
@@ -1546,7 +1546,7 @@ class BrownianProcessDataSource(GaussianProcessDataSource):
     """
     BrownianProcessDataSource(reinit, query_shape, result_shape, kern, support_points, min_support, max_support, brown_var)
     | **Description**
-    |   A ``BrownianProcessDataSource`` is a **semi-random** source of data interpolating between random data points using Brownian Motion.
+    |   A ``BrownianProcessDataSource`` is a **function-prior random** source of data interpolating between random data points using Brownian Motion.
 
     :param reinit: If the DataSource should re-initiate its singleton (default= False)
     :type reinit: bool
@@ -1587,7 +1587,7 @@ class BrownianDriftDataSource(GaussianProcessDataSource):
     """
     BrownianDriftDataSource(reinit, query_shape, result_shape, kern, support_points, brown_var, rbf_var, rbf_leng, min_support, max_support)
     | **Description**
-    |   A ``BrownianDriftDataSource`` is a **semi-random** source of data interpolating between random data points using a linear function y=ab+a where a is a RBF Kernel and b is a Brownian Kernel.
+    |   A ``BrownianDriftDataSource`` is a **function-prior random** source of data interpolating between random data points using a linear function y=ab+a where a is a RBF Kernel and b is a Brownian Kernel.
 
     :param reinit: If the DataSource should re-initiate its singleton (default= False)
     :type reinit: bool
@@ -1634,7 +1634,7 @@ class RBFDriftDataSource(GaussianProcessDataSource):
     """
     RBFDriftDataSource(reinit, query_shape, result_shape, kern, support_points, brown_var, rbf_var, rbf_leng, min_support, max_support)
     | **Description**
-    |   A ``RBFDriftDataSource`` is a **semi-random** source of data interpolating with a RBF kernel with RBF drift.
+    |   A ``RBFDriftDataSource`` is a **function-prior random** source of data interpolating with a RBF kernel with RBF drift.
 
     :param reinit: If the DataSource should re-initiate its singleton (default= False)
     :type reinit: bool
@@ -1681,7 +1681,7 @@ class SinDriftDataSource(GaussianProcessDataSource):
     """
     SinDriftDataSource(reinit, query_shape, result_shape, kern, support_points, brown_var, rbf_var, rbf_leng, min_support, max_support)
     | **Description**
-    |   A ``SinDriftDataSource`` is a **semi-random** source of data interpolating data points with a cosine kernel with rbf drift.
+    |   A ``SinDriftDataSource`` is a **function-prior random** source of data interpolating data points with a cosine kernel with rbf drift.
 
     :param reinit: If the DataSource should re-initiate its singleton (default= False)
     :type reinit: bool
@@ -1729,7 +1729,7 @@ class MixedDriftDataSource(GaussianProcessDataSource):
     """
     MixedDriftDataSource(support_points, reinit, query_shape, result_shape, brown_var, rbf_var, rbf_leng, min_support, max_support)
     | **Description**
-    |   A ``MixedDriftDataSource`` is a **semi-random** source of data interpolating data points with a linear combination of RBF, Brownian and Cosine kernels and RBF drift.
+    |   A ``MixedDriftDataSource`` is a **function-prior random** source of data interpolating data points with a linear combination of RBF, Brownian and Cosine kernels and RBF drift.
 
     :param support_points: The amount of data points to interpolate between in the gaussian process. (default= 2000)
     :type support_points: int
@@ -1857,7 +1857,7 @@ class MixedBrownDriftDataSource(GaussianProcessDataSource):
     """
     MixedDriftDataSource(support_points, reinit, query_shape, result_shape, brown_var, rbf_var, rbf_leng, min_support, max_support)
     | **Description**
-    |   A ``MixedDriftDataSource`` is a **semi-random** source of data interpolating data points with a linear combination of RBF, Brownian and Cosine kernels and Brownian Drift.
+    |   A ``MixedDriftDataSource`` is a **function-prior random** source of data interpolating data points with a linear combination of RBF, Brownian and Cosine kernels and Brownian Drift.
 
     :param support_points: The amount of data points to interpolate between in the gaussian process. (default= 2000)
     :type support_points: int
@@ -1985,7 +1985,7 @@ class TimeBehaviorDataSource(TimeDataSource):
     """
     TimeBehaviorDataSource(query_shape, result_shape, behavior, change_times, change_values, current_time)
     | **Description**
-    |   A ``TimeBehaviorDataSource`` is an **ambivalent** source of data depending on the DataBehavior over time. 
+    |   A ``TimeBehaviorDataSource`` is an **independent** source of data depending on the DataBehavior over time. 
 
     :param query_shape: The expected shape of the queries (default= (1,))
     :type query_shape: tuple of ints
