@@ -30,10 +30,16 @@ jobs:
         libreadline-dev libsqlite3-dev wget curl llvm \
         libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev python3-openssl git
     - name: Install python version via pyenv
-      uses: gabrielfalcao/pyenv-action@v17
-      with:
-        default: "${{ matrix.python }}"
-        command: pip install -U pip  # upgrade pip after installing python
+      run: |
+        curl -fsSL https://pyenv.run | bash
+        echo '#Adding Pyenv to path' >> ~/.bashrc
+        echo 'export PYENV_ROOT="/home/runner/.pyenv"' >> ~/.bashrc
+        source ~/.bashrc
+        echo '[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
+        echo 'eval "$(pyenv init - bash)"' >> ~/.bashrc
+        source ~/.bashrc
+        /home/runner/.pyenv/bin/pyenv install 3.9.6
+        /home/runner/.pyenv/bin/pyenv global 3.9.6
     - name: Install poetry
       run: |
         curl -sSL https://install.python-poetry.org | python3 -
@@ -42,11 +48,12 @@ jobs:
         source ~/.bashrc
         poetry config virtualenvs.use-poetry-python true
         poetry config virtualenvs.in-project true
-        poetry env use 3.9.6
+        poetry env use $(/home/runner/.pyenv/bin/pyenv which python)
+        poetry env info
     - name: Setup virtual environment with poetry
       run: |
         poetry install       
     - name: Test with pytest
       run: |
-        source ./.venv/bin/activate
-        poetry run pytest
+        eval $(poetry env activate)
+        pytest
