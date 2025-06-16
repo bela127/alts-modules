@@ -1,8 +1,8 @@
+#Test version 1.1 as of 16.06.2025
 from alts.core.data_process.time_source import TimeSource
 import alts.modules.data_process.time_source as tsm
 
 import pytest
-
 """
 | **Test aims**
 |   The time source modules are tested for:
