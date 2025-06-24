@@ -31,10 +31,10 @@ query_samplers = [
 ]
 
 @pytest.mark.parametrize("qs", query_samplers)
-def auto_pass_test(qs: QuerySampler):
+def test_auto_skip(qs: QuerySampler):
     """
     | **Description**
-    |   Automatically passes modules that are not tested for
+    |   Automatically skips modules that are not tested for
     """
     if qs in [qss.OptimalQuerySampler,
             qss.FixedQuerySampler,
@@ -54,5 +54,5 @@ def auto_pass_test(qs: QuerySampler):
             qss.LastResultPoolQuerySampler,
             qss.LastStreamPoolQuerySampler,
             qss.LastProcessPoolQuerySampler]:
-        assert True
+        pytest.skip("Not yet implemented")
     

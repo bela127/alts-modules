@@ -16,13 +16,13 @@ behaviors = [
 ]
 
 @pytest.mark.parametrize("b", behaviors)
-def auto_pass_test(b: DataBehavior):
+def test_auto_skip(b: DataBehavior):
     """
     | **Description**
-    |   Automatically passes modules that are not tested for
+    |   Automatically skips modules that are not tested for
     """
     if b in [beh.EquidistantTimeUniformBehavior,
             beh.RandomTimeUniformBehavior,
             beh.RandomTimeBrownBehavior]:
-        assert True
+        pytest.skip("Not yet implemented")
     

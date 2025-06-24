@@ -19,10 +19,10 @@ processes = [
 ]
 
 @pytest.mark.parametrize("p", processes)
-def auto_pass_test(p: Process):
+def test_auto_skip(p: Process):
     """
     | **Description**
-    |   Automatically passes modules that are not tested for
+    |   Automatically skips modules that are not tested for
     """
     if p in [pr.StreamProcess,
             pr.DataSourceProcess,
@@ -30,5 +30,5 @@ def auto_pass_test(p: Process):
             pr.DelayedStreamProcess,
             pr.IntegratingDSProcess,    
             pr.WindowDSProcess]:
-        assert True
+        pytest.skip("Not yet implemented")
     

@@ -27,10 +27,10 @@ evaluators = [
 ]
 
 @pytest.mark.parametrize("ev", evaluators)
-def auto_pass_test(ev: Evaluator):
+def test_auto_skip(ev: Evaluator):
     """
     | **Description**
-    |   Automatically passes modules that are not tested for
+    |   Automatically skips modules that are not tested for
     """
     if ev in [evs.PrintNewDataPointsEvaluator,
             evs.PrintQueryEvaluator,
@@ -46,5 +46,5 @@ def auto_pass_test(ev: Evaluator):
             evs.LogResultEvaluator,
             evs.LogAllEvaluator,
             evs.LogTVPGTEvaluator]:
-        assert True
+        pytest.skip("Not yet implemented")
     

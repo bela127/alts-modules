@@ -14,11 +14,11 @@ blueprints = [
 ]
 
 @pytest.mark.parametrize("b", blueprints)
-def auto_pass_test(b: Blueprint):
+def test_auto_skip(b: Blueprint):
     """
     | **Description**
-    |   Automatically passes modules that are not tested for
+    |   Automatically skips modules that are not tested for
     """
     if b in [bps.Blueprint]:
-        assert True
+        pytest.skip("Not yet implemented")
     

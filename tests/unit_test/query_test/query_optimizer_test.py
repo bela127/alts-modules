@@ -18,15 +18,15 @@ query_optimizers = [
 ]
 
 @pytest.mark.parametrize("qo", query_optimizers)
-def auto_pass_test(qo: QueryOptimizer):
+def test_auto_skip(qo: QueryOptimizer):
     """
     | **Description**
-    |   Automatically passes modules that are not tested for
+    |   Automatically skips modules that are not tested for
     """
     if qo in [qos.NoQueryOptimizer,
             qos.GAQueryOptimizer,
             qos.MCQueryOptimizer,
             qos.MaxMCQueryOptimizer,
             qos.ProbWeightedMCQueryOptimizer]:
-        assert True
+        pytest.skip("Not yet implemented")
     

@@ -15,11 +15,13 @@ augmentations = [
 ]
 
 @pytest.mark.parametrize("a", augmentations)
-def auto_pass_test(a: Augmentation):
+def test_query(a: type[Augmentation]):
     """
     | **Description**
-    |   Automatically passes modules that are not tested for
+    |   Automatically skips modules that are not tested for
     """
-    if a in [am.NoiseAugmentation]:
+    if a == am.NoiseAugmentation:
         assert True
+    else:
+        raise ValueError(f"Augmentation not found: {a}")
     

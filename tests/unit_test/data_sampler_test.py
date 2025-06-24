@@ -15,12 +15,12 @@ data_samplers = [
 ]
 
 @pytest.mark.parametrize("ds", data_samplers)
-def auto_pass_test(ds: DataSampler):
+def test_auto_skip(ds: DataSampler):
     """
     | **Description**
-    |   Automatically passes modules that are not tested for
+    |   Automatically skips modules that are not tested for
     """
     if ds in [dss.KDTreeKNNDataSampler,
             dss.KDTreeRegionDataSampler]:
-        assert True
+        pytest.skip("Not yet implemented")
     
