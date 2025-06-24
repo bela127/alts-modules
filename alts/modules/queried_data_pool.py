@@ -22,7 +22,7 @@ class FlatQueriedDataPool(QueriedDataPool):
     | **Description**
     |   This queryable data pool returns a random result matching the query.
     """
-
+    
     def __init__(self):
         """
         __init__(self) -> None
