@@ -35,7 +35,7 @@ class TimeStoppingCriteria(StoppingCriteria):
         | **Description**
         |   Checks whether the experiment should stop.
 
-        :return: True if experiment time has reached or exceeded stopping time (else False)
+        :return: True if experiment time has not reached or exceeded stopping time (else False)
         :rtype: bool
         """
         return  self.stop_time >= self.exp.time_source.time
@@ -67,7 +67,7 @@ class DataExhaustedStoppingCriteria(StoppingCriteria):
         | **Description**
         |   Checks whether the experiment should stop.
 
-        :return: True if the experiment's DataSource has been exhausted (else False)
+        :return: True if the experiment's DataSource has not been exhausted (else False)
         :rtype: bool
         """
-        return self.exp.process.data_source.exhausted # type: ignore
+        return not self.exp.process.data_source.exhausted # type: ignore
