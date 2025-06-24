@@ -1,8 +1,17 @@
+#Test version 1.1 as of 24.06.2025
 from alts.core.query.query_decider import QueryDecider
 import alts.modules.query.query_decider as qdm
 
 import numpy as np
 import pytest
+
+"""
+| **Test aims**
+|   The query deciders are tested for:
+|   - Accepting the correct queries
+|   - Rejecting the correct queries
+|   - Doing both at the same time
+"""
 
 #List of query deciders
 query_deciders = [
