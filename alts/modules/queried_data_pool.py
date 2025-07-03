@@ -22,6 +22,7 @@ class FlatQueriedDataPool(QueriedDataPool):
     | **Description**
     |   This queryable data pool returns a random result matching the query.
     """
+    query_index: Dict
     
     def __init__(self):
         """
@@ -30,7 +31,7 @@ class FlatQueriedDataPool(QueriedDataPool):
         |   Initializes empty lists and dicts.
         """
         super().init(FlatQueriedDataPool)
-        self.query_index: Dict = {}
+        self.query_index = {}
 
     
     def query(self, queries):

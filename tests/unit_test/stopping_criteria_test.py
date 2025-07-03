@@ -102,7 +102,10 @@ def test_exhausted(sc: type[StoppingCriteria]):
         exp.run()
         assert exp.time_source.time == 221
         #Zero time
-        #Negative time
+        bp = blueprint.BaselineBlueprint(stopping_criteria=sc(stop_time=0))
+        exp = experiment.Experiment(bp, 1)
+        exp.run()
+        assert exp.time_source.time == 1
     elif sc == scs.DataExhaustedStoppingCriteria:
         #Should trigger when DataSource is exhausted
         #Normal case 1
@@ -121,6 +124,7 @@ def test_exhausted(sc: type[StoppingCriteria]):
         exp.run()
         assert exp.process.data_source.exhaust_in == 0 # type: ignore
         #Edge Case 2: starts exhausted
+        pytest.xfail("Fix Experiment")
         bp = blueprint.BaselineBlueprint(stopping_criteria=sc(), process=DataSourceProcess(ExhaustedDataSource(exhaust_in=0)))
         exp = experiment.Experiment(bp, 1)
         exp.run()

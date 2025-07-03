@@ -48,7 +48,7 @@ class NoQueryOptimizer(QueryOptimizer):
         self.query_sampler = self.query_sampler(exp_modules = self.exp_modules)
 
 
-    def select(self):
+    def select(self, num_queries = None):
         """
         select(self) -> queries, scores
         | **Description**
@@ -57,7 +57,7 @@ class NoQueryOptimizer(QueryOptimizer):
         :return: queries and associated scores scores
         :rtype: queries, `NDArray[float] <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
         """
-        queries = self.query_sampler.sample()
+        queries = self.query_sampler.sample(num_queries)
         queries, scores = self.selection_criteria.query(queries)
 
         return queries, scores

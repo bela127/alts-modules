@@ -24,5 +24,5 @@ def test_auto_skip(b: DataBehavior):
     if b in [beh.EquidistantTimeUniformBehavior,
             beh.RandomTimeUniformBehavior,
             beh.RandomTimeBrownBehavior]:
-        pytest.skip("Not yet implemented")
+        pytest.skip("Constrains")
     
