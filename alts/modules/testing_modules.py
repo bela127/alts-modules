@@ -82,11 +82,11 @@ class ACEEvaluator(Evaluator):
         super().register(experiment)
         setattr(self.experiment, self.func, Evaluate(getattr(self.experiment, self.func)))
 
-        if self.pre != None:
+        if not self.pre is None:
             getattr(self.experiment, self.func).pre(self.pre)
-        if self.warp != None:
+        if not self.warp is None:
             getattr(self.experiment, self.func).warp(self.warp)
-        if self.post != None:
+        if not self.post is None:
             getattr(self.experiment, self.func).post(self.post)
 
         
