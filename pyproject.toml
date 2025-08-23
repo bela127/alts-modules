@@ -1,6 +1,8 @@
+[project]
+dynamic = ["version"]
+
 [tool.poetry]
 name = "alts-modules"
-version = "0.6.0"
 description = "Some common modules for the ALTS"
 authors = ["bela127 <bhb127@outlook.de>"]
 license = "MIT"
