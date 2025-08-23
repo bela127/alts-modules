@@ -65,7 +65,7 @@ class ACEEvaluator(Evaluator):
     warp: Callable = init(default=None)
     post: Callable = init(default=None)
 
-    def register(self, experiment: Experiment, query_shape: tuple[int]):
+    def register(self, experiment: Experiment):
         """
         register(self, experiment) -> None
         | **Description**
