@@ -47,7 +47,7 @@ class FlatQueriedDataPool(QueriedDataPool):
         """
         result_list = []
         for query in queries:
-            result_candidate = self.query_index.get(tuple(query), [])
+            result_candidate = self.query_index.get(query.tostring(), [])
             result = choice(result_candidate)
             result_list.append(result)
         
@@ -67,8 +67,8 @@ class FlatQueriedDataPool(QueriedDataPool):
         queries, results = data_points
         for query, result in zip(queries, results):
 
-            results = self.query_index.get(tuple(query), [])
-            self.query_index[tuple(query)] = results + [result]
+            results = self.query_index.get(query.tostring(), [])
+            self.query_index[query.tostring()] = results + [result]
         super().add(data_points)
 
     def query_constrain(self) -> QueryConstrain:
