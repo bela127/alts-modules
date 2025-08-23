@@ -9,7 +9,7 @@ class ShapeEvaluator(Evaluator):
     """
     ShapeEvaluator(shape, func, idx)
     | **Description**
-    |   This evaluator keeps track of the Query Optimizers outgoing query shape.
+    |   This evaluator keeps track of the chosen function's output shape.
     :param shape: Expected shape of array
     :type shape: tuple[int]
     :param func: What functions output object to compare
@@ -33,7 +33,7 @@ class ShapeEvaluator(Evaluator):
         :raises: TypeError if self.experiment.oracles is not a POracles
         """
         if self.func is None:
-            raise ValueError("ShapeEvaluator: No function is given")
+            raise ValueError("ShapeEvaluator: No target function is given")
         super().register(experiment)
         self.query_shape = query_shape
 
@@ -45,3 +45,48 @@ class ShapeEvaluator(Evaluator):
         obj = ret[self.idx]
         assert obj.shape == self.query_shape, f"Shape has to match. Is:{obj.shape}, Should:{self.query_shape}"
         return ret
+    
+class ACEEvaluator(Evaluator):
+    """
+    ShapeEvaluator(shape, func, idx)
+    | **Description**
+    |   This evaluator does arbitrary code execution whenever the given function is called.
+    :param func: What function triggers the arbitrary code
+    :type func: Callable
+    :param pre: What function to call before original call
+    :type pre: Callable
+    :param warp: What function to handle original call
+    :type warp: Callable
+    :param post: What function to call after original call
+    :type post: Callable
+    """
+    func: str = init(default=None)
+    pre: Callable = init(default=None)
+    warp: Callable = init(default=None)
+    post: Callable = init(default=None)
+
+    def register(self, experiment: Experiment, query_shape: tuple[int]):
+        """
+        register(self, experiment) -> None
+        | **Description**
+        |   Modifies the experiment to print new queries before adding them to the experiment's query queue.
+        |   Requires the experiment's oracle to be a POracles.
+
+        :param experiment: The experiment to be evaluated
+        :type experiment: Experiment
+        :raises: TypeError if self.experiment.oracles is not a POracles
+        """
+        if self.func is None:
+            raise ValueError("ACEEvaluator: No target function is given")
+        
+        super().register(experiment)
+        setattr(self.experiment, self.func, Evaluate(getattr(self.experiment, self.func)))
+
+        if self.pre != None:
+            getattr(self.experiment, self.func).pre(self.pre)
+        if self.warp != None:
+            getattr(self.experiment, self.func).warp(self.warp)
+        if self.post != None:
+            getattr(self.experiment, self.func).post(self.post)
+
+        
