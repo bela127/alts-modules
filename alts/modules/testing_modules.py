@@ -48,7 +48,7 @@ class ShapeEvaluator(Evaluator):
     
 class ACEEvaluator(Evaluator):
     """
-    ShapeEvaluator(shape, func, idx)
+    ACEEvaluator(func, pre, warp, post)
     | **Description**
     |   This evaluator does arbitrary code execution whenever the given function is called.
     :param func: What function triggers the arbitrary code
