@@ -43,5 +43,5 @@ class ShapeEvaluator(Evaluator):
     def test_shape(self, func, *args, **kwargs):
         ret = func(*args, **kwargs)
         obj = ret[self.idx]
-        assert obj.shape == self.query_shape, "Shape has to match"
+        assert obj.shape == self.query_shape, f"Shape has to match. Is:{obj.shape}, Should:{self.query_shape}"
         return ret
