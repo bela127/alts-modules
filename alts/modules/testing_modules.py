@@ -38,7 +38,7 @@ class ShapeEvaluator(Evaluator):
         self.query_shape = query_shape
 
         setattr(self.experiment, self.func, Evaluate(getattr(self.experiment, self.func)))
-        getattr(self.experiment, self.func).warp(self.test_shape)
+        getattr(self.experiment, self.func).wrap(self.test_shape)
 
     def test_shape(self, func, *args, **kwargs):
         ret = func(*args, **kwargs)
@@ -48,15 +48,15 @@ class ShapeEvaluator(Evaluator):
     
 class ACEEvaluator(Evaluator):
     """
-    ACEEvaluator(func, pre, warp, post)
+    ACEEvaluator(func, pre, wrap, post)
     | **Description**
     |   This evaluator does arbitrary code execution whenever the given function is called.
     :param func_path: What function triggers the arbitrary code
     :type func_path: Callable
     :param pre: What function to call before original call
     :type pre: Callable
-    :param warp: What function to handle original call
-    :type warp: Callable
+    :param wrap: What function to handle original call
+    :type wrap: Callable
     :param post: What function to call after original call
     :type post: Callable
     """
