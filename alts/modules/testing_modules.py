@@ -51,8 +51,8 @@ class ACEEvaluator(Evaluator):
     ACEEvaluator(func, pre, warp, post)
     | **Description**
     |   This evaluator does arbitrary code execution whenever the given function is called.
-    :param func: What function triggers the arbitrary code
-    :type func: Callable
+    :param func_path: What function triggers the arbitrary code
+    :type func_path: Callable
     :param pre: What function to call before original call
     :type pre: Callable
     :param warp: What function to handle original call
@@ -60,10 +60,12 @@ class ACEEvaluator(Evaluator):
     :param post: What function to call after original call
     :type post: Callable
     """
-    func: str = init(default=None)
-    pre: Callable = init(default=None)
-    warp: Callable = init(default=None)
-    post: Callable = init(default=None)
+    func_path: str = ""
+    pre: Callable = None # type: ignore
+    wrap: Callable = None # type: ignore
+    post: Callable = None # type: ignore
+
+    func: Callable
 
     def register(self, experiment: Experiment):
         """
@@ -76,17 +78,26 @@ class ACEEvaluator(Evaluator):
         :type experiment: Experiment
         :raises: TypeError if self.experiment.oracles is not a POracles
         """
-        if self.func is None:
+        if self.func_path is None:
             raise ValueError("ACEEvaluator: No target function is given")
         
         super().register(experiment)
-        setattr(self.experiment, self.func, Evaluate(getattr(self.experiment, self.func)))
 
-        if not self.pre is None:
-            getattr(self.experiment, self.func).pre(self.pre)
-        if not self.warp is None:
-            getattr(self.experiment, self.func).warp(self.warp)
-        if not self.post is None:
-            getattr(self.experiment, self.func).post(self.post)
-
+        loc_func_path = self.func_path.split(".")
+        obj = self.experiment
+        for i in range(len(loc_func_path)-1):
+            obj = getattr(obj, loc_func_path[i])
+        if isinstance(getattr(obj,loc_func_path[-1]), Callable):
+            setattr(obj, loc_func_path[-1], Evaluate(getattr(obj, loc_func_path[-1]))) 
+            self.func = getattr(obj,loc_func_path[-1])
+        else:
+            raise TypeError(f"Selected object {obj} is not a function")
         
+        if not self.pre is None:
+            self.func.pre(self.pre)
+        if not self.wrap is None:
+            print("Wrapping original function")
+            getattr(obj, loc_func_path[-1]).wrap(self.wrap)
+        if not self.post is None:
+            self.func.post(self.post)
+
