@@ -20,26 +20,19 @@ queried_data_pools = [
     qdps.FlatQueriedDataPool
 ]
 
-def add_wrap(func, data_points):
-    print("LOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOo")
-    queries, results = data_points
-    print(queries)
-    print(queries.shape)
-    print(results.shape)
-    print("HEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
-    func(data_points)
-    #self.queries = np.concatenate((self.queries, queries))
-    #self.results = np.concatenate((self.results, results))
-
-
-shape_values = [(1,1)]#, (1,)]#, (2,2), (5,3,2), (2,3,4,1)]
+shape_values = [(1,), (1,1), (2,1)]#, (5,1,2,1), (4,3,2,1,1)]
 
 @pytest.mark.parametrize("result_shape", shape_values)
 @pytest.mark.parametrize("query_shape", shape_values)
 def test_FlatQueriedDataPool(query_shape: tuple, result_shape: tuple):
-    pytest.xfail("External Issues")
-    bp = bps.BaselineBlueprint(process=DataSourceProcess(data_source=LineDataSource(query_shape=query_shape, result_shape=result_shape)),
-                               evaluators=(tm.ACEEvaluator(func_path="data_pools.result.add", wrap=add_wrap),
-                                           tm.ACEEvaluator(func_path="process.process_query", wrap=process_query_wrap)))
+    
+    
+    bp = tm.TestBlueprint(process=DataSourceProcess(data_source=LineDataSource(query_shape=query_shape, result_shape=result_shape)),
+                               evaluators=(tm.ACEEvaluator(func_path="data_pools.result.add", wrap=add_wrap),))
     er = ExperimentRunner([bp])
-    er.run_experiment(bp)
+    if len(result_shape) >= 2 and query_shape[-1] != result_shape[-2]:
+        with pytest.raises(ValueError, match="Incompatible shapes"):
+            er.run_experiment(bp)
+    else:
+        er.run_experiment(bp)
+    
