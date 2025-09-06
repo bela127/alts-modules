@@ -64,6 +64,6 @@ def query(func, queries):
 @pytest.mark.parametrize("query_shape,", shape_values)
 def test_LineDataSource(query_shape, result_shape, a, b):
     bp = bps.BaselineBlueprint(process=DataSourceProcess(data_source=LineDataSource(query_shape=query_shape, result_shape=result_shape, a=a, b=b)),
-                               evaluators=(tm.ResultEvaluator("process.data_source.query"),))
+                               evaluators=(tm.ConstrainEvaluator(func_path="process.data_source.query", q_index=slice(None,None,None), r_index=1),))
     er = ExperimentRunner([bp])
     er.run_experiment(bp)
