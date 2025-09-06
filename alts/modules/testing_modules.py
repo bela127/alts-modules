@@ -65,7 +65,68 @@ class ACEEvaluator(Evaluator):
         if not self.post is None:
             self.func.post(self.post)
 
-   
+class QueryEvaluator(Evaluator):
+    """
+    QueryEvaluator(shape, func, idx)
+    | **Description**
+    |   This evaluator keeps track of the chosen function's input.
+    :param func: What functions output object to compare
+    :type func: Callable
+    """
+    func_path: str
+    query_index: int
+    result_index: int
+
+    def register(self, experiment: Experiment):
+        """
+        register(self, experiment) -> None
+        | **Description**
+        |   Modifies the experiment to print new queries before adding them to the experiment's query queue.
+        |   Requires the experiment's oracle to be a POracles.
+
+        :param experiment: The experiment to be evaluated
+        :type experiment: Experiment
+        :raises: TypeError if self.experiment.oracles is not a POracles
+        """
+        if self.func_path is None:
+            raise ValueError("ShapeEvaluator: No target function is given")
+        
+        super().register(experiment)
+
+        loc_func_path = self.func_path.split(".")
+        obj = self.experiment
+        for i in range(len(loc_func_path)-1):
+            obj = getattr(obj, loc_func_path[i])
+        if isinstance(getattr(obj,loc_func_path[-1]), Callable):
+            setattr(obj, loc_func_path[-1], Evaluate(getattr(obj, loc_func_path[-1]))) 
+            self.func = getattr(obj,loc_func_path[-1])
+        else:
+            raise TypeError(f"Selected object {obj} is not a function")
+        
+        def test_query(func, *args, **kwargs):
+            results = func(*args, **kwargs)
+            if self.query_index != None:
+                obj_query_constrain = obj.query_constrain() # type: ignore
+                print("Experiment."+".".join(loc_func_path)+f": Expected Query Shape {obj_query_constrain.shape} and got {args[self.query_index].shape}")
+                assert obj_query_constrain.constrains_met(args[self.query_index]), f"{args[self.query_index]}"
+            else:
+                print("Experiment."+".".join(loc_func_path)+f": No Query expected, passed")
+            if self.result_index != None:
+                obj_result_constrain = obj.result_constrain() # type: ignore
+                print("Experiment."+".".join(loc_func_path)+f": Expected Result Shape {obj_result_constrain.shape} and got {args[self.result_index].shape}")
+                assert obj_result_constrain.constrains_met(args[self.result_index]), f"Result {args[self.result_index]}, Constraints: {obj_result_constrain.count}, {obj_result_constrain.shape}, {obj_result_constrain.ranges}"
+            else:
+                print("Experiment."+".".join(loc_func_path)+f": No Result expected, passed")
+            return results
+
+
+        getattr(obj, loc_func_path[-1]).wrap(test_query)
+    
+    def __init__(self, func_path="", query_index=None, result_index=None,*args, **kwargs):
+        self.func_path = func_path # type: ignore
+        self.query_index = query_index # type: ignore
+        self.result_index = result_index # type: ignore
+        super().__init__()
 
 class ResultEvaluator(Evaluator):
     """
@@ -110,13 +171,13 @@ class ResultEvaluator(Evaluator):
             if self.query_index != None:
                 obj_query_constrain = obj.query_constrain() # type: ignore
                 print("Experiment."+".".join(loc_func_path)+f": Expected Query Shape {obj_query_constrain.shape} and got {results[self.query_index].shape}")
-                assert obj_query_constrain.constrains_met(results[0])
+                assert obj_query_constrain.constrains_met(results[self.query_index]), f"{results[self.query_index]}"
             else:
                 print("Experiment."+".".join(loc_func_path)+f": No Query expected, passed")
             if self.result_index != None:
                 obj_result_constrain = obj.result_constrain() # type: ignore
                 print("Experiment."+".".join(loc_func_path)+f": Expected Result Shape {obj_result_constrain.shape} and got {results[self.result_index].shape}")
-                assert obj_result_constrain.constrains_met(results[1])
+                assert obj_result_constrain.constrains_met(results[self.result_index]), f"Result {results[self.result_index]}, Constraints: {obj_result_constrain.count}, {obj_result_constrain.shape}, {obj_result_constrain.ranges}"
             else:
                 print("Experiment."+".".join(loc_func_path)+f": No Result expected, passed")
             return results
