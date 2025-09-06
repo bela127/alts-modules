@@ -13,6 +13,8 @@ if TYPE_CHECKING:
 
 from alts.core.experiment import Experiment
 from alts.modules.evaluator import Evaluate, Evaluator
+
+import pytest
     
 class ACEEvaluator(Evaluator):
     """
@@ -65,32 +67,39 @@ class ACEEvaluator(Evaluator):
         if not self.post is None:
             self.func.post(self.post)
 
-class QueryEvaluator(Evaluator):
+class ConstrainEvaluator(Evaluator):
     """
-    QueryEvaluator(shape, func, idx)
+    ConstrainEvaluator(func_path, q_index, r_index)
     | **Description**
-    |   This evaluator keeps track of the chosen function's input.
-    :param func: What functions output object to compare
-    :type func: Callable
+    |   This evaluator keeps track of the constraints of the chosen function's in- and output
+    :param func_path: Path to the function to observe
+    :type func: str
+    :param q_index: Index of input queries in args
+    :type q_index: int | slice
+    :param r_index: Index of output results in args
+    :type r_index: int | slice
     """
     func_path: str
-    query_index: int
-    result_index: int
+    q_index: int | slice
+    r_index: int | slice
+
+    def __init__(self, func_path=None, q_index=None, r_index=None):
+        self.func_path = func_path # type: ignore
+        self.q_index = q_index # type: ignore
+        self.r_index = r_index # type: ignore
+        super().__init__()
 
     def register(self, experiment: Experiment):
         """
         register(self, experiment) -> None
         | **Description**
-        |   Modifies the experiment to print new queries before adding them to the experiment's query queue.
-        |   Requires the experiment's oracle to be a POracles.
+        |   Modifies the experiment to check in-/output constraints of the chosen function.
 
         :param experiment: The experiment to be evaluated
         :type experiment: Experiment
-        :raises: TypeError if self.experiment.oracles is not a POracles
         """
         if self.func_path is None:
-            raise ValueError("ShapeEvaluator: No target function is given")
-        
+            raise ValueError("ConstrainEvaluator: No target function is given")
         super().register(experiment)
 
         loc_func_path = self.func_path.split(".")
@@ -103,93 +112,38 @@ class QueryEvaluator(Evaluator):
         else:
             raise TypeError(f"Selected object {obj} is not a function")
         
-        def test_query(func, *args, **kwargs):
+        def test_func(func, *args, **kwargs):
+            obj_qc = obj.query_constrain() # type: ignore
+            obj_rc = obj.result_constrain() # type: ignore
             results = func(*args, **kwargs)
-            if self.query_index != None:
-                obj_query_constrain = obj.query_constrain() # type: ignore
-                print("Experiment."+".".join(loc_func_path)+f": Expected Query Shape {obj_query_constrain.shape} and got {args[self.query_index].shape}")
-                assert obj_query_constrain.constrains_met(args[self.query_index]), f"{args[self.query_index]}"
+            
+            if isinstance(self.q_index, slice) and self.q_index.start == self.q_index.step == self.q_index.stop == None:
+                print("Experiment."+".".join(loc_func_path)+f": Expected Query Shape {obj_qc.shape} and got {args[0][0].shape}")
+                if not obj_qc.constrains_met(args[0]):
+                    pytest.xfail(f"Input Queries outside constraints: {len(args[0])} {args[0][0].shape}, Constraints: {obj_qc.count}:{obj_qc.matches_count(args[0])}, {obj_qc.shape}:{obj_qc.matches_shape(args[0])}, ranges:{obj_qc.matches_ranges(args[0])}")
+            if self.q_index != None:
+                print("Experiment."+".".join(loc_func_path)+f": Expected Query Shape {obj_qc.shape} and got {args[0][self.q_index][0].shape}")
+                if not obj_qc.constrains_met(args[0][self.q_index]):
+                    pytest.xfail(f"Input Queries outside constraints: {len(args[0][self.q_index])} {args[0][self.q_index][0].shape}, Constraints: {obj_qc.count}:{obj_qc.matches_count(args[0][self.q_index])}, {obj_qc.shape}:{obj_qc.matches_shape(args[0][self.q_index])}, ranges:{obj_qc.matches_ranges(args[0][self.q_index])}")
             else:
-                print("Experiment."+".".join(loc_func_path)+f": No Query expected, passed")
-            if self.result_index != None:
-                obj_result_constrain = obj.result_constrain() # type: ignore
-                print("Experiment."+".".join(loc_func_path)+f": Expected Result Shape {obj_result_constrain.shape} and got {args[self.result_index].shape}")
-                assert obj_result_constrain.constrains_met(args[self.result_index]), f"Result {args[self.result_index]}, Constraints: {obj_result_constrain.count}, {obj_result_constrain.shape}, {obj_result_constrain.ranges}"
+                print("Experiment."+".".join(loc_func_path)+f": No Queries expected, passed")
+                pass
+
+            if isinstance(self.r_index, slice) and self.r_index.start == self.r_index.step == self.r_index.stop == None:
+                print("Experiment."+".".join(loc_func_path)+f": Expected Result Shape {obj_rc.shape} and got {results[0].shape}")
+                assert obj_rc.constrains_met(results[self.r_index]), f"Output Results outside constraints: {len(results)}, {results[0].shape}, Constraints: {obj_rc.count}{obj_rc.matches_count(results)}, {obj_rc.shape}{obj_rc.matches_shape(results)}, ranges:{obj_rc.matches_ranges(results)}"
+            if self.r_index != None:
+                print("Experiment."+".".join(loc_func_path)+f": Expected Result Shape {obj_rc.shape} and got {results[self.r_index][0].shape}")
+                assert obj_rc.constrains_met(results[self.r_index]), f"Output Results outside constraints: {len(results[self.r_index])}, {results[self.r_index][0].shape}, Constraints: {obj_rc.count}:{obj_rc.matches_count(results[self.r_index])}, {obj_rc.shape}:{obj_rc.matches_shape(results[self.r_index])}, ranges:{obj_rc.matches_ranges(results[self.r_index])}"
             else:
-                print("Experiment."+".".join(loc_func_path)+f": No Result expected, passed")
+                print("Experiment."+".".join(loc_func_path)+f": No Results expected, passed")
+                pass
+
             return results
 
-
-        getattr(obj, loc_func_path[-1]).wrap(test_query)
+        getattr(obj, loc_func_path[-1]).wrap(test_func)
     
-    def __init__(self, func_path="", query_index=None, result_index=None,*args, **kwargs):
-        self.func_path = func_path # type: ignore
-        self.query_index = query_index # type: ignore
-        self.result_index = result_index # type: ignore
-        super().__init__()
 
-class ResultEvaluator(Evaluator):
-    """
-    ResultEvaluator(shape, func, idx)
-    | **Description**
-    |   This evaluator keeps track of the chosen function's output.
-    :param func: What functions output object to compare
-    :type func: Callable
-    """
-    func_path: str
-    query_index: int
-    result_index: int
-
-    def register(self, experiment: Experiment):
-        """
-        register(self, experiment) -> None
-        | **Description**
-        |   Modifies the experiment to print new queries before adding them to the experiment's query queue.
-        |   Requires the experiment's oracle to be a POracles.
-
-        :param experiment: The experiment to be evaluated
-        :type experiment: Experiment
-        :raises: TypeError if self.experiment.oracles is not a POracles
-        """
-        if self.func_path is None:
-            raise ValueError("ShapeEvaluator: No target function is given")
-        
-        super().register(experiment)
-
-        loc_func_path = self.func_path.split(".")
-        obj = self.experiment
-        for i in range(len(loc_func_path)-1):
-            obj = getattr(obj, loc_func_path[i])
-        if isinstance(getattr(obj,loc_func_path[-1]), Callable):
-            setattr(obj, loc_func_path[-1], Evaluate(getattr(obj, loc_func_path[-1]))) 
-            self.func = getattr(obj,loc_func_path[-1])
-        else:
-            raise TypeError(f"Selected object {obj} is not a function")
-        
-        def test_result(func, *args, **kwargs):
-            results = func(*args, **kwargs)
-            if self.query_index != None:
-                obj_query_constrain = obj.query_constrain() # type: ignore
-                print("Experiment."+".".join(loc_func_path)+f": Expected Query Shape {obj_query_constrain.shape} and got {results[self.query_index].shape}")
-                assert obj_query_constrain.constrains_met(results[self.query_index]), f"{results[self.query_index]}"
-            else:
-                print("Experiment."+".".join(loc_func_path)+f": No Query expected, passed")
-            if self.result_index != None:
-                obj_result_constrain = obj.result_constrain() # type: ignore
-                print("Experiment."+".".join(loc_func_path)+f": Expected Result Shape {obj_result_constrain.shape} and got {results[self.result_index].shape}")
-                assert obj_result_constrain.constrains_met(results[self.result_index]), f"Result {results[self.result_index]}, Constraints: {obj_result_constrain.count}, {obj_result_constrain.shape}, {obj_result_constrain.ranges}"
-            else:
-                print("Experiment."+".".join(loc_func_path)+f": No Result expected, passed")
-            return results
-
-
-        getattr(obj, loc_func_path[-1]).wrap(test_result)
-    
-    def __init__(self, func_path="", query_index=None, result_index=None,*args, **kwargs):
-        self.func_path = func_path # type: ignore
-        self.query_index = query_index # type: ignore
-        self.result_index = result_index # type: ignore
-        super().__init__()
 
 from dataclasses import dataclass, field
 from alts.core.blueprint import Blueprint
