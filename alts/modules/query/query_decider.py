@@ -68,7 +68,7 @@ class TopKQueryDecider(QueryDecider):
         :return: True, query_candidates
         :rtype: boolean, Iterable over `NDArrays <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_ 
         """
-        if query_candidates.size > self.k:
+        if len(query_candidates) > self.k:
             ind = np.argpartition(scores, -self.k, axis=0)[-self.k:]
             queries = query_candidates[ind]
         else:
@@ -76,7 +76,10 @@ class TopKQueryDecider(QueryDecider):
         return True, queries
     
     def query_constrain(self) -> QueryConstrain:
-        return QueryConstrain(count=self.k, shape=None, ranges=None)
+        return QueryConstrain(count=None, shape=None, ranges=None)
+    
+    def result_constrain(self) -> ResultConstrain:
+        return ResultConstrain(count=self.k, shape=None, ranges=None)
 
 @dataclass
 class NoQueryDecider(QueryDecider):
