@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from dataclasses import dataclass, field
 from abc import abstractmethod
 
-from alts.core.data.constrains import QueryConstrain
+from alts.core.data.constrains import QueryConstrain, ResultConstrain
 import numpy as np
 
 from alts.core.configuration import Configurable, init, Required, is_set
@@ -75,8 +75,8 @@ class TopKQueryDecider(QueryDecider):
             queries = query_candidates
         return True, queries
     
-    def query_constrain(self) -> QueryConstrain:
-        return QueryConstrain(count=self.k, shape=None, ranges=None)
+    def result_constrain(self) -> ResultConstrain:
+        return ResultConstrain(count=self.k, shape=None, ranges=None)
 
 @dataclass
 class NoQueryDecider(QueryDecider):
