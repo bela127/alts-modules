@@ -75,9 +75,6 @@ class TopKQueryDecider(QueryDecider):
             queries = query_candidates
         return True, queries
     
-    def query_constrain(self) -> QueryConstrain:
-        return QueryConstrain(count=None, shape=None, ranges=None)
-    
     def result_constrain(self) -> ResultConstrain:
         return ResultConstrain(count=self.k, shape=None, ranges=None)
 
