@@ -76,6 +76,8 @@ class ResultEvaluator(Evaluator):
     :type func: Callable
     """
     func_path: str
+    query_index: int
+    result_index: int
 
     def register(self, experiment: Experiment):
         """
@@ -104,24 +106,28 @@ class ResultEvaluator(Evaluator):
             raise TypeError(f"Selected object {obj} is not a function")
         
         def test_result(func, *args, **kwargs):
-            obj_query_constrain = obj.query_constrain() # type: ignore
-            obj_result_constrain = obj.result_constrain() # type: ignore
             results = func(*args, **kwargs)
-            if len(results) == 2:
-                print("Experiment."+".".join(loc_func_path)+f": Expected Query Shape {obj_query_constrain.shape} and got {results[0].shape}")
+            if self.query_index != None:
+                obj_query_constrain = obj.query_constrain() # type: ignore
+                print("Experiment."+".".join(loc_func_path)+f": Expected Query Shape {obj_query_constrain.shape} and got {results[self.query_index].shape}")
                 assert obj_query_constrain.constrains_met(results[0])
-                print("Experiment."+".".join(loc_func_path)+f": Expected Result Shape {obj_result_constrain.shape} and got {results[1].shape}")
+            else:
+                print("Experiment."+".".join(loc_func_path)+f": No Query expected, passed")
+            if self.result_index != None:
+                obj_result_constrain = obj.result_constrain() # type: ignore
+                print("Experiment."+".".join(loc_func_path)+f": Expected Result Shape {obj_result_constrain.shape} and got {results[self.result_index].shape}")
                 assert obj_result_constrain.constrains_met(results[1])
             else:
-                print("Experiment."+".".join(loc_func_path)+f": Expected Query Shape {obj_query_constrain.shape} and got {results.shape}")
-                assert obj_query_constrain.constrains_met(results)
+                print("Experiment."+".".join(loc_func_path)+f": No Result expected, passed")
             return results
 
 
         getattr(obj, loc_func_path[-1]).wrap(test_result)
     
-    def __init__(self,func_path="", *args, **kwargs):
+    def __init__(self, func_path="", query_index=None, result_index=None,*args, **kwargs):
         self.func_path = func_path # type: ignore
+        self.query_index = query_index # type: ignore
+        self.result_index = result_index # type: ignore
         super().__init__()
 
 from dataclasses import dataclass, field
