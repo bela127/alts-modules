@@ -47,7 +47,7 @@ def test_TopKQueryDecider(k: int, query_shape: tuple):
     er.run_experiment(bp)
 
 t_values = [-0.5,0,0.5,1,10]
-@pytest.mark.parametrize("threshold", t_values)
+@pytest.mark.parametrize("t", t_values)
 @pytest.mark.parametrize("query_shape", shape_values)
 def test_ThresholdQueryDecider(t: int, query_shape: tuple):
     bp = tm.TestBlueprint(process=DataSourceProcess(data_source=RandomUniformDataSource(query_shape=query_shape)),
