@@ -81,7 +81,7 @@ class RandomUniformDataSource(DataSource):
         """
         x_min = 0
         x_max = 1
-        query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
+        query_ranges = np.asarray(tuple((x_min, x_max) for i in range(np.prod(self.query_shape)))).reshape((*self.query_shape,2))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
     
     def result_constrain(self) -> ResultConstrain:
