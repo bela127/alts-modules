@@ -1,8 +1,8 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 if TYPE_CHECKING:
-    from typing import Iterable, Optional, Callable
+    from typing import Iterable, Optional
     from alts.core.data_process.time_source import TimeSource
     from alts.core.data_process.process import Process
     from alts.core.stopping_criteria import StoppingCriteria
@@ -104,9 +104,17 @@ class ResultEvaluator(Evaluator):
             raise TypeError(f"Selected object {obj} is not a function")
         
         def test_result(func, *args, **kwargs):
+            obj_query_constrain = obj.query_constrain() # type: ignore
             obj_result_constrain = obj.result_constrain() # type: ignore
             results = func(*args, **kwargs)
-            print("Experiment."+".".join(loc_func_path)+f": Expected Shape {obj_result_constrain.shape} and got {results[1].shape}")
+            if len(results) == 2:
+                print("Experiment."+".".join(loc_func_path)+f": Expected Query Shape {obj_query_constrain.shape} and got {results[0].shape}")
+                assert obj_query_constrain.constrains_met(results[0])
+                print("Experiment."+".".join(loc_func_path)+f": Expected Result Shape {obj_result_constrain.shape} and got {results[1].shape}")
+                assert obj_result_constrain.constrains_met(results[1])
+            else:
+                print("Experiment."+".".join(loc_func_path)+f": Expected Query Shape {obj_query_constrain.shape} and got {results.shape}")
+                assert obj_query_constrain.constrains_met(results)
             return results
 
 
