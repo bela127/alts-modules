@@ -3,14 +3,12 @@ from alts.core.query.query_decider import QueryDecider
 import alts.modules.query.query_decider as qdm
 
 from alts.modules.data_process.process import DataSourceProcess
-from alts.modules.oracle.data_source import LineDataSource
-import alts.modules.blueprint as bps
-from alts.core.experiment import Experiment
+from alts.modules.oracle.data_source import RandomUniformDataSource
+from alts.core.experiment_runner import ExperimentRunner
 from alts.modules.query.query_optimizer import NoQueryOptimizer
-from alts.modules.query.query_sampler import LatinHypercubeQuerySampler, UniformQuerySampler
+from alts.modules.query.query_sampler import UniformQuerySampler
 from alts.core.query.query_selector import ResultQuerySelector
 from alts.core.experiment_modules import InitQueryExperimentModules
-from alts.core.evaluator import Evaluator
 
 import alts.modules.testing_modules as tm
 import numpy as np
@@ -33,13 +31,12 @@ query_deciders = [
 
 shape_values = [(1,), (1,1)]#, (2,2), (5,3,2), (2,3,4,1)]
 
-k_values = [1,3,10,100]#,0]
+k_values = [1,3,10,100,0]
 @pytest.mark.parametrize("k", k_values)
-@pytest.mark.parametrize("shape", shape_values)
-def test_TopKQueryDecider(k: int, shape: tuple):
-    bp = bps.BaselineBlueprint(process=DataSourceProcess(data_source=LineDataSource(query_shape=shape)),
-                               experiment_modules=InitQueryExperimentModules(initial_query_sampler=LatinHypercubeQuerySampler(num_queries=10), query_selector=ResultQuerySelector(query_optimizer=NoQueryOptimizer(query_sampler=UniformQuerySampler()), query_decider=qdm.TopKQueryDecider(k))),
-                               evaluators=(tm.ShapeEvaluator(shape=(k,)+shape, func="experiment_modules.query_selector.query_decider.decide", idx=(1,)),
-                                           ))
-    exp = Experiment(bp, 1)
-    exp.run()
+@pytest.mark.parametrize("query_shape", shape_values)
+def test_TopKQueryDecider(k: int, query_shape: tuple):
+    bp = tm.TestBlueprint(process=DataSourceProcess(data_source=RandomUniformDataSource(query_shape=query_shape)),
+                               experiment_modules=InitQueryExperimentModules(initial_query_sampler=UniformQuerySampler(num_queries=10), query_selector=ResultQuerySelector(query_optimizer=NoQueryOptimizer(query_sampler=UniformQuerySampler()), query_decider=qdm.TopKQueryDecider(k))),
+                               evaluators=(tm.ResultEvaluator(func_path="experiment_modules.query_selector.query_decider.decide",),))
+    er = ExperimentRunner([bp])
+    er.run_experiment(bp)
