@@ -1,4 +1,4 @@
-#Test version 2.0 as of 06.09.2025
+#Test version 2.1 as of 06.09.2025
 from alts.core.query.query_decider import QueryDecider
 import alts.modules.query.query_decider as qdm
 
@@ -21,16 +21,14 @@ import importlib, inspect
 |   - Correct output dimensions with respect to paramters
 |   - Handling of nonsensical user parameters
 """
-
-query_deciders = np.array(inspect.getmembers("qdm", inspect.isclass))[...,1]
-
+query_deciders = tm.query_for_members(qdm, QueryDecider)
 special_query_deciders = [
     qdm.ThresholdQueryDecider,
     qdm.TopKQueryDecider
 ]
-simple_query_deciders = [qd for qd in query_deciders if qd not in special_query_deciders]
-print(simple_query_deciders)
-shape_values = [(1,)]#, (1,1), (2,2), (5,3,2), (2,3,4,1)]
+simple_query_deciders = np.setdiff1d(query_deciders, special_query_deciders, assume_unique=True)
+
+shape_values = [(1,), (1,1), (2,2), (5,3,2), (2,3,4,1)]
 
 k_values = [1,3,10,100,0]
 @pytest.mark.parametrize("k", k_values)

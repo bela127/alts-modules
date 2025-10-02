@@ -141,7 +141,21 @@ class ConstrainEvaluator(Evaluator):
 
         getattr(obj, loc_func_path[-1]).wrap(test_func)
     
-
+def query_for_members(module, base_class):
+    """
+    query_for_members(module, base_class) -> NDAerray
+    | **Description**
+    |   Queries a module for all members that are subclasses of the given base class.   
+    :param module: The module to query
+    :type module: module
+    :param base_class: The base class to search for subclasses of
+    :type base_class: type
+    :return: An array of all found subclasses
+    :rtype: `NDArrays <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_
+    """
+    import inspect
+    import numpy as np
+    return np.array(inspect.getmembers(module, lambda x:inspect.isclass(x) and issubclass(x, base_class) and x is not base_class))[...,1]
 
 from dataclasses import dataclass, field
 from alts.core.blueprint import Blueprint
