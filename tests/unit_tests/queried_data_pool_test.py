@@ -6,6 +6,9 @@ from alts.modules.oracle.data_source import RandomUniformDataSource
 from alts.core.experiment_runner import ExperimentRunner
 
 
+from alts.core.experiment import Experiment
+
+
 import alts.modules.testing_modules as tm
 import numpy as np
 import pytest

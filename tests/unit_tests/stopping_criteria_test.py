@@ -2,23 +2,24 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 from alts.core.configuration import pre_init, is_set, init, post_init
-import numpy as np
 
 from alts.core.stopping_criteria import StoppingCriteria
 import alts.modules.stopping_criteria as scs
 
 from alts.core import experiment
 from alts.modules import blueprint
-from alts.modules.oracle.data_source import LineDataSource
+from alts.modules.oracle.data_source import RandomUniformDataSource
 from alts.core.oracle.data_source import DataSource
 from alts.core.data_process.time_source import TimeSource
 import alts.modules.data_process.time_source as ts
 from alts.modules.data_process.process import DataSourceProcess
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 if TYPE_CHECKING:
-    from typing import Tuple, List, Any, Type
+    from typing import Tuple
 
+import alts.modules.testing_modules as tm
+import numpy as np
 import pytest
 
 """
@@ -28,7 +29,7 @@ import pytest
 """
 
 @dataclass
-class ExhaustedDataSource(LineDataSource):
+class ExhaustedDataSource(RandomUniformDataSource):
     """
     ExhaustedDataSource(query_shape, result_shape, a, b, exhausted_time)
     | **Description**
@@ -38,10 +39,10 @@ class ExhaustedDataSource(LineDataSource):
     :type query_shape: tuple of ints
     :param result_shape: The expected shape of the results (default= (1,))
     :type result_shape: tuple of ints
-    :param a: Coefficient of degree 1, (default= 1)
-    :type a: float (optional)
-    :param b: Coefficient of degree 0, (default= 0)
-    :type b: float (optional)
+    :param u: Max result value, (default= 1)
+    :type u: float (optional)
+    :param l: Min result value, (default= 0)
+    :type l: float (optional)
     :param exhaust_in: How many queries until DataSource is exhausted (default= 5)
     """
     query_shape: Tuple[int,...] = init(default=(1,))
@@ -92,40 +93,40 @@ def test_exhausted(sc: type[StoppingCriteria]):
     if sc == scs.TimeStoppingCriteria:
         #Should trigger after given time
         #Normal time 1
-        bp = blueprint.BaselineBlueprint(stopping_criteria=sc(stop_time=100))
+        bp = tm.TestBlueprint(stopping_criteria=sc(stop_time=100))
         exp = experiment.Experiment(bp, 1)
         exp.run()
         assert exp.time_source.time == 101
         #Normal time 2
-        bp = blueprint.BaselineBlueprint(stopping_criteria=sc(stop_time=220))
+        bp = tm.TestBlueprint(stopping_criteria=sc(stop_time=220))
         exp = experiment.Experiment(bp, 1)
         exp.run()
         assert exp.time_source.time == 221
         #Zero time
-        bp = blueprint.BaselineBlueprint(stopping_criteria=sc(stop_time=0))
+        bp = tm.TestBlueprint(stopping_criteria=sc(stop_time=0))
         exp = experiment.Experiment(bp, 1)
         exp.run()
         assert exp.time_source.time == 1
     elif sc == scs.DataExhaustedStoppingCriteria:
         #Should trigger when DataSource is exhausted
         #Normal case 1
-        bp = blueprint.BaselineBlueprint(stopping_criteria=sc(), process=DataSourceProcess(ExhaustedDataSource(exhaust_in=10)))
+        bp = tm.TestBlueprint(stopping_criteria=sc(), process=DataSourceProcess(ExhaustedDataSource(exhaust_in=10)))
         exp = experiment.Experiment(bp, 1)
         exp.run()
         assert exp.process.data_source.exhaust_in == 0 # type: ignore
         #Normal case 2
-        bp = blueprint.BaselineBlueprint(stopping_criteria=sc(), process=DataSourceProcess(ExhaustedDataSource(exhaust_in=3)))
+        bp = tm.TestBlueprint(stopping_criteria=sc(), process=DataSourceProcess(ExhaustedDataSource(exhaust_in=3)))
         exp = experiment.Experiment(bp, 1)
         exp.run()
         assert exp.process.data_source.exhaust_in == 0 # type: ignore
         #Edge Case 1: exhausts in one query
-        bp = blueprint.BaselineBlueprint(stopping_criteria=sc(), process=DataSourceProcess(ExhaustedDataSource(exhaust_in=1)))
+        bp = tm.TestBlueprint(stopping_criteria=sc(), process=DataSourceProcess(ExhaustedDataSource(exhaust_in=1)))
         exp = experiment.Experiment(bp, 1)
         exp.run()
         assert exp.process.data_source.exhaust_in == 0 # type: ignore
         #Edge Case 2: starts exhausted
-        pytest.xfail("Fix Experiment")
-        bp = blueprint.BaselineBlueprint(stopping_criteria=sc(), process=DataSourceProcess(ExhaustedDataSource(exhaust_in=0)))
+        pytest.xfail("Make experiment check stopping criteria before first iteration")
+        bp = tm.TestBlueprint(stopping_criteria=sc(), process=DataSourceProcess(ExhaustedDataSource(exhaust_in=0)))
         exp = experiment.Experiment(bp, 1)
         exp.run()
         assert exp.process.data_source.exhaust_in == 0 # type: ignore
