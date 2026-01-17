@@ -100,6 +100,7 @@ class PrintQueryEvaluator(Evaluator):
         :type queries: Tuple[NDArray[Shape["query_nr, ... query_dim"], Number]
         """
         print("Queried: \n",queries)
+
 class PrintExpTimeEvaluator(Evaluator):
     """
     PrintExpTimeEvaluator()
@@ -131,7 +132,7 @@ class PrintExpTimeEvaluator(Evaluator):
         print(f"Start timing for {self.experiment.exp_name} {self.experiment.exp_nr}")
         self.start = time.time()
     
-    def end_time(self):
+    def end_time(self, result):
         """
         end_time(self) -> None
         | **Description**
@@ -171,7 +172,6 @@ class PrintTimeSourceEvaluator(Evaluator):
         :type time: int
         """
         print("Sim Unit Time: ", time)
-
 
 @dataclass
 class PlotNewDataPointsEvaluator(LogingEvaluator):
@@ -292,6 +292,7 @@ class PlotAllDataPointsEvaluator(LogingEvaluator):
         else:
             plot.savefig(f'{self.path}/{self.fig_name}.png')
             plot.clf()
+
 @dataclass
 class PlotQueryDistEvaluator(LogingEvaluator):
     """
@@ -390,7 +391,6 @@ class PlotSampledQueriesEvaluator(LogingEvaluator):
         else:
             plot.savefig(f'{self.path}/{self.fig_name}_{self.iteration:05d}.png')
             plot.clf()
-
 
 @dataclass
 class LogOracleEvaluator(LogingEvaluator):
@@ -509,7 +509,6 @@ class LogStreamEvaluator(LogingEvaluator):
         """
         if not self.stream is None:
             np.save(f'{self.path}/{self.file_name}.npy', self.stream)
-
 
 @dataclass
 class LogProcessEvaluator(LogingEvaluator):
