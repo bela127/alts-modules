@@ -1983,24 +1983,15 @@ class MixedBrownDriftDataSource(GaussianProcessDataSource):
 @dataclass
 class TimeBehaviorDataSource(TimeDataSource):
     """
-    TimeBehaviorDataSource(query_shape, result_shape, behavior, change_times, change_values, current_time)
+    TimeBehaviorDataSource(query_shape, result_shape, behavior)
     | **Description**
     |   A ``TimeBehaviorDataSource`` is an **independent** source of data depending on the DataBehavior over time. 
 
-    :param query_shape: The expected shape of the queries (default= (1,))
-    :type query_shape: tuple of ints
     :param result_shape: The expected shape of the results (default= (1,))
     :type result_shape: tuple of ints
     :param behavior: How the data behaves over time
     :type behavior: DataBehavior
-    :param change_times: At what times data behavior changes
-    :type change_times: NDArray[Shape["change_times"], Number]
-    :param change_values: How the values change at the given times
-    :type change_values: NDArray[Shape["change_values"], Number]
-    :param current_time: Current (or starting) time in the experiment (default= 0)
-    :type current_time: float
     """
-    query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     behavior: DataBehavior = init()
     change_times: NDArray[Shape["change_times"], Number] = post_init() # type: ignore
@@ -2015,7 +2006,7 @@ class TimeBehaviorDataSource(TimeDataSource):
         |   See :func:`init_singleton` for more.
         """
         super().post_init()
-        self.behavior = is_set(self.behavior)()
+        self.behavior = is_set(self.behavior)(query_constrain=self.query_constrain()) # type: ignore
         self.change_times, self.change_values = self.behavior.behavior()
 
 
@@ -2050,3 +2041,18 @@ class TimeBehaviorDataSource(TimeDataSource):
         results = self.change_values[indices][:,None]
 
         return queries, results
+    
+    def query_constrain(self) -> QueryConstrain:
+        """
+        query_constrain(self) -> QueryConstrain
+        | **Description**
+        |   See :func:`DataSource.query_constrain()` 
+
+        | **Current Constrains**
+        |   *Shape:* ``query_shape``
+        |   *Value Range:* [behavior.start_time, behavior.stop_time)
+
+        :return: Constrains around queries
+        :rtype: QueryConstrain
+        """
+        return QueryConstrain(count=None, shape=self.query_shape, ranges=np.asarray(((self.behavior.start_time, self.behavior.stop_time),)))
