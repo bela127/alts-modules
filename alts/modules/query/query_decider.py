@@ -54,6 +54,17 @@ class TopKQueryDecider(QueryDecider):
     """
     k: int = init(default= 4)
 
+    def post_init(self):
+        """
+        post_init(self) -> None
+        | **Description**
+        |   Raises a ValueError if k is not a positive integer.
+        |   :throws: ValueError
+        """
+        super().post_init()
+        if self.k < 1:
+            raise ValueError("TopKQueryDecider requires k to be a positive integer.")
+
     def decide(self, query_candidates: NDArray[Shape["query_nr, ... query_dims"], np.dtype[np.number]], scores: NDArray[Shape["query_nr, [query_score]"], np.dtype[np.number]]) -> Tuple[bool, NDArray[Shape["query_nr, ... query_dims"], np.dtype[np.number]]]: 
         """
         decide(self, query_candidates, scores) -> (bool, queries)
