@@ -45,7 +45,7 @@ class NoQueryOptimizer(QueryOptimizer):
         |   Initializes the query_sampler
         """
         super().post_init()
-        self.query_sampler = self.query_sampler(exp_modules = self.exp_modules)
+        self.query_sampler = self.query_sampler(exp_modules=self.exp_modules, query_constrain=self.query_constrain)
 
 
     def select(self, num_queries = None):
@@ -94,7 +94,7 @@ class GAQueryOptimizer(QueryOptimizer):
             queries = x[:,None]
             queries, scores = self.selection_criteria.query(queries)
             return scores[0]
-        res = differential_evolution(opt_func, bounds=np.repeat(self.oracles.query_constrain().ranges, 2, axis=0))
+        res = differential_evolution(opt_func, bounds=np.repeat(self.oracles.query_constrain().ranges, 2, axis=0)) # type: ignore
         queries = res.x[:,None]
         queries, scores = self.selection_criteria.query(queries)
         
@@ -123,7 +123,7 @@ class MCQueryOptimizer(QueryOptimizer):
         |   Initializes the query sampler
         """
         super().post_init()
-        self.query_sampler = self.query_sampler(exp_modules=self.exp_modules)
+        self.query_sampler = self.query_sampler(exp_modules=self.exp_modules, query_constrain=self.query_constrain)
 
 @dataclass
 class MaxMCQueryOptimizer(MCQueryOptimizer):
