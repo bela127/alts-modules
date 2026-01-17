@@ -87,7 +87,7 @@ class TopKQueryDecider(QueryDecider):
         return True, queries
     
     def result_constrain(self) -> ResultConstrain:
-        return ResultConstrain(count=self.k, shape=None, ranges=None)
+        return ResultConstrain(count=self.k, shape=self.query_constrain().shape, ranges=None)
 
 @dataclass
 class NoQueryDecider(QueryDecider):
