@@ -120,11 +120,11 @@ class ConstrainEvaluator(Evaluator):
             if isinstance(self.q_index, slice) and self.q_index.start == self.q_index.step == self.q_index.stop == None:
                 if not obj_qc.constrains_met(args[0]):
                     print("Experiment."+".".join(loc_func_path)+f": Expected Query Shape {obj_qc.shape} and got {args[0].shape}")
-                    pytest.skip(f"Experiment.{'.'.join(loc_func_path)}: Input Queries outside constraints: {len(args[0])} {args[0].shape}, Constraints: {obj_qc.count}:{obj_qc.matches_count(args[0])}, {obj_qc.shape}:{obj_qc.matches_shape(args[0])}, ranges:{obj_qc.matches_ranges(args[0])}")
+                    pytest.fail(f"Experiment.{'.'.join(loc_func_path)}: Input Queries outside constraints: {args[0].shape} -> {obj_qc.shape}, Constraints: {obj_qc.count}:{obj_qc.matches_count(args[0])}, {obj_qc.shape}:{obj_qc.matches_shape(args[0])}, ranges:{obj_qc.matches_ranges(args[0])}")
             if self.q_index != None:
                 if not obj_qc.constrains_met(args[0][self.q_index]):
                     print("Experiment."+".".join(loc_func_path)+f": Expected Query Shape {obj_qc.shape} and got {args[0][self.q_index].shape}")
-                    pytest.skip(f"Experiment.{'.'.join(loc_func_path)}: Input Queries outside constraints: {len(args[0][self.q_index])} {args[0][self.q_index].shape}, Constraints: {obj_qc.count}:{obj_qc.matches_count(args[0][self.q_index])}, {obj_qc.shape}:{obj_qc.matches_shape(args[0][self.q_index])}, ranges:{obj_qc.matches_ranges(args[0][self.q_index])}")
+                    pytest.fail(f"Experiment.{'.'.join(loc_func_path)}: Input Queries outside constraints: {args[0][self.q_index].shape} -> {obj_qc.shape}, Constraints: {obj_qc.count}:{obj_qc.matches_count(args[0][self.q_index])}, {obj_qc.shape}:{obj_qc.matches_shape(args[0][self.q_index])}, ranges:{obj_qc.matches_ranges(args[0][self.q_index])}")
             else:
                 print("Experiment."+".".join(loc_func_path)+f": No Queries expected, passed")
                 pass
