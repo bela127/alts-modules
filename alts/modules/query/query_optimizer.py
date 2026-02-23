@@ -45,7 +45,7 @@ class NoQueryOptimizer(QueryOptimizer):
         |   Initializes the query_sampler
         """
         super().post_init()
-        self.query_sampler = self.query_sampler(exp_modules=self.exp_modules, query_constrain=self.query_constrain)
+        self.query_sampler = self.query_sampler(exp_modules=self.exp_modules)
 
 
     def select(self, num_queries = None):

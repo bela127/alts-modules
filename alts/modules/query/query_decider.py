@@ -41,6 +41,9 @@ class AllQueryDecider(QueryDecider):
         :rtype: boolean, Iterable over `NDArrays <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_ 
         """
         return True, query_candidates
+    
+    def result_constrain(self) -> ResultConstrain:
+        return ResultConstrain(count=self.oracles.query_constrain().count, shape=self.query_constrain().shape, ranges=self.query_constrain().ranges)
 
 @dataclass    
 class TopKQueryDecider(QueryDecider):
@@ -87,7 +90,7 @@ class TopKQueryDecider(QueryDecider):
         return True, queries
     
     def result_constrain(self) -> ResultConstrain:
-        return ResultConstrain(count=self.k, shape=self.query_constrain().shape, ranges=None)
+        return ResultConstrain(count=self.k, shape=self.query_constrain().shape, ranges=self.query_constrain().ranges)
 
 @dataclass
 class NoQueryDecider(QueryDecider):
@@ -112,6 +115,9 @@ class NoQueryDecider(QueryDecider):
         """
         query = np.empty((0, *query_candidates.shape[1:]))
         return False, query
+    
+    def result_constrain(self) -> ResultConstrain:
+        return ResultConstrain(count=0, shape=self.query_constrain().shape, ranges=self.query_constrain().ranges)
 
 @dataclass
 class ThresholdQueryDecider(QueryDecider):
@@ -142,3 +148,6 @@ class ThresholdQueryDecider(QueryDecider):
         query = query_candidates[scores[:,0]>self.threshold]
         flag = query.shape[0] > 0
         return flag, query
+    
+    def result_constrain(self) -> ResultConstrain:
+        return ResultConstrain(count=None, shape=self.query_constrain().shape, ranges=self.query_constrain().ranges)

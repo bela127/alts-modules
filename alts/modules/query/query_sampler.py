@@ -19,6 +19,7 @@ from scipy.stats import qmc # type: ignore
 from alts.core.query.query_sampler import QuerySampler
 from alts.core.configuration import init
 from alts.core.data.queried_data_pool import QueriedDataPool
+from alts.core.data.constrains import ResultConstrain
 
 if TYPE_CHECKING:
     from typing import Tuple, List, Union, Literal
@@ -33,7 +34,7 @@ class OptimalQuerySampler(QuerySampler):
 
     :param num_queries: Number of queries to sample by default
     :type num_queries: int
-    :param optimal_queries: What queries to sample from
+    :param optimal_queries: A list of queries to sample from
     :type optimal_queries: Tuple[NDArray[Shape["query_nr, ... query_dims"], Number], ...]
     """
     optimal_queries: Tuple[NDArray[Shape["query_nr, ... query_dims"], Number], ...] = init() # type: ignore
@@ -69,6 +70,17 @@ class OptimalQuerySampler(QuerySampler):
         queries = random.choices(self.optimal_queries, k=k)
         queries = np.concatenate(queries)
         return queries[:num_queries]
+    
+    def result_constrain(self) -> ResultConstrain:
+        """
+        result_constrain(self) -> ResultConstrain
+        | **Description**
+        |   See :func:`DataSource.result_constrain()`
+
+        :return: Constrains around results
+        :rtype: QueryResult
+        """
+        return ResultConstrain(count=len(self.optimal_queries), shape=self.optimal_queries[0].shape, ranges=self.oracles.query_constrain().ranges)
 
 @dataclass
 class FixedQuerySampler(QuerySampler):
@@ -111,6 +123,17 @@ class FixedQuerySampler(QuerySampler):
         
         queries = np.repeat(self.fixed_query[None, ...], num_queries, axis=0)
         return queries
+    
+    def result_constrain(self) -> ResultConstrain:
+        """
+        result_constrain(self) -> ResultConstrain
+        | **Description**
+        |   See :func:`DataSource.result_constrain()`
+
+        :return: Constrains around results
+        :rtype: QueryResult
+        """
+        return ResultConstrain(count=None, shape=self.fixed_query.shape, ranges=self.oracles.query_constrain().ranges)
     
 @dataclass
 class UniformQuerySampler(QuerySampler):

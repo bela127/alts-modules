@@ -7,6 +7,8 @@ from alts.core.query.selection_criteria import SelectionCriteria
 import numpy as np
 from typing import TYPE_CHECKING
 
+from alts.core.data.constrains import ResultConstrain
+
 if TYPE_CHECKING:
     from typing import Optional, Tuple
     from nptyping import NDArray, Number, Shape
