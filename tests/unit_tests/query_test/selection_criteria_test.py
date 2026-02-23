@@ -32,6 +32,6 @@ shape_values = [(1,), (1,1), (2,2), (5,3,2), (2,3,4,1)]
 def test_general(sc: type[SelectionCriteria], query_shape: tuple):
     bp = tm.TestBlueprint(process=DataSourceProcess(data_source=RandomUniformDataSource(query_shape=query_shape)),
                           experiment_modules=InitQueryExperimentModules(initial_query_sampler=UniformQuerySampler(num_queries=10), query_selector=ResultQuerySelector(query_optimizer=NoQueryOptimizer(query_sampler=UniformQuerySampler(), selection_criteria=sc), query_decider=AllQueryDecider())),
-                          evaluators=(tm.ConstrainEvaluator(func_path="experiment_modules.query_selector.query_optimizer.select", q_index=0, r_index=0),))
+                          evaluators=(tm.ConstraintEvaluator(func_path="experiment_modules.query_selector.query_optimizer.select", q_index=0, r_index=0),))
     er = ExperimentRunner([bp])
     er.run_experiment(bp)

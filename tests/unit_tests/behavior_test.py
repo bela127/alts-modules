@@ -47,7 +47,7 @@ stop_times = [100,500,600,1000]
 def test_basic(be: type[DataBehavior], change_interval, lower_value, upper_value, start_time, stop_time, result_shape):
     pytest.skip("Fix me")
     bp = tm.TestBlueprint(process=DataSourceProcess(data_source=TimeBehaviorDataSource(result_shape=result_shape, behavior=be(change_interval=change_interval, lower_value=lower_value, upper_value=upper_value, start_time=start_time, stop_time=stop_time))),
-                               evaluators=(tm.ConstrainEvaluator(func_path="process.data_source.behavior", q_index=slice(None,None,None), r_index=1),))
+                               evaluators=(tm.ConstraintEvaluator(func_path="process.data_source.behavior", q_index=slice(None,None,None), r_index=1),))
     er = ExperimentRunner([bp])
     er.run_experiment(bp)
 

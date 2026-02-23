@@ -100,7 +100,7 @@ class ConstraintEvaluator(Evaluator):
         :type experiment: Experiment
         """
         if self.func_path is None:
-            raise ValueError("ConstrainEvaluator: No target function is given")
+            raise ValueError("ConstraintEvaluator: No target function is given")
         super().register(experiment)
 
         loc_func_path = self.func_path.split(".")

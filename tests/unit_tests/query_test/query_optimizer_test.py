@@ -37,7 +37,7 @@ shape_values = [(1,), (1,1), (2,2), (5,3,2), (2,3,4,1)]
 def test_basic(qo: type[QueryOptimizer], query_shape: tuple):
     bp = tm.TestBlueprint(process=DataSourceProcess(data_source=RandomUniformDataSource(query_shape=query_shape)),
                           experiment_modules=InitQueryExperimentModules(initial_query_sampler=UniformQuerySampler(num_queries=10), query_selector=ResultQuerySelector(query_optimizer=qo(query_sampler=UniformQuerySampler(), selection_criteria=AllSelectionCriteria()), query_decider=AllQueryDecider())),
-                          evaluators=(tm.ConstrainEvaluator(func_path="experiment_modules.query_selector.query_optimizer.select", r_index=0),))
+                          evaluators=(tm.ConstraintEvaluator(func_path="experiment_modules.query_selector.query_optimizer.select", r_index=0),))
     er = ExperimentRunner([bp])
     er.run_experiment(bp)
 
@@ -54,7 +54,7 @@ def test_GAQueryOptimizer(query_shape: tuple):
     pytest.skip("Fix GAQueryOptimizer")
     bp = tm.TestBlueprint(process=DataSourceProcess(data_source=RandomUniformDataSource(query_shape=query_shape)),
                           experiment_modules=InitQueryExperimentModules(initial_query_sampler=UniformQuerySampler(num_queries=10), query_selector=ResultQuerySelector(query_optimizer=qos.GAQueryOptimizer(selection_criteria=AllSelectionCriteria()), query_decider=AllQueryDecider())),
-                          evaluators=(tm.ConstrainEvaluator(func_path="experiment_modules.query_selector.query_optimizer.select", r_index=0),))
+                          evaluators=(tm.ConstraintEvaluator(func_path="experiment_modules.query_selector.query_optimizer.select", r_index=0),))
     er = ExperimentRunner([bp])
     er.run_experiment(bp)
 

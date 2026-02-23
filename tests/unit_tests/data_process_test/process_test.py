@@ -35,7 +35,7 @@ simple_processes = np.setdiff1d(processes, special_processes, assume_unique=True
 @pytest.mark.parametrize("pr", simple_processes)
 def test_basic(pr: type[Process], query_shape: tuple):
     bp = tm.TestBlueprint(process=pr(),
-                               evaluators=(tm.ConstrainEvaluator(func_path="experiment_modules.query_selector.query_decider.decide", q_index=slice(None,None,None), r_index=1),))
+                               evaluators=(tm.ConstraintEvaluator(func_path="experiment_modules.query_selector.query_decider.decide", q_index=slice(None,None,None), r_index=1),))
     er = ExperimentRunner([bp])
     er.run_experiment(bp)
 

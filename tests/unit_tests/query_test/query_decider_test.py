@@ -35,7 +35,7 @@ k_values = [1,3,10,100]
 def test_topK(k: int, query_shape: tuple):
     bp = tm.TestBlueprint(process=DataSourceProcess(data_source=RandomUniformDataSource(query_shape=query_shape)),
                                experiment_modules=InitQueryExperimentModules(initial_query_sampler=UniformQuerySampler(num_queries=10), query_selector=ResultQuerySelector(query_optimizer=NoQueryOptimizer(query_sampler=UniformQuerySampler()), query_decider=qdm.TopKQueryDecider(k))),
-                               evaluators=(tm.ConstrainEvaluator(func_path="experiment_modules.query_selector.query_decider.decide", q_index=slice(None,None,None), r_index=1),))
+                               evaluators=(tm.ConstraintEvaluator(func_path="experiment_modules.query_selector.query_decider.decide", q_index=slice(None,None,None), r_index=1),))
     er = ExperimentRunner([bp])
     er.run_experiment(bp)
 
@@ -45,7 +45,7 @@ t_values = [-0.5,0,0.5,1,10]
 def test_threshold(t: int, query_shape: tuple):
     bp = tm.TestBlueprint(process=DataSourceProcess(data_source=RandomUniformDataSource(query_shape=query_shape)),
                                experiment_modules=InitQueryExperimentModules(initial_query_sampler=UniformQuerySampler(num_queries=10), query_selector=ResultQuerySelector(query_optimizer=NoQueryOptimizer(query_sampler=UniformQuerySampler()), query_decider=qdm.ThresholdQueryDecider(t))),
-                               evaluators=(tm.ConstrainEvaluator(func_path="experiment_modules.query_selector.query_decider.decide", q_index=slice(None,None,None), r_index=1),))
+                               evaluators=(tm.ConstraintEvaluator(func_path="experiment_modules.query_selector.query_decider.decide", q_index=slice(None,None,None), r_index=1),))
     er = ExperimentRunner([bp])
     er.run_experiment(bp)
 
@@ -55,7 +55,7 @@ def test_threshold(t: int, query_shape: tuple):
 def test_basic(qd: type[QueryDecider], query_shape: tuple):
     bp = tm.TestBlueprint(process=DataSourceProcess(data_source=RandomUniformDataSource(query_shape=query_shape)),
                                experiment_modules=InitQueryExperimentModules(initial_query_sampler=UniformQuerySampler(num_queries=10), query_selector=ResultQuerySelector(query_optimizer=NoQueryOptimizer(query_sampler=UniformQuerySampler()), query_decider=qd())),
-                               evaluators=(tm.ConstrainEvaluator(func_path="experiment_modules.query_selector.query_decider.decide", q_index=slice(None,None,None), r_index=1),))
+                               evaluators=(tm.ConstraintEvaluator(func_path="experiment_modules.query_selector.query_decider.decide", q_index=slice(None,None,None), r_index=1),))
     er = ExperimentRunner([bp])
     er.run_experiment(bp)
 
