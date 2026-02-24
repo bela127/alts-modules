@@ -1,4 +1,4 @@
 import pytest
 
 def test():
-    pytest.skip("WIP")
+    pytest.xfail("WIP")

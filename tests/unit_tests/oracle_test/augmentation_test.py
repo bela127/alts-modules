@@ -21,7 +21,7 @@ def test_constrains(a: type[Augmentation]):
     |   Checks if the Augmentation stays within its constraints.
     """
     if a == am.NoiseAugmentation:
-        pytest.skip("Missing Constraints")
+        pytest.xfail("Missing Constraints")
     else:
         raise ValueError(f"Augmentation not found: {a}")
     
