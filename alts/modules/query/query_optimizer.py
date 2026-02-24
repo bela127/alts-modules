@@ -70,7 +70,6 @@ class GAQueryOptimizer(QueryOptimizer):
     | **Description**
     |   The Genetic Algortihm Query Optimizer tries to maximize the query scores through Differential Evolution
     """
-
     def select(self):
         """
         select(self) -> queries, scores
@@ -94,8 +93,8 @@ class GAQueryOptimizer(QueryOptimizer):
             queries = x[:,None]
             queries, scores = self.selection_criteria.query(queries)
             return scores[0]
-        res = differential_evolution(opt_func, bounds=np.repeat(self.oracles.query_constrain().ranges, 2, axis=0)) # type: ignore
-        queries = res.x[:,None]
+        res = differential_evolution(opt_func, bounds=np.reshape(self.oracles.query_constrain().ranges, (-1,2))) # type: ignore
+        queries = res.x[:,None].reshape((-1, *self.oracles.query_constrain().shape))
         queries, scores = self.selection_criteria.query(queries)
         
         return queries, scores
