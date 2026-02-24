@@ -122,20 +122,20 @@ class ConstraintEvaluator(Evaluator):
                 if isinstance(self.q_index, slice) and self.q_index.start == self.q_index.step == self.q_index.stop == None:
                     if not obj_qc.constrains_met(args[0]):
                         print("Experiment."+".".join(loc_func_path)+f": Expected Query Shape {obj_qc.shape} and got {args[0].shape}")
-                        pytest.fail(f"Experiment.{'.'.join(loc_func_path)}: Input Queries outside constraints: {args[0].shape} -> {obj_qc.shape}, Constraints: {obj_qc.count}:{obj_qc.matches_count(args[0])}, {obj_qc.shape}:{obj_qc.matches_shape(args[0])}, ranges:{obj_qc.matches_ranges(args[0])}")
+                        pytest.fail(f"Experiment.{'.'.join(loc_func_path)}: Input Queries outside constraints: {args[0].shape} -> {obj_qc.shape}, Constraints: {obj_qc.count}:{obj_qc.matches_count(args[0])}, {obj_qc.shape}:{obj_qc.matches_shape(args[0])}, ranges:{obj_qc.matches_ranges(args[0]) if obj_qc.matches_shape(args[0]) else False}")
                 if self.q_index is not None:
                     if not obj_qc.constrains_met(args[0][self.q_index]):
                         print("Experiment."+".".join(loc_func_path)+f": Expected Query Shape {obj_qc.shape} and got {args[0][self.q_index].shape}")
-                        pytest.fail(f"Experiment.{'.'.join(loc_func_path)}: Input Queries outside constraints: {args[0][self.q_index].shape} -> {obj_qc.shape}, Constraints: {obj_qc.count}:{obj_qc.matches_count(args[0][self.q_index])}, {obj_qc.shape}:{obj_qc.matches_shape(args[0][self.q_index])}, ranges:{obj_qc.matches_ranges(args[0][self.q_index])}")
+                        pytest.fail(f"Experiment.{'.'.join(loc_func_path)}: Input Queries outside constraints: {args[0][self.q_index].shape} -> {obj_qc.shape}, Constraints: {obj_qc.count}:{obj_qc.matches_count(args[0][self.q_index])}, {obj_qc.shape}:{obj_qc.matches_shape(args[0][self.q_index])}, ranges:{obj_qc.matches_ranges(args[0][self.q_index]) if obj_qc.matches_shape(args[0][self.q_index]) else False}")
                 else:
                     print("Experiment."+".".join(loc_func_path)+f": No Queries expected, passed")
                     pass
 
             if obj_rc is not None:
                 if isinstance(self.r_index, slice) and self.r_index.start == self.r_index.step == self.r_index.stop == None:
-                    assert obj_rc.constrains_met(results[self.r_index]), f"Experiment.{'.'.join(loc_func_path)}: Output Results outside constraints: {len(results)}, {results.shape}, Constraints: {obj_rc.count}{obj_rc.matches_count(results)}, {obj_rc.shape}{obj_rc.matches_shape(results)}, ranges:{obj_rc.matches_ranges(results)}"
+                    assert obj_rc.constrains_met(results[self.r_index]), f"Experiment.{'.'.join(loc_func_path)}: Output Results outside constraints: {len(results)}, {results.shape}, Constraints: {obj_rc.count}{obj_rc.matches_count(results)}, {obj_rc.shape}{obj_rc.matches_shape(results)}, ranges:{obj_rc.matches_ranges(results) if obj_rc.matches_shape(results) else False}"
                 if self.r_index is not None:
-                    assert obj_rc.constrains_met(results[self.r_index]), f"Experiment.{'.'.join(loc_func_path)}: Output Results outside constraints: {len(results[self.r_index])}, {results[self.r_index].shape}, Constraints: {obj_rc.count}:{obj_rc.matches_count(results[self.r_index])}, {obj_rc.shape}:{obj_rc.matches_shape(results[self.r_index])}, ranges:{obj_rc.matches_ranges(results[self.r_index])}"
+                    assert obj_rc.constrains_met(results[self.r_index]), f"Experiment.{'.'.join(loc_func_path)}: Output Results outside constraints: {len(results[self.r_index])}, {results[self.r_index].shape}, Constraints: {obj_rc.count}:{obj_rc.matches_count(results[self.r_index])}, {obj_rc.shape}:{obj_rc.matches_shape(results[self.r_index])}, ranges:{obj_rc.matches_ranges(results[self.r_index]) if obj_rc.matches_shape(results[self.r_index]) else False}"
                 else:
                     print("Experiment."+".".join(loc_func_path)+f": No Results expected, passed")
                     pass
