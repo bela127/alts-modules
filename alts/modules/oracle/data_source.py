@@ -42,15 +42,19 @@ class RandomUniformDataSource(DataSource):
     :type query_shape: tuple of ints
     :param result_shape: The expected shape of the results (default= (1,))
     :type result_shape: tuple of ints
-    :param u: The upper bound of query values (exclusive) (default= 1)
+    :param u: The upper bound of result values (exclusive) (default= 1)
     :type u: float
-    :param l: The lower bound of query values (inclusive), (default= 0)
+    :param l: The lower bound of result values (inclusive), (default= 0)
     :type l: float
     """
     query_shape: Tuple[int,...] = init(default=(1,))
     result_shape: Tuple[int,...] = init(default=(1,))
     u: float = init(default=1)
     l: float = init(default=0)
+
+    def post_init(self):
+        if self.u <= self.l:
+            raise ValueError("Upper bound u has to be greater than lower bound l")
 
     def query(self, queries):
         """
@@ -134,7 +138,6 @@ class LineDataSource(DataSource):
         :return: Processed Query, Result 
         :rtype: A tuple of two `NDArray <https://numpy.org/doc/stable/reference/arrays.ndarray.html>`_  
         """
-         
         results = np.dot(queries, np.ones((*self.query_shape,*self.result_shape))*self.a) + np.ones(self.result_shape)*self.b
         return queries, results
 
@@ -153,7 +156,7 @@ class LineDataSource(DataSource):
         """
         x_min = 0
         x_max = 1
-        query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
+        query_ranges = np.reshape(np.asarray(tuple((x_min, x_max) for i in range(np.prod(self.query_shape)))), (*self.query_shape, 2))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
     
     def result_constrain(self) -> ResultConstrain:
@@ -177,7 +180,7 @@ class LineDataSource(DataSource):
         """
         y_min = self.a + self.b if self.a < 0 else self.b
         y_max = self.b if self.a <= 0 else self.a + self.b
-        result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
+        result_ranges = np.reshape(np.asarray(tuple((y_min, y_max) for i in range(np.prod(self.result_shape)))), (*self.result_shape, 2))
         return ResultConstrain(shape=self.result_shape, ranges=result_ranges)
 
 @dataclass
