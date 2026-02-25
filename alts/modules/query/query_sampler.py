@@ -237,7 +237,7 @@ class RandomChoiceQuerySampler(QuerySampler):
         if num_queries is None: num_queries = self.num_queries
         
         if self.oracles.query_constrain().count is None:
-            raise ValueError("Not for continues pools")
+            raise ValueError("Not for continuous pools")
         else:
             count = self.oracles.query_constrain().count
             if count == 0:
@@ -360,7 +360,6 @@ class DataPoolQuerySampler(QuerySampler):
 
 @dataclass
 class AllDataPoolQuerySampler(DataPoolQuerySampler):
-    #TODO Should pool() be abstract here?
     """
     AllDataPoolQuerySampler(num_queries)
     | **Description**
