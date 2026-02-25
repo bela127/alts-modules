@@ -276,7 +276,7 @@ class PlotAllDataPointsEvaluator(LogingEvaluator):
         self.experiment.run = Evaluate(self.experiment.run)
         self.experiment.run.post(self.log_data)
     
-    def log_data(self):
+    def log_data(self, exp_nr):
         """
         log_data(self) -> None
         | **Description**
@@ -441,7 +441,7 @@ class LogOracleEvaluator(LogingEvaluator):
         else:
             self.queries = np.concatenate((self.queries, queries))
     
-    def log_data(self):
+    def log_data(self, exp_nr):
         """
         log_data(self) -> None
         | **Description**
@@ -620,7 +620,7 @@ class LogResultEvaluator(LogingEvaluator):
         else:
             self.results = np.concatenate((self.results, combined_data))
     
-    def log_data(self):
+    def log_data(self, exp_nr):
         """
         log_data(self) -> None
         | **Description**
