@@ -41,14 +41,6 @@ def test_basic(qo: type[QueryOptimizer], query_shape: tuple):
     er = ExperimentRunner([bp])
     er.run_experiment(bp)
 
-special_assginments = {
-    qos.MCQueryOptimizer: "abstract",
-    qos.ProbWeightedMCQueryOptimizer: "probabilistic",
-    qos.GAQueryOptimizer: "test_GAQueryOptimizer"
-}
-
-
-
 @pytest.mark.parametrize("query_shape", shape_values)
 def test_GAQueryOptimizer(query_shape: tuple):
     bp = tm.TestBlueprint(process=DataSourceProcess(data_source=RandomUniformDataSource(query_shape=query_shape)),
@@ -57,13 +49,19 @@ def test_GAQueryOptimizer(query_shape: tuple):
     er = ExperimentRunner([bp])
     er.run_experiment(bp)
 
+special_assginments = {
+    qos.MCQueryOptimizer: "abstract",
+    qos.ProbWeightedMCQueryOptimizer: "probabilistic",
+    qos.GAQueryOptimizer: test_GAQueryOptimizer
+}
+
 @pytest.mark.parametrize("special_query_optimizer", special_query_optimizers)
 def test_special(special_query_optimizer: type[QueryOptimizer]):
     if (special_query_optimizer not in special_assginments):
         pytest.xfail(f"Special declared QueryOptimizer {special_query_optimizer.__name__} not tested")
-    if special_assginments[special_query_optimizer] is None:
+    elif special_assginments[special_query_optimizer] is None:
         pytest.xfail(f"Not yet implemented: {special_query_optimizer.__name__}")
     elif special_assginments[special_query_optimizer] == "abstract":
-        assert True
+        pytest.skip(f"Abstract: {special_query_optimizer.__name__}")
     elif special_assginments[special_query_optimizer] == "probabilistic":
-        pytest.skip(f"Skipped (probabilistic): {special_query_optimizer.__name__}")
+        pytest.skip(f"Probabilistic: {special_query_optimizer.__name__}")

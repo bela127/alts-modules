@@ -18,12 +18,8 @@ import pytest
 | **Test aims**
 |   The data behavior modules are tested for:
 |   - Correct output dimensions with respect to paramters
-|   - Handling of nonsensical user parameters
 """
 
-behaviors = [
-    bem.RandomTimeBrownBehavior
-]
 behaviors = tm.query_for_members(bem, DataBehavior)
 special_behaviors = [
     
@@ -45,19 +41,23 @@ stop_times = [100,500,600,1000]
 @pytest.mark.parametrize("result_shape", shape_values)
 @pytest.mark.parametrize("be", simple_behaviors)
 def test_basic(be: type[DataBehavior], change_interval, lower_value, upper_value, start_time, stop_time, result_shape):
-    pytest.xfail("Fix me")
+    pytest.xfail("Fix QueriedDataPool")
     bp = tm.TestBlueprint(process=DataSourceProcess(data_source=TimeBehaviorDataSource(result_shape=result_shape, behavior=be(change_interval=change_interval, lower_value=lower_value, upper_value=upper_value, start_time=start_time, stop_time=stop_time))),
                                evaluators=(tm.ConstraintEvaluator(func_path="process.data_source.behavior", q_index=slice(None,None,None), r_index=1),))
     er = ExperimentRunner([bp])
     er.run_experiment(bp)
 
+
 special_assginments = {
 
 }
 
+
 @pytest.mark.parametrize("special_behavior", special_behaviors)
 def test_special(special_behavior: type[DataBehavior]):
     if (special_behavior not in special_assginments):
-        pytest.xfail(f"Special declared DataBehavior {special_behavior.__name__} not tested")
-    if special_assginments[special_behavior] is None:
+        pytest.xfail(f"Special declared Behavior {special_behavior.__name__} not tested")
+    elif special_assginments[special_behavior] is None:
         pytest.xfail(f"Not yet implemented: {special_behavior.__name__}")
+    elif special_assginments[special_behavior] == "abstract":
+        pytest.skip(f"Abstract: {special_behavior.__name__}")

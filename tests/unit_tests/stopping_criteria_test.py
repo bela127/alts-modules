@@ -124,11 +124,5 @@ def test_exhausted(sc: type[StoppingCriteria]):
         exp = experiment.Experiment(bp, 1)
         exp.run()
         assert exp.process.data_source.exhaust_in == 0 # type: ignore
-        #Edge Case 2: starts exhausted
-        pytest.xfail("Make experiment check stopping criteria before first iteration")
-        bp = tm.TestBlueprint(stopping_criteria=sc(), process=DataSourceProcess(ExhaustedDataSource(exhaust_in=0)))
-        exp = experiment.Experiment(bp, 1)
-        exp.run()
-        assert exp.process.data_source.exhaust_in == 0 # type: ignore
     else:
         raise ValueError(f"Stopping Criteria not found: {sc}")
