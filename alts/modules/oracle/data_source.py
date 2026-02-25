@@ -103,7 +103,7 @@ class RandomUniformDataSource(DataSource):
         """
         y_min = 0
         y_max = 1
-        result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
+        result_ranges = np.reshape(np.asarray(tuple((y_min, y_max) for i in range(np.prod(self.result_shape)))), (*self.result_shape, 2))
         return ResultConstrain(shape=self.result_shape, ranges=result_ranges)
 
 @dataclass
@@ -237,7 +237,7 @@ class SquareDataSource(DataSource):
         """
         x_min = 0
         x_max = 1
-        query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
+        query_ranges = np.reshape(np.asarray(tuple((x_min, x_max) for i in range(np.prod(self.query_shape)))), (*self.query_shape, 2))
         return QueryConstrain(count=None, shape=self.query_shape, ranges=query_ranges)
     
     def result_constrain(self) -> ResultConstrain:
@@ -267,7 +267,7 @@ class SquareDataSource(DataSource):
         """
         y_min = self.s*self.x0**2+self.y0 if self.s<0 else self.y0
         y_max = self.y0 if (self.s<0 and 0<=self.x0 and self.x0<1) else self.s*self.x0**2+self.y0 if (self.x0<0 and self.s<0 or self.s>=0 and self.x0>=0.5) else self.s*(1-self.x0)**2+self.y0
-        result_ranges = np.asarray(tuple((y_min, y_max) for i in range(self.result_shape[0])))
+        result_ranges = np.reshape(np.asarray(tuple((y_min, y_max) for i in range(np.prod(self.result_shape)))), (*self.result_shape, 2))
         return ResultConstrain(shape=self.result_shape, ranges=result_ranges)
 
 @dataclass
